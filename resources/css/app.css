@@ -1,1 +1,876 @@
 @import "tailwindcss";
+
+/* ============================================
+   SINFAS - Auth Pages Custom Styles
+   ============================================ */
+
+/* --- CSS Custom Properties --- */
+:root {
+    --sinfas-primary: #1D67F2;
+    --sinfas-primary-hover: #1554cc;
+    --sinfas-primary-active: #1244a8;
+    --sinfas-primary-light: rgba(29, 103, 242, 0.08);
+    --sinfas-dark: #1a1a2e;
+    --sinfas-dark-lighter: #16213e;
+    --sinfas-card-bg: #ffffff;
+    --sinfas-text: #1f2937;
+    --sinfas-text-muted: #6b7280;
+    --sinfas-border: #d1d5db;
+    --sinfas-border-focus: #1D67F2;
+    --sinfas-input-bg: #ffffff;
+    --sinfas-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --sinfas-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    --sinfas-radius: 12px;
+    --sinfas-radius-sm: 8px;
+    --sinfas-radius-input: 6px;
+    --sinfas-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --sinfas-font: 'Inter', system-ui, -apple-system, sans-serif;
+    --sinfas-font-brand: 'Poppins', 'Inter', system-ui, sans-serif;
+}
+
+/* --- Global Reset & Base --- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- Auth Body --- */
+.auth-body {
+    font-family: var(--sinfas-font);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--sinfas-dark);
+}
+
+/* --- Background --- */
+.auth-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.auth-bg-placeholder {
+    width: 100%;
+    height: 100%;
+    /* Gradient placeholder - ganti dengan gambar background nanti */
+    background: linear-gradient(135deg,
+        #0f0c29 0%,
+        #1a1a2e 25%,
+        #16213e 50%,
+        #0f3460 75%,
+        #1a1a2e 100%
+    );
+    background-size: 400% 400%;
+    animation: bgShift 15s ease infinite;
+}
+
+.auth-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@keyframes bgShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* --- Overlay --- */
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
+    pointer-events: none;
+}
+
+/* --- Main Container --- */
+.auth-main {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    margin: 0 auto;
+}
+
+/* --- Auth Card --- */
+.auth-card {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--sinfas-card-bg);
+    border-radius: var(--sinfas-radius);
+    padding: 2.5rem 2.5rem 2rem;
+    box-shadow: var(--sinfas-shadow);
+    animation: cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-card--register {
+    max-width: 520px;
+}
+
+.auth-card--login {
+    max-width: 480px;
+}
+
+@keyframes cardSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+
+/* --- Logo Section --- */
+.auth-logo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.auth-logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+
+.auth-logo-placeholder {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--sinfas-transition);
+}
+
+.auth-logo-placeholder:hover {
+    transform: scale(1.05);
+}
+
+.auth-logo-img {
+    height: 40px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.auth-brand {
+    font-family: var(--sinfas-font-brand);
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--sinfas-primary);
+    letter-spacing: 0.05em;
+    line-height: 1;
+}
+
+.auth-subtitle {
+    font-size: 0.8rem;
+    color: var(--sinfas-text-muted);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+/* --- Form --- */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+/* --- Form Group --- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--sinfas-text-muted);
+    letter-spacing: 0.01em;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+    font-family: var(--sinfas-font);
+    color: var(--sinfas-text);
+    background: var(--sinfas-input-bg);
+    border: 1px solid var(--sinfas-border);
+    border-radius: var(--sinfas-radius-input);
+    outline: none;
+    transition: var(--sinfas-transition);
+}
+
+.form-input:hover {
+    border-color: #9ca3af;
+}
+
+.form-input:focus {
+    border-color: #9ca3af;
+    box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.15);
+}
+
+.form-input::placeholder {
+    color: #c0c4cc;
+}
+
+/* --- Forgot Password --- */
+.form-forgot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.15rem;
+}
+
+/* --- Auth Button --- */
+.btn-auth {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    color: #ffffff;
+    background-color: var(--sinfas-primary);
+    border: none;
+    border-radius: var(--sinfas-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    letter-spacing: 0.02em;
+}
+
+.btn-auth:hover {
+    background-color: var(--sinfas-primary-hover);
+}
+
+.btn-auth:active {
+    background-color: var(--sinfas-primary-active);
+}
+
+/* --- Auth Links --- */
+.auth-link-text {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--sinfas-text-muted);
+    margin-top: 0.25rem;
+}
+
+.auth-link {
+    color: var(--sinfas-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--sinfas-transition);
+    position: relative;
+}
+
+.auth-link::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1.5px;
+    background: var(--sinfas-primary);
+    transition: width 0.3s ease;
+}
+
+.auth-link:hover {
+    color: var(--sinfas-primary-hover);
+}
+
+.auth-link:hover::after {
+    width: 100%;
+}
+
+/* --- Responsive --- */
+@media (max-width: 640px) {
+    .auth-card {
+        padding: 2rem 1.5rem 1.5rem;
+        margin: 0.5rem;
+        border-radius: var(--sinfas-radius-sm);
+    }
+
+    .auth-brand {
+        font-size: 1.5rem;
+    }
+
+    .auth-form {
+        gap: 0.9rem;
+    }
+
+    .form-input {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-auth {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .auth-card {
+        padding: 1.5rem 1.25rem 1.25rem;
+    }
+
+    .auth-brand {
+        font-size: 1.35rem;
+    }
+}
+
+/* ============================================
+   SINFAS - Dashboard / App Styles
+   ============================================ */
+
+/* --- App Body --- */
+.app-body {
+    font-family: var(--sinfas-font);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    color: var(--sinfas-text);
+}
+
+/* --- Navbar --- */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 56px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.navbar-logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.navbar-logo-img {
+    height: 32px;
+    width: auto;
+}
+
+.navbar-brand {
+    font-family: var(--sinfas-font-brand);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1D67F2;
+    letter-spacing: 0.03em;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.navbar-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navbar-icon-btn:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+/* --- App Main --- */
+.app-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* --- Dashboard Container --- */
+.dashboard-container {
+    width: 100%;
+}
+
+/* --- Search Section --- */
+.search-section {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-bar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0 0.85rem;
+    height: 44px;
+}
+
+.search-icon {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    font-family: var(--sinfas-font);
+    color: var(--sinfas-text);
+    background: transparent;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 1rem;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: var(--sinfas-font);
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    white-space: nowrap;
+}
+
+.filter-btn:hover {
+    background-color: #f9fafb;
+}
+
+/* --- Items Grid --- */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+/* --- Item Card --- */
+.item-card {
+    display: flex;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+}
+
+.item-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Item Image --- */
+.item-image {
+    width: 180px;
+    min-height: 160px;
+    flex-shrink: 0;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- Item Info --- */
+.item-info {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.item-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sinfas-text);
+    margin: 0;
+}
+
+.item-category {
+    font-size: 0.8rem;
+    color: var(--sinfas-text-muted);
+    margin: 0;
+}
+
+/* --- Status Badge --- */
+.item-status {
+    display: inline-block;
+    width: fit-content;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.item-status--available {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.item-status--unavailable {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- Request Loan Button --- */
+.btn-request {
+    display: inline-block;
+    width: fit-content;
+    padding: 0.45rem 1.1rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    color: #ffffff;
+    background-color: #1D67F2;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-request:hover {
+    background-color: #1554cc;
+}
+
+.btn-request:active {
+    background-color: #1244a8;
+}
+
+/* --- Dashboard Responsive --- */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .app-main {
+        padding: 1rem;
+    }
+
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .item-image {
+        width: 140px;
+        min-height: 130px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-section {
+        flex-direction: column;
+    }
+
+    .item-card {
+        flex-direction: column;
+    }
+
+    .item-image {
+        width: 100%;
+        min-height: 160px;
+    }
+
+    .item-info {
+        padding: 0.85rem 1rem;
+    }
+}
+
+/* ============================================
+   SINFAS - Admin Dashboard Styles
+   ============================================ */
+
+.admin-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    width: 100%;
+}
+
+/* --- Admin Stats Cards --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.1;
+}
+
+.stat-label {
+    font-size: 0.825rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* --- Admin Sections --- */
+.admin-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.admin-section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+/* --- Admin Table --- */
+.table-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.admin-table thead th {
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.825rem;
+}
+
+.admin-table tbody td {
+    padding: 0.95rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.cell-borrower {
+    font-weight: 500;
+    color: #111827;
+}
+
+.cell-item {
+    color: #374151;
+}
+
+.cell-date {
+    color: #4b5563;
+    font-variant-numeric: tabular-nums;
+}
+
+.cell-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* --- Action Buttons --- */
+.btn-action {
+    font-size: 0.775rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.btn-approve {
+    background-color: #059669;
+    color: #ffffff;
+    border-color: #059669;
+}
+
+.btn-approve:hover {
+    background-color: #047857;
+}
+
+.btn-approve:active {
+    background-color: #065f46;
+}
+
+.btn-reject {
+    background-color: #ffffff;
+    color: #dc2626;
+    border-color: #f87171;
+}
+
+.btn-reject:hover {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+}
+
+.btn-reject:active {
+    background-color: #fee2e2;
+}
+
+/* --- Bottom Admin Action Cards --- */
+.admin-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.admin-action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.admin-action-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.action-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.icon-bg-red {
+    background-color: #fee2e2;
+}
+
+.icon-bg-green {
+    background-color: #dcfce7;
+}
+
+.icon-bg-slate {
+    background-color: #f1f5f9;
+}
+
+.action-card-text {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* --- Admin Responsive --- */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 520px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
