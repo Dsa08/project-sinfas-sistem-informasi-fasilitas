@@ -1,40 +1,39 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-// Auth Routes
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
+// Auth Routes (Guest only)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+});
 
-// User Dashboard
+// Logout Route (Authenticated users)
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// User Dashboard (Siswa)
 Route::get('/dashboard', function () {
     return view('user.dashboard');
-})->name('dashboard');
+})->name('dashboard')->middleware('auth');
 
-// Admin Dashboard
+// Admin Dashboard (Admin Sarana / Admin Sistem)
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
-})->name('admin.dashboard');
+})->name('admin.dashboard')->middleware('auth');
 
 Route::get('/admin', function () {
     return redirect()->route('admin.dashboard');

@@ -11,8 +11,8 @@
             {{-- Contoh: <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="auth-logo-img"> --}}
             <div class="auth-logo-placeholder">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="40" height="40" rx="8" fill="#B91C1C" fill-opacity="0.1"/>
-                    <path d="M12 28V12h4l4 10 4-10h4v16h-3V17l-3.5 9h-3L15 17v11h-3z" fill="#B91C1C"/>
+                    <rect width="40" height="40" rx="8" fill="#1D67F2" fill-opacity="0.1"/>
+                    <path d="M12 28V12h4l4 10 4-10h4v16h-3V17l-3.5 9h-3L15 17v11h-3z" fill="#1D67F2"/>
                 </svg>
             </div>
             <h1 class="auth-brand">SINFAS</h1>
@@ -20,8 +20,19 @@
         <p class="auth-subtitle">Sistem Informasi Fasilitas</p>
     </div>
 
+    {{-- Error Alerts --}}
+    @if($errors->any())
+        <div class="auth-alert auth-alert--danger">
+            <ul class="auth-alert-list">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- Register Form --}}
-    <form action="#" method="POST" class="auth-form" id="register-form">
+    <form action="{{ route('register.post') }}" method="POST" class="auth-form" id="register-form">
         @csrf
 
         <div class="form-group">
@@ -30,8 +41,9 @@
                 type="text"
                 id="full_name"
                 name="full_name"
-                class="form-input"
+                class="form-input @error('full_name') form-input--error @enderror"
                 placeholder=""
+                value="{{ old('full_name') }}"
                 required
                 autocomplete="name"
             >
@@ -43,8 +55,9 @@
                 type="text"
                 id="nis_nip"
                 name="nis_nip"
-                class="form-input"
-                placeholder=""
+                class="form-input @error('nis_nip') form-input--error @enderror"
+                placeholder="Masukkan NIS (Siswa) atau NIP (Pegawai)"
+                value="{{ old('nis_nip') }}"
                 required
             >
         </div>
@@ -55,10 +68,25 @@
                 type="email"
                 id="email"
                 name="email"
-                class="form-input"
+                class="form-input @error('email') form-input--error @enderror"
                 placeholder=""
+                value="{{ old('email') }}"
                 required
                 autocomplete="email"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="username" class="form-label">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-input @error('username') form-input--error @enderror"
+                placeholder=""
+                value="{{ old('username') }}"
+                required
+                autocomplete="username"
             >
         </div>
 
@@ -68,9 +96,9 @@
                 type="tel"
                 id="contact_number"
                 name="contact_number"
-                class="form-input"
-                placeholder=""
-                required
+                class="form-input @error('contact_number') form-input--error @enderror"
+                placeholder="Contoh: 08123456789"
+                value="{{ old('contact_number') }}"
                 autocomplete="tel"
             >
         </div>
@@ -81,7 +109,7 @@
                 type="password"
                 id="password"
                 name="password"
-                class="form-input"
+                class="form-input @error('password') form-input--error @enderror"
                 placeholder=""
                 required
                 autocomplete="new-password"

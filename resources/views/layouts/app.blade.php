@@ -38,18 +38,80 @@
             </button>
 
             {{-- User Profile Icon --}}
-            <button class="navbar-icon-btn" id="profile-btn" title="Profil">
+            <button class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'User' }})">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
             </button>
+
+            {{-- Logout Button (triggers modal) --}}
+            <button type="button" class="navbar-icon-btn" id="logout-trigger-btn" title="Logout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </button>
+
+            {{-- Hidden Logout Form --}}
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
         </div>
     </nav>
+
+    {{-- Logout Confirmation Modal --}}
+    <div class="modal-overlay" id="logout-modal">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </div>
+            <h3 class="modal-title">Konfirmasi Logout</h3>
+            <p class="modal-message">Apakah Anda yakin ingin keluar dari SINFAS?</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn--cancel" id="logout-cancel-btn">Batal</button>
+                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Logout</button>
+            </div>
+        </div>
+    </div>
 
     {{-- Main Content --}}
     <main class="app-main">
         @yield('content')
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const triggerBtn = document.getElementById('logout-trigger-btn');
+            const modal = document.getElementById('logout-modal');
+            const cancelBtn = document.getElementById('logout-cancel-btn');
+            const confirmBtn = document.getElementById('logout-confirm-btn');
+            const logoutForm = document.getElementById('logout-form');
+
+            triggerBtn.addEventListener('click', function () {
+                modal.classList.add('modal-overlay--active');
+            });
+
+            cancelBtn.addEventListener('click', function () {
+                modal.classList.remove('modal-overlay--active');
+            });
+
+            confirmBtn.addEventListener('click', function () {
+                logoutForm.submit();
+            });
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.classList.remove('modal-overlay--active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
+

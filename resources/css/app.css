@@ -227,8 +227,47 @@
     box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.15);
 }
 
+.form-input--error {
+    border-color: #ef4444 !important;
+    background-color: #fff5f5;
+}
+
 .form-input::placeholder {
     color: #c0c4cc;
+}
+
+/* --- Auth Alerts --- */
+.auth-alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.auth-alert--success {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.auth-alert--danger {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.auth-alert-list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.auth-alert-list li {
+    margin-bottom: 0.2rem;
+}
+
+.auth-alert-list li:last-child {
+    margin-bottom: 0;
 }
 
 /* --- Forgot Password --- */
@@ -412,6 +451,100 @@
 .navbar-icon-btn:hover {
     background-color: #f3f4f6;
     color: #374151;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.modal-overlay--active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem 2.25rem;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay--active .modal-card {
+    transform: scale(1);
+}
+
+.modal-icon {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem;
+}
+
+.modal-message {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 0.55rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.modal-btn--cancel {
+    background: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.modal-btn--cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.modal-btn--confirm {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+.modal-btn--confirm:hover {
+    background: #dc2626;
 }
 
 /* --- App Main --- */
