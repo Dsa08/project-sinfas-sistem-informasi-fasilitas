@@ -15,7 +15,7 @@
 </head>
 <body class="app-body">
     {{-- Navbar --}}
-    <nav class="navbar" id="main-navbar">
+    <nav class="navbar" id="main-navbar" style="position: relative;">
         <div class="navbar-left">
             {{-- Logo Placeholder - Ganti dengan logo nanti --}}
             {{-- Contoh: <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="navbar-logo-img"> --}}
@@ -28,6 +28,13 @@
             <span class="navbar-brand">@yield('brand_name', 'SINFAS')</span>
         </div>
 
+        {{-- Navbar Center Title --}}
+        @hasSection('navbar_title')
+            <div class="navbar-center">
+                @yield('navbar_title')
+            </div>
+        @endif
+
         <div class="navbar-right">
             {{-- Notification Icon --}}
             <button class="navbar-icon-btn" id="notification-btn" title="Notifikasi">
@@ -38,12 +45,12 @@
             </button>
 
             {{-- User Profile Icon --}}
-            <button class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'User' }})">
+            <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'User' }})">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
-            </button>
+            </a>
 
             {{-- Logout Button (triggers modal) --}}
             <button type="button" class="navbar-icon-btn" id="logout-trigger-btn" title="Logout">
