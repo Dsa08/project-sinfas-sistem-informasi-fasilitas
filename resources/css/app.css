@@ -874,3 +874,281 @@
     }
 }
 
+/* ============================================
+   SINFAS - User Profile Page Styles
+   ============================================ */
+
+/* --- Navbar Title (center) --- */
+.navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--sinfas-font);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sinfas-text);
+    white-space: nowrap;
+}
+
+/* --- Profile Container --- */
+.profile-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+    width: 100%;
+}
+
+/* --- Profile Card --- */
+.profile-card {
+    width: 100%;
+    max-width: 680px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2.5rem 2.5rem 2rem;
+    animation: profileCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes profileCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Profile Avatar Section --- */
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--sinfas-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(29, 103, 242, 0.25);
+}
+
+.profile-avatar svg {
+    color: #ffffff;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-link {
+    font-size: 0.8rem;
+    color: var(--sinfas-primary);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.profile-avatar-link:hover {
+    color: var(--sinfas-primary-hover);
+    text-decoration: underline;
+}
+
+/* --- Profile Section --- */
+.profile-section {
+    margin-bottom: 1.75rem;
+}
+
+.profile-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--sinfas-text);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* --- Profile Form --- */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+/* --- Profile Form Group --- */
+.profile-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.profile-form-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--sinfas-text-muted);
+    letter-spacing: 0.01em;
+}
+
+.profile-form-input {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+    font-family: var(--sinfas-font);
+    color: var(--sinfas-text);
+    background: var(--sinfas-input-bg);
+    border: 1px solid var(--sinfas-border);
+    border-radius: var(--sinfas-radius-input);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-form-input:hover {
+    border-color: #9ca3af;
+}
+
+.profile-form-input:focus {
+    border-color: var(--sinfas-primary);
+    box-shadow: 0 0 0 2.5px rgba(29, 103, 242, 0.12);
+}
+
+.profile-form-input::placeholder {
+    color: #c0c4cc;
+}
+
+.profile-form-input[readonly] {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* --- Profile Form Actions --- */
+.profile-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.btn-profile-save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    color: #ffffff;
+    background-color: var(--sinfas-primary);
+    border: none;
+    border-radius: var(--sinfas-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    letter-spacing: 0.02em;
+}
+
+.btn-profile-save:hover {
+    background-color: var(--sinfas-primary-hover);
+}
+
+.btn-profile-save:active {
+    background-color: var(--sinfas-primary-active);
+    transform: scale(0.98);
+}
+
+/* --- Success / Error Messages --- */
+.profile-alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--sinfas-radius-input);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    animation: alertSlideIn 0.3s ease both;
+}
+
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-alert--success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.profile-alert--error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.profile-input-error {
+    font-size: 0.75rem;
+    color: #dc2626;
+    margin-top: 0.2rem;
+}
+
+/* --- Profile Responsive --- */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem 0.75rem;
+    }
+
+    .profile-card {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+
+    .navbar-center {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-card {
+        padding: 1.5rem 1.25rem 1.25rem;
+        border-radius: 10px;
+    }
+
+    .profile-avatar {
+        width: 64px;
+        height: 64px;
+    }
+
+    .profile-form-input {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-profile-save {
+        width: 100%;
+        padding: 0.7rem;
+    }
+
+    .profile-form-actions {
+        flex-direction: column;
+    }
+}
+

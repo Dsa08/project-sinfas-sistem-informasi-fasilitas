@@ -31,6 +31,11 @@ Route::get('/dashboard', function () {
     return view('user.dashboard');
 })->name('dashboard');
 
+// User Profile
+Route::get('/profile', function () {
+    return view('user.profile');
+})->name('profile');
+
 // Admin Dashboard
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
