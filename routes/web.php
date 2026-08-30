@@ -38,12 +38,30 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
-    // Admin Dashboard (Admin Sarana / Admin Sistem)
+    // Admin Dashboard (Admin Sarana)
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    // Admin Sistem Routes
+    Route::get('/admin-sistem/dashboard', function () {
+        return view('admin.system.dashboard');
+    })->name('admin.sistem.dashboard');
+
+    Route::get('/admin-sistem/accounts', function () {
+        return view('admin.system.accounts');
+    })->name('admin.sistem.accounts');
+
+    Route::get('/admin-sistem/settings', function () {
+        return view('admin.system.settings');
+    })->name('admin.sistem.settings');
 });
 
 Route::get('/admin', function () {
     return redirect()->route('admin.dashboard');
 });
+
+Route::get('/admin-sistem', function () {
+    return redirect()->route('admin.sistem.dashboard');
+});
+
