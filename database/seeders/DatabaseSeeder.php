@@ -93,5 +93,19 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password123'),
             ]
         );
+
+        // Akun Khusus Admin Sistem (Bisa login dengan username 'adminsistem' atau 'admin_sistem', password: 'password123')
+        Akun::updateOrCreate(
+            ['username' => 'adminsistem'],
+            [
+                'nis' => null,
+                'nip' => null,
+                'nama' => 'Admin Sistem',
+                'nomor_kontak' => '081299001122',
+                'role' => 'admin_sistem',
+                'password' => Hash::make('password123'),
+            ]
+        );
     }
 }
+
