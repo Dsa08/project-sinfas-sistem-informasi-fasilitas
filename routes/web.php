@@ -38,10 +38,19 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
-    // Admin Dashboard (Admin Sarana)
+    // Admin Sarana Routes
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    Route::get('/admin/items', function () {
+        return view('admin.items');
+    })->name('admin.items');
+
+    Route::get('/admin/verifications', function () {
+        return view('admin.verifications');
+    })->name('admin.verifications');
+
 
     // Admin Sistem Routes
     Route::get('/admin-sistem/dashboard', function () {
