@@ -2049,3 +2049,245 @@
     }
 }
 
+/* ============================================
+   SINFAS - Admin Sarana Styles
+   ============================================ */
+
+.sarana-dashboard-container,
+.sarana-items-container,
+.sarana-verifications-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sarana-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+
+.sarana-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.sarana-section-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.sarana-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.sarana-action-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.sarana-action-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.sarana-action-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sarana-action-text {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* --- Status Badges & Item Actions --- */
+.sarana-status-badge {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.sarana-status-badge--available {
+    color: #166534;
+}
+
+.sarana-status-badge--unavailable {
+    color: #9ca3af;
+}
+
+.td-category,
+.td-condition,
+.td-stock,
+.td-location {
+    color: #4b5563;
+}
+
+.td-condition--damaged {
+    color: #b91c1c;
+}
+
+.btn-item-action {
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: inherit;
+    padding: 0.32rem 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-item-edit {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+}
+
+.btn-item-edit:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+.btn-item-delete {
+    border: 1px solid #f87171;
+    background-color: #ffffff;
+    color: #ef4444;
+}
+
+.btn-item-delete:hover {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+}
+
+/* --- Tab Switcher (Verifikasi) --- */
+.sarana-tab-bar {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.sarana-tab-btn {
+    padding: 0.65rem 1.6rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #e5e7eb;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sarana-tab-btn:hover:not(.sarana-tab-btn--active) {
+    background-color: #d1d5db;
+    color: #1f2937;
+}
+
+.sarana-tab-btn--active {
+    background-color: #cbd5e1 !important;
+    color: #1e293b !important;
+    font-weight: 600;
+}
+
+.sarana-tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.sarana-tab-content--active {
+    display: flex;
+}
+
+.btn-evidence {
+    background: none;
+    border: none;
+    color: #1e293b;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.btn-evidence:hover {
+    background-color: #f1f5f9;
+    color: #1D67F2;
+}
+
+.sarana-select-condition {
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.82rem;
+    font-family: inherit;
+    background: #ffffff;
+    color: #374151;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.sarana-select-condition:focus {
+    border-color: #1D67F2;
+}
+
+.btn-confirm-return {
+    border: none;
+    background-color: #cbd5e1;
+    color: #334155;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-confirm-return:hover {
+    background-color: #94a3b8;
+    color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+    .sarana-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sarana-actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .sarana-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
