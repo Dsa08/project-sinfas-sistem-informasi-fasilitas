@@ -28,42 +28,47 @@ Route::middleware('auth')->group(function () {
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // User Dashboard (Siswa)
-    Route::get('/dashboard', function () {
-        return view('user.dashboard');
-    })->name('dashboard');
-
-    // User Profile Routes
+    // General Profile Routes (Bisa diakses seluruh user yang login)
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
+    // Siswa Routes
+    Route::middleware('role:siswa')->group(function () {
+        Route::get('/dashboard', function () {
+            return view('user.dashboard');
+        })->name('dashboard');
+    });
+
     // Admin Sarana Routes
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::middleware('role:admin_sarana')->group(function () {
+        Route::get('/admin/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('admin.dashboard');
 
-    Route::get('/admin/items', function () {
-        return view('admin.items');
-    })->name('admin.items');
+        Route::get('/admin/items', function () {
+            return view('admin.items');
+        })->name('admin.items');
 
-    Route::get('/admin/verifications', function () {
-        return view('admin.verifications');
-    })->name('admin.verifications');
-
+        Route::get('/admin/verifications', function () {
+            return view('admin.verifications');
+        })->name('admin.verifications');
+    });
 
     // Admin Sistem Routes
-    Route::get('/admin-sistem/dashboard', function () {
-        return view('admin.system.dashboard');
-    })->name('admin.sistem.dashboard');
+    Route::middleware('role:admin_sistem')->group(function () {
+        Route::get('/admin-sistem/dashboard', function () {
+            return view('admin.system.dashboard');
+        })->name('admin.sistem.dashboard');
 
-    Route::get('/admin-sistem/accounts', function () {
-        return view('admin.system.accounts');
-    })->name('admin.sistem.accounts');
+        Route::get('/admin-sistem/accounts', function () {
+            return view('admin.system.accounts');
+        })->name('admin.sistem.accounts');
 
-    Route::get('/admin-sistem/settings', function () {
-        return view('admin.system.settings');
-    })->name('admin.sistem.settings');
+        Route::get('/admin-sistem/settings', function () {
+            return view('admin.system.settings');
+        })->name('admin.sistem.settings');
+    });
 });
 
 Route::get('/admin', function () {
@@ -73,4 +78,5 @@ Route::get('/admin', function () {
 Route::get('/admin-sistem', function () {
     return redirect()->route('admin.sistem.dashboard');
 });
+
 

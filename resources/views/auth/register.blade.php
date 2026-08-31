@@ -110,7 +110,7 @@
                 id="password"
                 name="password"
                 class="form-input @error('password') form-input--error @enderror"
-                placeholder=""
+                placeholder="Minimal 8 karakter (huruf & angka)"
                 required
                 autocomplete="new-password"
             >
