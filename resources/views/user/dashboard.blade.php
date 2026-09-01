@@ -35,79 +35,52 @@
         {{-- Item Card 1: Projector Epson X300 --}}
         <div class="item-card" id="item-1">
             <div class="item-image">
-                {{-- Placeholder gambar item - ganti dengan gambar asli nanti --}}
-                {{-- Contoh: <img src="{{ asset('assets/items/projector.jpg') }}" alt="Projector Epson X300"> --}}
-                <div class="item-image-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="7" width="20" height="10" rx="2"/>
-                        <circle cx="12" cy="12" r="3"/>
-                        <line x1="22" y1="12" x2="24" y2="12"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="Projector Epson X300">
             </div>
             <div class="item-info">
                 <h3 class="item-name">Projector Epson X300</h3>
-                <p class="item-category">Category: Equipment</p>
+                <p class="item-category">Category: Electronics / Projector</p>
                 <span class="item-status item-status--available">Available</span>
-                <button class="btn-request" id="request-btn-1">Request Loan</button>
+                <a href="{{ route('loan.request', 1) }}" class="btn-request" id="request-btn-1" style="text-decoration: none; text-align: center;">Request Loan</a>
             </div>
         </div>
 
         {{-- Item Card 2: Portable Speaker JBL --}}
         <div class="item-card" id="item-2">
             <div class="item-image">
-                <div class="item-image-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="4" y="2" width="16" height="20" rx="4"/>
-                        <circle cx="12" cy="14" r="4"/>
-                        <circle cx="12" cy="6" r="1"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="Portable Speaker JBL">
             </div>
             <div class="item-info">
                 <h3 class="item-name">Portable Speaker JBL</h3>
-                <p class="item-category">Category: Speaker</p>
+                <p class="item-category">Category: Audio / Speaker</p>
                 <span class="item-status item-status--available">Available</span>
-                <button class="btn-request" id="request-btn-2">Request Loan</button>
+                <a href="{{ route('loan.request', 2) }}" class="btn-request" id="request-btn-2" style="text-decoration: none; text-align: center;">Request Loan</a>
             </div>
         </div>
 
         {{-- Item Card 3: Folding Table 180cm --}}
         <div class="item-card" id="item-3">
             <div class="item-image">
-                <div class="item-image-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="8" width="20" height="3" rx="1"/>
-                        <line x1="5" y1="11" x2="4" y2="20"/>
-                        <line x1="19" y1="11" x2="20" y2="20"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="Folding Table 180cm">
             </div>
             <div class="item-info">
                 <h3 class="item-name">Folding Table 180cm</h3>
-                <p class="item-category">Category: Equipment</p>
+                <p class="item-category">Category: Furniture / Table</p>
                 <span class="item-status item-status--unavailable">Unavailable</span>
-                <button class="btn-request" id="request-btn-3">Request Loan</button>
+                <button class="btn-request" id="request-btn-3" disabled style="opacity: 0.5; cursor: not-allowed;">Request Loan</button>
             </div>
         </div>
 
         {{-- Item Card 4: Whiteboard 120cm --}}
         <div class="item-card" id="item-4">
             <div class="item-image">
-                <div class="item-image-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="14" rx="2"/>
-                        <line x1="9" y1="17" x2="9" y2="21"/>
-                        <line x1="15" y1="17" x2="15" y2="21"/>
-                        <line x1="6" y1="21" x2="18" y2="21"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="Whiteboard 120cm">
             </div>
             <div class="item-info">
                 <h3 class="item-name">Whiteboard 120cm</h3>
-                <p class="item-category">Category: Equipment</p>
+                <p class="item-category">Category: Equipment / Board</p>
                 <span class="item-status item-status--available">Available</span>
-                <button class="btn-request" id="request-btn-4">Request Loan</button>
+                <a href="{{ route('loan.request', 4) }}" class="btn-request" id="request-btn-4" style="text-decoration: none; text-align: center;">Request Loan</a>
             </div>
         </div>
 

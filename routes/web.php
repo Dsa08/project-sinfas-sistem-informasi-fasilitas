@@ -33,6 +33,48 @@ Route::middleware('auth')->group(function () {
         return view('user.dashboard');
     })->name('dashboard');
 
+    // Loan Request Route
+    Route::get('/loan-request/{id?}', function ($id = 1) {
+        $items = [
+            1 => [
+                'id' => 1,
+                'name' => 'Projector Epson X300',
+                'category' => 'Electronics / Projector',
+                'condition' => 'Good',
+                'status' => 'Available',
+                'image' => 'assets/pictures/projector_sample.jpg',
+            ],
+            2 => [
+                'id' => 2,
+                'name' => 'Portable Speaker JBL',
+                'category' => 'Audio / Speaker',
+                'condition' => 'Good',
+                'status' => 'Available',
+                'image' => 'assets/pictures/projector_sample.jpg',
+            ],
+            3 => [
+                'id' => 3,
+                'name' => 'Folding Table 180cm',
+                'category' => 'Furniture / Table',
+                'condition' => 'Good',
+                'status' => 'Available',
+                'image' => 'assets/pictures/projector_sample.jpg',
+            ],
+            4 => [
+                'id' => 4,
+                'name' => 'Whiteboard 120cm',
+                'category' => 'Equipment / Board',
+                'condition' => 'Good',
+                'status' => 'Available',
+                'image' => 'assets/pictures/projector_sample.jpg',
+            ],
+        ];
+
+        $item = $items[$id] ?? $items[1];
+
+        return view('user.loan-request', compact('item'));
+    })->name('loan.request');
+
     // User Profile Routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

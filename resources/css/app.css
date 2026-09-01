@@ -2290,4 +2290,228 @@
     }
 }
 
+/* ============================================
+   SINFAS - User Loan Request Page Styles
+   ============================================ */
+.loan-page-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0.5rem 0 2rem;
+}
+
+.loan-nav-bar {
+    margin-bottom: 1.5rem;
+}
+
+.loan-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4b5563;
+    text-decoration: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.loan-back-link:hover {
+    color: #1D67F2;
+    transform: translateX(-2px);
+}
+
+.loan-content-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+/* --- Left Column: Item Display --- */
+.loan-item-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.loan-image-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.loan-product-image {
+    width: 100%;
+    max-height: 380px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.loan-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.loan-product-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.25rem;
+}
+
+.loan-meta-text {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.loan-meta-val {
+    color: #374151;
+    font-weight: 500;
+}
+
+.loan-status-wrapper {
+    margin-top: 0.5rem;
+}
+
+.loan-status-pill {
+    display: inline-block;
+    padding: 0.25rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.loan-status-pill--available {
+    background-color: #d1fae5;
+    color: #059669;
+}
+
+.loan-status-pill--unavailable {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- Right Column: Loan Form Card --- */
+.loan-form-column {
+    width: 100%;
+}
+
+.loan-form-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.loan-form-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 0 0 1.5rem;
+}
+
+.loan-request-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+.loan-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.loan-field-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.loan-field-input,
+.loan-field-textarea {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: var(--sinfas-font);
+    font-size: 0.9rem;
+    color: #1f2937;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.loan-field-input:focus,
+.loan-field-textarea:focus {
+    outline: none;
+    border-color: #1D67F2;
+    box-shadow: 0 0 0 3px rgba(29, 103, 242, 0.12);
+}
+
+.loan-field-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.loan-btn-submit {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background-color: #1D67F2;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    margin-top: 0.5rem;
+}
+
+.loan-btn-submit:hover {
+    background-color: #1554cc;
+}
+
+.loan-btn-submit:active {
+    transform: scale(0.99);
+}
+
+.loan-form-note {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin: 0.25rem 0 0;
+    line-height: 1.4;
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 860px) {
+    .loan-content-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .loan-image-card {
+        padding: 1rem;
+    }
+
+    .loan-product-image {
+        max-height: 280px;
+    }
+
+    .loan-form-card {
+        padding: 1.5rem;
+    }
+}
+
+
 
