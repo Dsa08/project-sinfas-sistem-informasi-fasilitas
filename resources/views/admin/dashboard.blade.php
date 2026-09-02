@@ -5,29 +5,36 @@
 
 @section('content')
 <div class="sarana-dashboard-container">
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div class="alert-success" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     {{-- 4 Stat Cards --}}
     <div class="sarana-stats-grid">
         {{-- Card 1 --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">5</div>
+            <div class="system-stat-value">{{ $pendingCount }}</div>
             <div class="system-stat-label">Pending Verification</div>
         </div>
 
         {{-- Card 2 --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">42</div>
+            <div class="system-stat-value">{{ $totalItems }}</div>
             <div class="system-stat-label">Total Items</div>
         </div>
 
         {{-- Card 3 --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">12</div>
+            <div class="system-stat-value">{{ $borrowedCount }}</div>
             <div class="system-stat-label">Currently Borrowed</div>
         </div>
 
-        {{-- Card 4 --}}
-        <div class="system-stat-card">
-            <div class="system-stat-value">3</div>
+        {{-- Card 4: Damaged (amber highlight) --}}
+        <div class="system-stat-card" style="border-color: #f59e0b;">
+            <div class="system-stat-value" style="color: #d97706;">{{ $damagedCount }}</div>
             <div class="system-stat-label">Damaged</div>
         </div>
     </div>
@@ -46,39 +53,29 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($pendingLoans as $loan)
                     <tr>
-                        <td class="td-name">Ahmad Fadli</td>
-                        <td class="td-item">Projector Epson X300</td>
-                        <td class="td-date">2024-03-15</td>
+                        <td class="td-name">{{ $loan->siswa->nama ?? '-' }}</td>
+                        <td class="td-item">{{ $loan->barang->nama_barang ?? '-' }}</td>
+                        <td class="td-date">{{ $loan->tanggal_pinjam->format('Y-m-d') }}</td>
                         <td>
                             <div class="action-btn-group">
-                                <button type="button" class="btn-action btn-approve">Approve</button>
-                                <button type="button" class="btn-action btn-reject">Reject</button>
+                                <form action="{{ route('admin.verifications.approve', $loan->kode_pinjam) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn-action btn-approve" onclick="return confirm('Setujui peminjaman ini?')">Approve</button>
+                                </form>
+                                <form action="{{ route('admin.verifications.reject', $loan->kode_pinjam) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak peminjaman ini?')">Reject</button>
+                                </form>
                             </div>
                         </td>
                     </tr>
+                    @empty
                     <tr>
-                        <td class="td-name">Siti Nurhaliza</td>
-                        <td class="td-item">Portable Speaker</td>
-                        <td class="td-date">2024-03-15</td>
-                        <td>
-                            <div class="action-btn-group">
-                                <button type="button" class="btn-action btn-approve">Approve</button>
-                                <button type="button" class="btn-action btn-reject">Reject</button>
-                            </div>
-                        </td>
+                        <td colspan="4" style="text-align: center; color: #9ca3af; padding: 2rem;">Tidak ada peminjaman yang menunggu verifikasi.</td>
                     </tr>
-                    <tr>
-                        <td class="td-name">Budi Santoso</td>
-                        <td class="td-item">Folding Table (x3)</td>
-                        <td class="td-date">2024-03-14</td>
-                        <td>
-                            <div class="action-btn-group">
-                                <button type="button" class="btn-action btn-approve">Approve</button>
-                                <button type="button" class="btn-action btn-reject">Reject</button>
-                            </div>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
