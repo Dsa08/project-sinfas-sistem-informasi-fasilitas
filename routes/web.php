@@ -97,6 +97,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/verifications', function () {
             return view('admin.verifications');
         })->name('admin.verifications');
+
+        Route::get('/admin/categories', function () {
+            return view('admin.categories');
+        })->name('admin.categories');
     });
 
     // Admin Sistem Routes

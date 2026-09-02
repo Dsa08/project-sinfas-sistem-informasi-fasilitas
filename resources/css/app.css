@@ -2366,6 +2366,78 @@ a.th-content:hover {
     border-color: #1E40AF;
 }
 
+.btn-table-outline-blue {
+    border: 1px solid #93c5fd;
+    background-color: #ffffff;
+    color: #2563eb;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: inherit;
+    padding: 0.32rem 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-table-outline-blue:hover {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+.btn-table-outline-red {
+    border: 1px solid #fca5a5;
+    background-color: #ffffff;
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: inherit;
+    padding: 0.32rem 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-table-outline-red:hover {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+    color: #dc2626;
+}
+
+.btn-approve {
+    background-color: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.38rem 0.95rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-approve:hover {
+    background-color: #15803d;
+}
+
+.btn-reject {
+    background-color: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.38rem 0.95rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-reject:hover {
+    background-color: #b91c1c;
+}
+
 /* ============================================
    SINFAS - Admin Sistem Account Modals & Dropdown
    ============================================ */
