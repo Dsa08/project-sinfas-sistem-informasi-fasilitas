@@ -11,8 +11,8 @@
             {{-- Contoh: <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="auth-logo-img"> --}}
             <div class="auth-logo-placeholder">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="40" height="40" rx="8" fill="#1D67F2" fill-opacity="0.1"/>
-                    <path d="M12 28V12h4l4 10 4-10h4v16h-3V17l-3.5 9h-3L15 17v11h-3z" fill="#1D67F2"/>
+                    <rect width="40" height="40" rx="8" fill="#1E40AF" fill-opacity="0.1"/>
+                    <path d="M12 28V12h4l4 10 4-10h4v16h-3V17l-3.5 9h-3L15 17v11h-3z" fill="#1E40AF"/>
                 </svg>
             </div>
             <h1 class="auth-brand">SINFAS</h1>
@@ -110,7 +110,7 @@
                 id="password"
                 name="password"
                 class="form-input @error('password') form-input--error @enderror"
-                placeholder=""
+                placeholder="Minimal 8 karakter (huruf & angka)"
                 required
                 autocomplete="new-password"
             >

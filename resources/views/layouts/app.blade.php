@@ -21,7 +21,7 @@
             {{-- Contoh: <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="navbar-logo-img"> --}}
             <div class="navbar-logo-placeholder">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="32" rx="6" fill="#1D67F2"/>
+                    <rect width="32" height="32" rx="6" fill="#1E40AF"/>
                     <path d="M9 22V10h3l3 8 3-8h3v12h-2.5V13.5L15.5 20h-2L10.5 13.5V22H9z" fill="#ffffff"/>
                 </svg>
             </div>
