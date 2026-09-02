@@ -19,9 +19,12 @@ class Akun extends Authenticatable
         'nip',
         'nama',
         'nomor_kontak',
+        'email',
         'role',
         'username',
         'password',
+        'foto',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -31,7 +34,16 @@ class Akun extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
+
+    /**
+     * Scope: hanya akun yang aktif
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 
     public function siswa()
     {
@@ -52,4 +64,26 @@ class Akun extends Authenticatable
     {
         return in_array($this->role, ['admin_sarana', 'admin_sistem']);
     }
+
+    /**
+     * Mendapatkan label role yang human-readable
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'siswa' => 'Siswa',
+            'admin_sarana' => 'Admin Sarana',
+            'admin_sistem' => 'Admin Sistem',
+            default => ucfirst($this->role),
+        };
+    }
+
+    /**
+     * Mendapatkan NIS atau NIP tergantung role
+     */
+    public function getNisNipAttribute(): string
+    {
+        return $this->nis ?? $this->nip ?? '-';
+    }
 }
+

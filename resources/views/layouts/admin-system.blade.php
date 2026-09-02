@@ -18,8 +18,17 @@
         {{-- Sidebar Kiri --}}
         <aside class="system-sidebar" id="system-sidebar">
             <div class="system-sidebar-header">
-                <div class="system-logo-box">
-                    <span class="system-logo-text">Logo</span>
+                <div class="system-brand-wrapper">
+                    <div class="system-brand-icon-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="3" rx="2"/>
+                            <path d="M9 3v18"/>
+                            <path d="M15 3v18"/>
+                            <path d="M3 9h18"/>
+                            <path d="M3 15h18"/>
+                        </svg>
+                    </div>
+                    <span class="system-brand-name">SINFAS Admin</span>
                 </div>
             </div>
 
@@ -27,17 +36,20 @@
                 <ul class="system-nav-list">
                     <li class="system-nav-item">
                         <a href="{{ route('admin.sistem.dashboard') }}" class="system-nav-link {{ request()->routeIs('admin.sistem.dashboard') ? 'system-nav-link--active' : '' }}" id="nav-home">
-                            Home
+                            <x-heroicon-o-home class="system-nav-icon" />
+                            <span>Home</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
                         <a href="{{ route('admin.sistem.accounts') }}" class="system-nav-link {{ request()->routeIs('admin.sistem.accounts') ? 'system-nav-link--active' : '' }}" id="nav-accounts">
-                            Kelola Akun User
+                            <x-heroicon-o-user-circle class="system-nav-icon" />
+                            <span>Kelola Akun</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
                         <a href="{{ route('admin.sistem.settings') }}" class="system-nav-link {{ request()->routeIs('admin.sistem.settings') ? 'system-nav-link--active' : '' }}" id="nav-settings">
-                            Kelola Pengaturan Sistem
+                            <x-heroicon-o-cog-6-tooth class="system-nav-icon" />
+                            <span>Kelola System</span>
                         </a>
                     </li>
                 </ul>
@@ -47,12 +59,14 @@
                 <ul class="system-nav-list">
                     <li class="system-nav-item">
                         <a href="{{ route('profile') }}" class="system-nav-link {{ request()->routeIs('profile') ? 'system-nav-link--active' : '' }}" id="nav-profile">
-                            Profile
+                            <x-heroicon-o-user class="system-nav-icon" />
+                            <span>Profile</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
                         <button type="button" class="system-nav-link system-nav-btn-logout" id="logout-trigger-btn">
-                            Keluar
+                            <x-heroicon-o-arrow-right-on-rectangle class="system-nav-icon" />
+                            <span>Keluar</span>
                         </button>
                     </li>
                 </ul>
@@ -62,11 +76,14 @@
             <div class="system-sidebar-footer">
                 <div class="system-user-badge">
                     <div class="system-user-avatar">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                         </svg>
                     </div>
-                    <span class="system-user-name">{{ Auth::user()->nama ?? 'Admin Sistem' }}</span>
+                    <div class="system-user-info">
+                        <span class="system-user-name">{{ Auth::user()->nama ?? 'Admin Sistem' }}</span>
+                        <span class="system-user-role">Operator</span>
+                    </div>
                 </div>
             </div>
         </aside>

@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\AdminSistemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,18 +58,18 @@ Route::middleware('auth')->group(function () {
     });
 
     // Admin Sistem Routes
-    Route::middleware('role:admin_sistem')->group(function () {
-        Route::get('/admin-sistem/dashboard', function () {
-            return view('admin.system.dashboard');
-        })->name('admin.sistem.dashboard');
+    Route::middleware('role:admin_sistem')->prefix('admin-sistem')->group(function () {
+        // Dashboard & Settings
+        Route::get('/dashboard', [AdminSistemController::class, 'dashboard'])->name('admin.sistem.dashboard');
+        Route::get('/settings', [AdminSistemController::class, 'settings'])->name('admin.sistem.settings');
 
-        Route::get('/admin-sistem/accounts', function () {
-            return view('admin.system.accounts');
-        })->name('admin.sistem.accounts');
-
-        Route::get('/admin-sistem/settings', function () {
-            return view('admin.system.settings');
-        })->name('admin.sistem.settings');
+        // CRUD Accounts
+        Route::get('/accounts', [AccountController::class, 'index'])->name('admin.sistem.accounts');
+        Route::post('/accounts', [AccountController::class, 'store'])->name('admin.sistem.accounts.store');
+        Route::get('/accounts/{id}', [AccountController::class, 'show'])->name('admin.sistem.accounts.show');
+        Route::put('/accounts/{id}', [AccountController::class, 'update'])->name('admin.sistem.accounts.update');
+        Route::delete('/accounts/{id}', [AccountController::class, 'destroy'])->name('admin.sistem.accounts.destroy');
+        Route::post('/accounts/{id}/reset-password', [AccountController::class, 'resetPassword'])->name('admin.sistem.accounts.reset');
     });
 });
 
@@ -78,5 +80,3 @@ Route::get('/admin', function () {
 Route::get('/admin-sistem', function () {
     return redirect()->route('admin.sistem.dashboard');
 });
-
-

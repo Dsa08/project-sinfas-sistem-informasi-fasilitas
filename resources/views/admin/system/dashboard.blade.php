@@ -9,23 +9,23 @@
     <div class="system-stats-grid">
         {{-- Card 1: Total Accounts --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">156</div>
+            <div class="system-stat-value">{{ $totalAccounts }}</div>
             <div class="system-stat-label">Total Accounts</div>
-            <div class="system-stat-subtext">142 Siswa · 12 Admin Sarana · 2 Admin Sistem</div>
+            <div class="system-stat-subtext">{{ $totalSiswa }} Siswa · {{ $totalAdminSarana }} Admin Sarana · {{ $totalAdminSistem }} Admin Sistem</div>
         </div>
 
         {{-- Card 2: Akun Baru Bulan Ini --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">8</div>
+            <div class="system-stat-value">{{ $newAccountsThisMonth }}</div>
             <div class="system-stat-label">Akun Baru Bulan Ini</div>
-            <div class="system-stat-subtext">Ditambahkan Agustus 2026</div>
+            <div class="system-stat-subtext">Ditambahkan {{ $currentMonthName }}</div>
         </div>
 
         {{-- Card 3: Backup Terakhir --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">2 hari lalu</div>
+            <div class="system-stat-value">–</div>
             <div class="system-stat-label">Backup Terakhir</div>
-            <div class="system-stat-subtext">25 Agu 2026, 03:00</div>
+            <div class="system-stat-subtext">Belum ada data backup</div>
         </div>
     </div>
 
@@ -46,10 +46,7 @@
                 <div class="system-action-desc">View, add, edit, and deactivate user accounts</div>
             </div>
             <div class="system-action-arrow">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"/>
-                    <path d="m12 5 7 7-7 7"/>
-                </svg>
+                <x-heroicon-o-arrow-right class="w-5 h-5" />
             </div>
         </a>
 
@@ -66,10 +63,7 @@
                 <div class="system-action-desc">Configure operational hours, backups, and preferences</div>
             </div>
             <div class="system-action-arrow">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"/>
-                    <path d="m12 5 7 7-7 7"/>
-                </svg>
+                <x-heroicon-o-arrow-right class="w-5 h-5" />
             </div>
         </a>
     </div>
