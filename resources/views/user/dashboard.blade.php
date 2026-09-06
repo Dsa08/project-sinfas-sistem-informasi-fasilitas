@@ -21,19 +21,24 @@
     {{-- Search & Filter --}}
     <div class="search-section" id="search-section">
         <form action="{{ route('dashboard') }}" method="GET" class="search-bar" id="search-form">
-            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
-            </svg>
+            <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;" title="Cari">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+            </button>
             <input
                 type="text"
                 class="search-input"
                 id="search-input"
                 name="search"
-                placeholder="Search or filter items..."
+                placeholder="Cari nama barang, merk, kode, atau kategori..."
                 value="{{ request('search') }}"
                 autocomplete="off"
             >
+            @if(request('search'))
+                <a href="{{ route('dashboard', request()->except('search')) }}" style="color: #9ca3af; text-decoration: none; font-size: 1.15rem; padding: 0 4px; line-height: 1;" title="Hapus pencarian">&times;</a>
+            @endif
             @if(request('kategori'))
                 <input type="hidden" name="kategori" value="{{ request('kategori') }}">
             @endif
@@ -63,7 +68,7 @@
     {{-- Active Filters Info --}}
     @if(request('search') || request('kategori'))
     <div class="active-filters" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-        <span style="font-size: 0.82rem; color: #6b7280;">Showing results for:</span>
+        <span style="font-size: 0.82rem; color: #6b7280;">Menampilkan hasil untuk:</span>
         @if(request('search'))
         <span class="filter-tag">
             "{{ request('search') }}"
@@ -76,7 +81,7 @@
             <a href="{{ route('dashboard', request()->except('kategori')) }}" style="color: #6b7280; text-decoration: none; margin-left: 0.25rem;">&times;</a>
         </span>
         @endif
-        <a href="{{ route('dashboard') }}" style="font-size: 0.82rem; color: #1D67F2; text-decoration: none; font-weight: 500;">Clear all</a>
+        <a href="{{ route('dashboard') }}" style="font-size: 0.82rem; color: #1D67F2; text-decoration: none; font-weight: 500;">Reset Filter</a>
     </div>
     @endif
 
@@ -85,15 +90,19 @@
         @forelse($items as $item)
         <div class="item-card" id="item-{{ $item->kode_barang }}">
             <div class="item-image">
-                {{-- Placeholder abu-abu dengan ikon gambar tidak tersedia --}}
-                <div class="item-image-placeholder">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span style="font-size: 0.7rem; color: #9ca3af; margin-top: 0.25rem;">No Image</span>
-                </div>
+                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover;">
+                @else
+                    {{-- Placeholder abu-abu dengan logo gambar tidak tersedia --}}
+                    <div class="item-image-placeholder">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span style="font-size: 0.72rem; color: #9ca3af; margin-top: 0.35rem; font-weight: 500;">Gambar tidak tersedia</span>
+                    </div>
+                @endif
             </div>
             <div class="item-info">
                 <h3 class="item-name">{{ $item->nama_barang }}</h3>

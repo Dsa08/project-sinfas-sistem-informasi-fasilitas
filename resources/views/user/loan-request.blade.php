@@ -24,15 +24,19 @@
         {{-- Left Column: Item Details --}}
         <div class="loan-item-column">
             <div class="loan-image-card">
-                {{-- Placeholder abu-abu --}}
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; color: #9ca3af;">
-                    <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span style="font-size: 0.78rem; color: #b0b0b0; margin-top: 0.5rem;">No Image Available</span>
-                </div>
+                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                @else
+                    {{-- Placeholder abu-abu --}}
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; color: #9ca3af;">
+                        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span style="font-size: 0.78rem; color: #9ca3af; margin-top: 0.5rem; font-weight: 500;">Gambar tidak tersedia</span>
+                    </div>
+                @endif
             </div>
 
             <div class="loan-info-section">
