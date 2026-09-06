@@ -5,197 +5,197 @@
 
 @section('content')
 <div class="sarana-items-container">
-    <div class="system-section-header" style="margin-bottom: 1.25rem;">
-        <h2 class="system-section-heading" style="font-size: 1.25rem; font-weight: 700; color: #111827;">Kelola data alat</h2>
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div class="alert-success" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert-error" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="system-section-header">
+        <h2 class="system-section-heading">Kelola data alat</h2>
     </div>
 
     {{-- Filter & Add Item Bar --}}
-    <div class="system-filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; gap: 1rem;">
-        <div class="system-search-box" style="flex: 1; max-width: 320px; position: relative;">
+    <div class="system-filter-bar">
+        <form action="{{ route('admin.items') }}" method="GET" class="system-search-box">
+            <svg class="system-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+            </svg>
             <input
                 type="text"
                 class="system-search-input"
                 id="search-items-input"
+                name="search"
                 placeholder="Search items..."
-                style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88rem; outline: none; background: #ffffff;"
+                value="{{ request('search') }}"
             >
-        </div>
-        <button type="button" class="btn-add-primary" id="btn-add-item" onclick="openAddItemModal()" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.88rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+        </form>
+        <button type="button" class="btn-add-account" id="btn-add-item" onclick="openAddItemModal()">
             + Add Item
         </button>
     </div>
 
-    {{-- Items Table Card --}}
-    <div class="system-table-card" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <table class="system-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+    {{-- Items Table --}}
+    <div class="system-table-card">
+        <table class="system-table">
             <thead>
-                <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-weight: 600; text-align: left;">
-                    <th style="padding: 0.85rem 1rem;">Item Name</th>
-                    <th style="padding: 0.85rem 1rem;">Category</th>
-                    <th style="padding: 0.85rem 1rem; text-align: center;">Baik</th>
-                    <th style="padding: 0.85rem 1rem; text-align: center;">K. Baik</th>
-                    <th style="padding: 0.85rem 1rem; text-align: center;">R. Berat</th>
-                    <th style="padding: 0.85rem 1rem;">Status</th>
-                    <th style="padding: 0.85rem 1rem; text-align: center;">Actions</th>
+                <tr>
+                    <th style="width: 22%;">Item Name</th>
+                    <th style="width: 15%;">Category</th>
+                    <th style="width: 10%;">Baik</th>
+                    <th style="width: 10%;">K. Baik</th>
+                    <th style="width: 10%;">R. Berat</th>
+                    <th style="width: 13%;">Status</th>
+                    <th style="width: 20%;">Actions</th>
                 </tr>
             </thead>
-            <tbody id="itemsTableBody">
-                {{-- Row 1: Projector Epson X300 --}}
-                <tr style="border-bottom: 1px solid #f3f4f6;">
-                    <td style="padding: 0.85rem 1rem; font-weight: 500; color: #111827;">Projector Epson X300</td>
-                    <td style="padding: 0.85rem 1rem; color: #4b5563;">Electronics</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">4</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">1</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">0</td>
-                    <td style="padding: 0.85rem 1rem;"><span style="color: #16a34a; font-weight: 600;">Available</span></td>
-                    <td style="padding: 0.85rem 1rem; text-align: center;">
-                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('Projector Epson X300', 'Proyektor', 'Epson', 'SN1294819', '30x20x10 cm', 'Plastik/Aluminium', '2023', 4, 1, 0, '')">Edit</button>
-                            <button type="button" class="btn-table-outline-red" onclick="openDeleteItemModal('Projector Epson X300')">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- Row 2: Portable Speaker JBL --}}
-                <tr style="border-bottom: 1px solid #f3f4f6;">
-                    <td style="padding: 0.85rem 1rem; font-weight: 500; color: #111827;">Portable Speaker JBL</td>
-                    <td style="padding: 0.85rem 1rem; color: #4b5563;">Electronics</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">2</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">1</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">0</td>
-                    <td style="padding: 0.85rem 1rem;"><span style="color: #16a34a; font-weight: 600;">Available</span></td>
-                    <td style="padding: 0.85rem 1rem; text-align: center;">
-                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('Portable Speaker JBL', 'Speaker', 'JBL', 'SN883921', '25x15x15 cm', 'Plastik', '2023', 2, 1, 0, '')">Edit</button>
-                            <button type="button" class="btn-table-outline-red" onclick="openDeleteItemModal('Portable Speaker JBL')">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- Row 3: Folding Table 180cm --}}
-                <tr style="border-bottom: 1px solid #f3f4f6;">
-                    <td style="padding: 0.85rem 1rem; font-weight: 500; color: #111827;">Folding Table 180cm</td>
-                    <td style="padding: 0.85rem 1rem; color: #4b5563;">Furniture</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">8</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">1</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">1</td>
-                    <td style="padding: 0.85rem 1rem;"><span style="color: #16a34a; font-weight: 600;">Available</span></td>
-                    <td style="padding: 0.85rem 1rem; text-align: center;">
-                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('Folding Table 180cm', 'Furniture', 'Informa', 'SN554311', '180x80x75 cm', 'Besi & Kayu', '2022', 8, 1, 1, '')">Edit</button>
-                            <button type="button" class="btn-table-outline-red" onclick="openDeleteItemModal('Folding Table 180cm')">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-
-                {{-- Row 4: Whiteboard 120cm --}}
+            <tbody>
+                @forelse($items as $item)
                 <tr>
-                    <td style="padding: 0.85rem 1rem; font-weight: 500; color: #111827;">Whiteboard 120cm</td>
-                    <td style="padding: 0.85rem 1rem; color: #4b5563;">Equipment</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">0</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">1</td>
-                    <td style="padding: 0.85rem 1rem; text-align: center; color: #111827;">1</td>
-                    <td style="padding: 0.85rem 1rem;"><span style="color: #dc2626; font-weight: 600;">Unavailable</span></td>
-                    <td style="padding: 0.85rem 1rem; text-align: center;">
-                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('Whiteboard 120cm', 'Equipment', 'Sakura', 'SN992812', '120x90 cm', 'Aluminium/Melamin', '2021', 0, 1, 1, '')">Edit</button>
-                            <button type="button" class="btn-table-outline-red" onclick="openDeleteItemModal('Whiteboard 120cm')">Delete</button>
+                    <td class="td-name">{{ $item->nama_barang }}</td>
+                    <td class="td-category">{{ $item->kategori->nama_kategori ?? '-' }}</td>
+                    <td class="td-stock">{{ $item->jumlah_baik }}</td>
+                    <td class="td-stock">{{ $item->jumlah_kurang_baik }}</td>
+                    <td class="td-stock" style="{{ $item->jumlah_rusak_berat > 0 ? 'color: #b91c1c; font-weight: 600;' : '' }}">{{ $item->jumlah_rusak_berat }}</td>
+                    <td>
+                        <span class="sarana-status-badge {{ $item->status === 'Available' ? 'sarana-status-badge--available' : 'sarana-status-badge--unavailable' }}">
+                            {{ $item->status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-btn-group">
+                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('{{ $item->kode_barang }}')">Edit</button>
+                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus barang {{ $item->nama_barang }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-table-outline-red">Delete</button>
+                            </form>
                         </div>
                     </td>
                 </tr>
+                @empty
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 2rem;">Belum ada data barang.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
-    {{-- Pagination Bar --}}
-    <div class="system-pagination-bar" style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem; margin-top: 1.25rem;">
-        <button class="pagination-btn pagination-btn--disabled">Prev</button>
-        <button class="pagination-btn pagination-btn--active">1</button>
-        <button class="pagination-btn">Next</button>
+    {{-- Pagination --}}
+    @if($items->hasPages())
+    <div class="system-pagination-bar">
+        {{ $items->links('vendor.pagination.simple-default') }}
     </div>
+    @endif
 </div>
 
-{{-- Add/Edit Item Modal --}}
+{{-- Add / Edit Item Modal --}}
 <div class="modal-overlay" id="itemModal">
-    <div class="modal-card" style="max-width: 580px; width: 90%; text-align: left; padding: 2rem; max-height: 90vh; overflow-y: auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f3f4f6;">
-            <h3 class="modal-title" id="itemModalTitle" style="font-size: 1.2rem; font-weight: 700; color: #111827; margin: 0;">Add Item</h3>
+    <div class="modal-card" style="max-width: 640px; width: 92%; text-align: left; padding: 1.75rem; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 1px solid #f3f4f6;">
+            <h3 class="modal-title" id="itemModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Add Item</h3>
             <button type="button" onclick="closeItemModal()" style="background: transparent; border: none; color: #9ca3af; font-size: 1.25rem; cursor: pointer; padding: 0.25rem;">&times;</button>
         </div>
 
-        <form id="itemForm" onsubmit="handleItemSave(event)">
+        {{-- Validation Errors --}}
+        @if($errors->any())
+            <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.82rem;">
+                <ul style="margin: 0; padding-left: 1.25rem;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}">
+            @csrf
+            <input type="hidden" name="_method" id="itemFormMethod" value="POST">
+
+            {{-- Kode Barang (hanya tampil saat Add) --}}
+            <div id="kodeBarangField" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kode Barang</label>
+                <input type="text" name="kode_barang" id="input_kode_barang" placeholder="Contoh: BRG-001" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+            </div>
+
             {{-- Nama Barang --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Nama Barang</label>
-                <input type="text" id="itemNameInput" placeholder="e.g. Projector Epson X300" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Nama Barang</label>
+                <input type="text" name="nama_barang" id="input_nama_barang" placeholder="Nama barang" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
             {{-- Kategori --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Kategori</label>
-                <select id="itemCategorySelect" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none; background: #ffffff;">
-                    <option value="" disabled selected>Select category</option>
-                    <option value="Mic">Mic</option>
-                    <option value="Proyektor">Proyektor</option>
-                    <option value="Speaker">Speaker</option>
-                    <option value="Kabel HDMI">Kabel HDMI</option>
-                    <option value="Converter">Converter</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Furniture">Furniture</option>
-                    <option value="Equipment">Equipment</option>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kategori</label>
+                <select name="id_kategori" id="input_id_kategori" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none; background: #fff;">
+                    <option value="">-- Pilih Kategori --</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id_kategori }}">{{ $cat->nama_kategori }}</option>
+                    @endforeach
                 </select>
             </div>
 
-            {{-- Merk/Model --}}
+            {{-- Merk / Model --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Merk/Model</label>
-                <input type="text" id="itemBrandInput" placeholder="e.g. Epson" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Merk / Model</label>
+                <input type="text" name="merk_model" id="input_merk_model" placeholder="Merk atau model" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
-            {{-- 2 Col: No Seri & Ukuran --}}
+            {{-- 2-column row: No Seri & Dimensi --}}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">No Seri Pabrik</label>
-                    <input type="text" id="itemSerialInput" placeholder="e.g. SN1294819" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">No Seri Pabrik</label>
+                    <input type="text" name="no_seri_pabrik" id="input_no_seri_pabrik" placeholder="No. seri" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Ukuran/Dimensi</label>
-                    <input type="text" id="itemDimensionInput" placeholder="e.g. 30×20×10 cm" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Ukuran / Dimensi</label>
+                    <input type="text" name="ukuran_dimensi" id="input_ukuran_dimensi" placeholder="Dimensi" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
 
-            {{-- 2 Col: Bahan & Tahun --}}
+            {{-- 2-column row: Bahan & Tahun Pembelian --}}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Bahan</label>
-                    <input type="text" id="itemMaterialInput" placeholder="e.g. Plastik/Aluminium" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Bahan</label>
+                    <input type="text" name="bahan" id="input_bahan" placeholder="Bahan material" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Tahun Pembelian</label>
-                    <input type="text" id="itemYearInput" placeholder="e.g. 2023" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Tahun Pembelian</label>
+                    <input type="number" name="tahun_pembelian" id="input_tahun_pembelian" placeholder="2024" min="1900" max="{{ date('Y') + 1 }}" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
 
-            {{-- Jumlah Kondisi: Baik, Kurang Baik, Rusak Berat --}}
-            <div style="margin-bottom: 0.75rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Jumlah Baik</label>
-                <input type="number" id="itemGoodQtyInput" min="0" value="0" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.85rem; font-size: 0.88rem; outline: none;">
-            </div>
-            <div style="margin-bottom: 0.75rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Jumlah Kurang Baik</label>
-                <input type="number" id="itemFairQtyInput" min="0" value="0" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.85rem; font-size: 0.88rem; outline: none;">
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Jumlah Rusak Berat</label>
-                <input type="number" id="itemDamagedQtyInput" min="0" value="0" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.85rem; font-size: 0.88rem; outline: none;">
+            {{-- 3-column row: Jumlah Baik / Kurang Baik / Rusak Berat --}}
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah Baik</label>
+                    <input type="number" name="jumlah_baik" id="input_jumlah_baik" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah K. Baik</label>
+                    <input type="number" name="jumlah_kurang_baik" id="input_jumlah_kurang_baik" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah R. Berat</label>
+                    <input type="number" name="jumlah_rusak_berat" id="input_jumlah_rusak_berat" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                </div>
             </div>
 
             {{-- Keterangan --}}
             <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Keterangan</label>
-                <textarea id="itemNotesInput" rows="2" placeholder="Keterangan tambahan..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.85rem; font-size: 0.88rem; outline: none;"></textarea>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Keterangan</label>
+                <textarea name="keterangan" id="input_keterangan" rows="3" placeholder="Catatan tambahan..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none; resize: vertical;"></textarea>
             </div>
 
+            {{-- Action Buttons --}}
             <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="modal-btn modal-btn--cancel" onclick="closeItemModal()">Cancel</button>
                 <button type="submit" class="modal-btn" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Save</button>
@@ -204,63 +204,55 @@
     </div>
 </div>
 
-{{-- Delete Modal --}}
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal-card" style="max-width: 400px; text-align: center; padding: 1.75rem;">
-        <h3 class="modal-title" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">Hapus Data Alat</h3>
-        <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1.5rem;">Yakin ingin menghapus <strong id="deleteItemName" style="color: #111827;"></strong> dari daftar alat?</p>
-        <div class="modal-actions" style="display: flex; justify-content: center; gap: 0.75rem;">
-            <button type="button" class="modal-btn modal-btn--cancel" onclick="closeDeleteModal()">Cancel</button>
-            <button type="button" class="modal-btn" style="background-color: #dc2626; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;" onclick="confirmDeleteAction()">Delete</button>
-        </div>
-    </div>
-</div>
-
 <script>
     function openAddItemModal() {
         document.getElementById('itemModalTitle').textContent = 'Add Item';
+        document.getElementById('itemForm').action = '{{ route("admin.items.store") }}';
+        document.getElementById('itemFormMethod').value = 'POST';
+        document.getElementById('kodeBarangField').style.display = 'block';
         document.getElementById('itemForm').reset();
+        document.getElementById('input_jumlah_baik').value = '0';
+        document.getElementById('input_jumlah_kurang_baik').value = '0';
+        document.getElementById('input_jumlah_rusak_berat').value = '0';
         document.getElementById('itemModal').classList.add('modal-overlay--active');
     }
 
-    function openEditItemModal(name, category, brand, serial, dimension, material, year, good, fair, damaged, notes) {
+    function openEditItemModal(kode) {
         document.getElementById('itemModalTitle').textContent = 'Edit Item';
-        document.getElementById('itemNameInput').value = name;
-        document.getElementById('itemCategorySelect').value = category;
-        document.getElementById('itemBrandInput').value = brand || '';
-        document.getElementById('itemSerialInput').value = serial || '';
-        document.getElementById('itemDimensionInput').value = dimension || '';
-        document.getElementById('itemMaterialInput').value = material || '';
-        document.getElementById('itemYearInput').value = year || '';
-        document.getElementById('itemGoodQtyInput').value = good || 0;
-        document.getElementById('itemFairQtyInput').value = fair || 0;
-        document.getElementById('itemDamagedQtyInput').value = damaged || 0;
-        document.getElementById('itemNotesInput').value = notes || '';
-        document.getElementById('itemModal').classList.add('modal-overlay--active');
+        document.getElementById('itemFormMethod').value = 'PUT';
+        document.getElementById('kodeBarangField').style.display = 'none';
+
+        // Fetch item data via AJAX
+        fetch('/admin/items/' + kode)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('itemForm').action = '/admin/items/' + kode;
+                document.getElementById('input_kode_barang').value = data.kode_barang;
+                document.getElementById('input_nama_barang').value = data.nama_barang;
+                document.getElementById('input_id_kategori').value = data.id_kategori;
+                document.getElementById('input_merk_model').value = data.merk_model || '';
+                document.getElementById('input_no_seri_pabrik').value = data.no_seri_pabrik || '';
+                document.getElementById('input_ukuran_dimensi').value = data.ukuran_dimensi || '';
+                document.getElementById('input_bahan').value = data.bahan || '';
+                document.getElementById('input_tahun_pembelian').value = data.tahun_pembelian || '';
+                document.getElementById('input_jumlah_baik').value = data.jumlah_baik;
+                document.getElementById('input_jumlah_kurang_baik').value = data.jumlah_kurang_baik;
+                document.getElementById('input_jumlah_rusak_berat').value = data.jumlah_rusak_berat;
+                document.getElementById('input_keterangan').value = data.keterangan || '';
+                document.getElementById('itemModal').classList.add('modal-overlay--active');
+            })
+            .catch(err => alert('Gagal memuat data barang.'));
     }
 
     function closeItemModal() {
         document.getElementById('itemModal').classList.remove('modal-overlay--active');
     }
 
-    function handleItemSave(e) {
-        e.preventDefault();
-        closeItemModal();
-        alert('Data alat berhasil disimpan!');
-    }
-
-    function openDeleteItemModal(name) {
-        document.getElementById('deleteItemName').textContent = name;
-        document.getElementById('deleteModal').classList.add('modal-overlay--active');
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').classList.remove('modal-overlay--active');
-    }
-
-    function confirmDeleteAction() {
-        closeDeleteModal();
-        alert('Data alat berhasil dihapus.');
-    }
+    // Auto-open modal jika ada validation errors
+    @if($errors->any())
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('itemModal').classList.add('modal-overlay--active');
+        });
+    @endif
 </script>
 @endsection

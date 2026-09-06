@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminSistemController;
+use App\Http\Controllers\Admin\AdminSaranaController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,70 +39,35 @@ Route::middleware('auth')->group(function () {
 
     // Siswa Routes
     Route::middleware('role:siswa')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('user.dashboard');
-        })->name('dashboard');
-
-        // Loan Request Route
-        Route::get('/loan-request/{id?}', function ($id = 1) {
-            $items = [
-                1 => [
-                    'id' => 1,
-                    'name' => 'Projector Epson X300',
-                    'category' => 'Electronics / Projector',
-                    'condition' => 'Good',
-                    'status' => 'Available',
-                    'image' => 'assets/pictures/projector_sample.jpg',
-                ],
-                2 => [
-                    'id' => 2,
-                    'name' => 'Portable Speaker JBL',
-                    'category' => 'Audio / Speaker',
-                    'condition' => 'Good',
-                    'status' => 'Available',
-                    'image' => 'assets/pictures/projector_sample.jpg',
-                ],
-                3 => [
-                    'id' => 3,
-                    'name' => 'Folding Table 180cm',
-                    'category' => 'Furniture / Table',
-                    'condition' => 'Good',
-                    'status' => 'Available',
-                    'image' => 'assets/pictures/projector_sample.jpg',
-                ],
-                4 => [
-                    'id' => 4,
-                    'name' => 'Whiteboard 120cm',
-                    'category' => 'Equipment / Board',
-                    'condition' => 'Good',
-                    'status' => 'Available',
-                    'image' => 'assets/pictures/projector_sample.jpg',
-                ],
-            ];
-
-            $item = $items[$id] ?? $items[1];
-
-            return view('user.loan-request', compact('item'));
-        })->name('loan.request');
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+        Route::get('/loan-status', [UserController::class, 'loanStatus'])->name('loan.status');
+        Route::get('/loan-request/{kode}', [UserController::class, 'loanRequest'])->name('loan.request');
+        Route::post('/loan-request/{kode}', [UserController::class, 'submitLoanRequest'])->name('loan.submit');
     });
 
     // Admin Sarana Routes
     Route::middleware('role:admin_sarana')->group(function () {
-        Route::get('/admin/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('admin.dashboard');
+        // Dashboard
+        Route::get('/admin/dashboard', [AdminSaranaController::class, 'dashboard'])->name('admin.dashboard');
 
-        Route::get('/admin/items', function () {
-            return view('admin.items');
-        })->name('admin.items');
+        // Items CRUD
+        Route::get('/admin/items', [AdminSaranaController::class, 'items'])->name('admin.items');
+        Route::post('/admin/items', [AdminSaranaController::class, 'storeItem'])->name('admin.items.store');
+        Route::get('/admin/items/{kode}', [AdminSaranaController::class, 'showItem'])->name('admin.items.show');
+        Route::put('/admin/items/{kode}', [AdminSaranaController::class, 'updateItem'])->name('admin.items.update');
+        Route::delete('/admin/items/{kode}', [AdminSaranaController::class, 'destroyItem'])->name('admin.items.destroy');
 
-        Route::get('/admin/verifications', function () {
-            return view('admin.verifications');
-        })->name('admin.verifications');
+        // Categories CRUD
+        Route::get('/admin/categories', [AdminSaranaController::class, 'categories'])->name('admin.categories');
+        Route::post('/admin/categories', [AdminSaranaController::class, 'storeCategory'])->name('admin.categories.store');
+        Route::put('/admin/categories/{id}', [AdminSaranaController::class, 'updateCategory'])->name('admin.categories.update');
+        Route::delete('/admin/categories/{id}', [AdminSaranaController::class, 'destroyCategory'])->name('admin.categories.destroy');
 
-        Route::get('/admin/categories', function () {
-            return view('admin.categories');
-        })->name('admin.categories');
+        // Verifications
+        Route::get('/admin/verifications', [AdminSaranaController::class, 'verifications'])->name('admin.verifications');
+        Route::post('/admin/verifications/{kode}/approve', [AdminSaranaController::class, 'approveRequest'])->name('admin.verifications.approve');
+        Route::post('/admin/verifications/{kode}/reject', [AdminSaranaController::class, 'rejectRequest'])->name('admin.verifications.reject');
+        Route::post('/admin/verifications/{kode}/confirm-return', [AdminSaranaController::class, 'confirmReturn'])->name('admin.verifications.confirm-return');
     });
 
     // Admin Sistem Routes
