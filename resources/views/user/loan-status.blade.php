@@ -30,11 +30,17 @@
             <div class="loan-status-card-left">
                 {{-- Item Image Placeholder --}}
                 <div class="loan-status-image">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                    </svg>
+                    @if(!empty($loan->barang->foto) && file_exists(public_path($loan->barang->foto)))
+                        <img src="{{ asset($loan->barang->foto) }}" alt="{{ $loan->barang->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                    @else
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Item Info --}}
