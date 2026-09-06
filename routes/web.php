@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminSistemController;
 use App\Http\Controllers\Admin\AdminSaranaController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,9 +39,10 @@ Route::middleware('auth')->group(function () {
 
     // Siswa Routes
     Route::middleware('role:siswa')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('user.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+        Route::get('/loan-status', [UserController::class, 'loanStatus'])->name('loan.status');
+        Route::get('/loan-request/{kode}', [UserController::class, 'loanRequest'])->name('loan.request');
+        Route::post('/loan-request/{kode}', [UserController::class, 'submitLoanRequest'])->name('loan.submit');
     });
 
     // Admin Sarana Routes

@@ -559,6 +559,111 @@
     width: 100%;
 }
 
+/* --- Dashboard Hero Banner --- */
+.dashboard-hero {
+    background: linear-gradient(135deg, #1E40AF 0%, #1D67F2 100%);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.dashboard-hero-text {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+/* --- Flash Messages --- */
+.flash-msg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 1rem;
+    animation: slideDown 0.3s ease;
+}
+
+.flash-msg--success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.flash-msg--error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Filter Tag --- */
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* --- Filter Dropdown --- */
+.filter-dropdown-wrapper {
+    position: relative;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+    padding: 0.35rem;
+}
+
+.filter-dropdown--active {
+    display: block;
+}
+
+.filter-dropdown-item {
+    display: block;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.85rem;
+    color: #374151;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.12s ease;
+}
+
+.filter-dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+.filter-dropdown-item--active {
+    background-color: #eff6ff;
+    color: #1D67F2;
+    font-weight: 600;
+}
+
 /* --- Search Section --- */
 .search-section {
     display: flex;
@@ -660,10 +765,12 @@
 
 .item-image-placeholder {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
+    background: #f3f4f6;
 }
 
 /* --- Item Info --- */
@@ -770,6 +877,135 @@
 
     .item-info {
         padding: 0.85rem 1rem;
+    }
+}
+
+/* ============================================
+   SINFAS - User Loan Status Page Styles
+   ============================================ */
+.loan-status-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.loan-status-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1.25rem;
+}
+
+.loan-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.loan-status-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.15rem 1.5rem;
+    transition: box-shadow 0.15s ease;
+}
+
+.loan-status-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.loan-status-card-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+}
+
+.loan-status-image {
+    width: 100px;
+    height: 85px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid #e5e7eb;
+}
+
+.loan-status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.loan-status-item-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.loan-status-meta {
+    font-size: 0.82rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.loan-rejection-reason {
+    margin-top: 0.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+}
+
+.loan-status-badge-wrapper {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.loan-status-badge {
+    display: inline-block;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 80px;
+}
+
+.loan-badge--pending {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+
+.loan-badge--approved {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.loan-badge--rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- Loan Status Responsive --- */
+@media (max-width: 640px) {
+    .loan-status-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .loan-status-badge-wrapper {
+        margin-left: 0;
+        align-self: flex-end;
     }
 }
 

@@ -36,6 +36,15 @@
         @endif
 
         <div class="navbar-right">
+            {{-- Loan Status Icon --}}
+            <a href="{{ route('loan.status') }}" class="navbar-icon-btn" id="loan-status-btn" title="Status Pengajuan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                    <path d="m9 14 2 2 4-4"/>
+                </svg>
+            </a>
+
             {{-- Notification Icon --}}
             <button class="navbar-icon-btn" id="notification-btn" title="Notifikasi">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
