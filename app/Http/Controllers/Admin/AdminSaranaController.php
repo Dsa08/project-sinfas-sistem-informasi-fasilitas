@@ -36,12 +36,19 @@ class AdminSaranaController extends Controller
             ->take(5)
             ->get();
 
+        // Top 6 barang paling banyak dipinjam untuk chart
+        $topLoanItems = Barang::withCount('peminjaman')
+            ->orderByDesc('peminjaman_count')
+            ->take(6)
+            ->get();
+
         return view('admin.dashboard', compact(
             'pendingCount',
             'totalItems',
             'borrowedCount',
             'damagedCount',
-            'pendingLoans'
+            'pendingLoans',
+            'topLoanItems'
         ));
     }
 
