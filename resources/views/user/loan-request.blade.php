@@ -1,0 +1,106 @@
+@extends('layouts.app')
+
+@section('title', 'Request Loan - {{ $item->nama_barang }} - SINFAS')
+
+@section('navbar_title')
+    <a href="{{ route('dashboard') }}" style="color: #4b5563; text-decoration: none; font-size: 0.88rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6"/>
+        </svg>
+        Back to Home
+    </a>
+@endsection
+
+@section('content')
+<div class="loan-page-wrapper">
+    {{-- Flash Messages --}}
+    @if(session('error'))
+        <div class="flash-msg flash-msg--error" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="loan-content-grid">
+        {{-- Left Column: Item Details --}}
+        <div class="loan-item-column">
+            <div class="loan-image-card">
+                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                @else
+                    {{-- Placeholder abu-abu --}}
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; color: #9ca3af;">
+                        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span style="font-size: 0.78rem; color: #9ca3af; margin-top: 0.5rem; font-weight: 500;">Gambar tidak tersedia</span>
+                    </div>
+                @endif
+            </div>
+
+            <div class="loan-info-section">
+                <h2 class="loan-product-name">{{ $item->nama_barang }}</h2>
+                <p class="loan-meta-text">Category: <span class="loan-meta-val">{{ $item->kategori->nama_kategori ?? '-' }}</span></p>
+                @if($item->merk_model)
+                <p class="loan-meta-text">Merk/Model: <span class="loan-meta-val">{{ $item->merk_model }}</span></p>
+                @endif
+                <p class="loan-meta-text">Condition: <span class="loan-meta-val">{{ $item->jumlah_baik }} baik, {{ $item->jumlah_kurang_baik }} kurang baik, {{ $item->jumlah_rusak_berat }} rusak</span></p>
+                <div class="loan-status-wrapper">
+                    <span class="loan-status-pill {{ $item->status === 'Available' ? 'loan-status-pill--available' : 'loan-status-pill--unavailable' }}">
+                        {{ $item->status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Right Column: Loan Form --}}
+        <div class="loan-form-column">
+            <div class="loan-form-card">
+                <h3 class="loan-form-title">Loan Request Form</h3>
+
+                @if($errors->any())
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.82rem;">
+                        <ul style="margin: 0; padding-left: 1.25rem;">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('loan.submit', $item->kode_barang) }}" method="POST" class="loan-request-form">
+                    @csrf
+
+                    {{-- Loan Date --}}
+                    <div class="loan-field-group">
+                        <label class="loan-field-label" for="tanggal_pinjam">Loan Date</label>
+                        <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="loan-field-input" value="{{ old('tanggal_pinjam', date('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required>
+                    </div>
+
+                    {{-- Location --}}
+                    <div class="loan-field-group">
+                        <label class="loan-field-label" for="lokasi_penggunaan">Location</label>
+                        <input type="text" name="lokasi_penggunaan" id="lokasi_penggunaan" class="loan-field-input" placeholder="Contoh: Ruang 31, Aula Utama" value="{{ old('lokasi_penggunaan') }}" required>
+                    </div>
+
+                    {{-- Purpose / Reason --}}
+                    <div class="loan-field-group">
+                        <label class="loan-field-label" for="keterangan_penggunaan">Purpose / Reason</label>
+                        <textarea name="keterangan_penggunaan" id="keterangan_penggunaan" class="loan-field-textarea" placeholder="Jelaskan keperluan peminjaman..." rows="4" required>{{ old('keterangan_penggunaan') }}</textarea>
+                    </div>
+
+                    {{-- Submit --}}
+                    @if($item->status === 'Available')
+                        <button type="submit" class="loan-btn-submit">Submit Loan Request</button>
+                    @else
+                        <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Barang Tidak Tersedia</button>
+                    @endif
+
+                    <p class="loan-form-note">Note: Loan requests require admin approval. You will be notified once your request has been reviewed.</p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
