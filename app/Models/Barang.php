@@ -27,6 +27,7 @@ class Barang extends Model
         'jumlah_kurang_baik',
         'jumlah_rusak_berat',
         'keterangan',
+        'foto',
     ];
 
     protected $casts = [

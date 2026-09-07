@@ -55,11 +55,17 @@
                     @endif
 
                     {{-- Rejection reason --}}
-                    @if($loan->status_pengajuan === 'ditolak' && $loan->keterangan_penggunaan)
-                    <div class="loan-rejection-reason">
-                        <span style="font-weight: 600; font-size: 0.78rem; color: #4b5563;">Alasan Penolakan:</span>
-                        <p style="margin: 0.15rem 0 0; font-size: 0.82rem; color: #6b7280;">{{ $loan->keterangan_penggunaan }}</p>
-                    </div>
+                    @if($loan->status_pengajuan === 'ditolak')
+                        @if($loan->alasan_penolakan)
+                        <div class="loan-rejection-reason" style="margin-top: 0.5rem; padding: 0.45rem 0.75rem; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px;">
+                            <span style="font-weight: 600; font-size: 0.78rem; color: #991b1b;">Alasan Penolakan:</span>
+                            <p style="margin: 0.15rem 0 0; font-size: 0.82rem; color: #b91c1c;">{{ $loan->alasan_penolakan }}</p>
+                        </div>
+                        @else
+                        <div class="loan-rejection-reason" style="margin-top: 0.4rem; font-size: 0.8rem; color: #9ca3af; font-style: italic;">
+                            (Tidak ada keterangan alasan penolakan)
+                        </div>
+                        @endif
                     @endif
                 </div>
             </div>

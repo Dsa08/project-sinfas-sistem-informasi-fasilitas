@@ -23,20 +23,77 @@
 
     {{-- Filter & Add Item Bar --}}
     <div class="system-filter-bar">
-        <form action="{{ route('admin.items') }}" method="GET" class="system-search-box">
-            <svg class="system-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
-            </svg>
-            <input
-                type="text"
-                class="system-search-input"
-                id="search-items-input"
-                name="search"
-                placeholder="Search items..."
-                value="{{ request('search') }}"
-            >
-        </form>
+        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+            <form action="{{ route('admin.items') }}" method="GET" class="system-search-box" id="search-items-form" style="margin: 0;">
+                @if(request('kategori'))
+                    <input type="hidden" name="kategori" value="{{ request('kategori') }}">
+                @endif
+                <svg class="system-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input
+                    type="text"
+                    class="system-search-input"
+                    id="search-items-input"
+                    name="search"
+                    placeholder="Search items..."
+                    value="{{ request('search') }}"
+                >
+            </form>
+
+            {{-- Category Filter Dropdown --}}
+            <div style="position: relative;" id="category-filter-container">
+                <button type="button" class="btn-filter-trigger {{ request('kategori') ? 'active' : '' }}" id="btn-filter-category" onclick="toggleCategoryDropdown(event)" title="Filter Kategori">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <line x1="4" y1="7" x2="20" y2="7"/>
+                        <line x1="7" y1="12" x2="17" y2="12"/>
+                        <line x1="10" y1="17" x2="14" y2="17"/>
+                    </svg>
+                </button>
+
+                <div class="filter-dropdown-menu" id="categoryDropdownMenu" style="display: none;">
+                    <div class="filter-dropdown-header">
+                        <span>Filter Kategori</span>
+                        @if(request('kategori'))
+                            <a href="{{ route('admin.items', request()->only('search')) }}" class="filter-clear-link">Reset</a>
+                        @endif
+                    </div>
+                    <div class="filter-dropdown-list">
+                        <a href="{{ route('admin.items', request()->only('search')) }}" class="filter-dropdown-item {{ !request('kategori') ? 'active' : '' }}">
+                            <span>Semua Kategori</span>
+                            @if(!request('kategori'))
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            @endif
+                        </a>
+                        @foreach($categories as $cat)
+                        <a href="{{ route('admin.items', array_merge(request()->only('search'), ['kategori' => $cat->id_kategori])) }}" class="filter-dropdown-item {{ request('kategori') == $cat->id_kategori ? 'active' : '' }}">
+                            <span>{{ $cat->nama_kategori }}</span>
+                            @if(request('kategori') == $cat->id_kategori)
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            @endif
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- Active Filter Pill --}}
+            @if(request('kategori'))
+                @php
+                    $activeCat = $categories->firstWhere('id_kategori', request('kategori'));
+                @endphp
+                @if($activeCat)
+                    <div class="filter-active-pill">
+                        <span>Kategori: <strong>{{ $activeCat->nama_kategori }}</strong></span>
+                        <a href="{{ route('admin.items', request()->only('search')) }}" class="filter-pill-remove" title="Hapus Filter">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </a>
+                    </div>
+                @endif
+            @endif
+        </div>
+
         <button type="button" class="btn-add-account" id="btn-add-item" onclick="openAddItemModal()">
             + Add Item
         </button>
@@ -116,7 +173,7 @@
             </div>
         @endif
 
-        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}">
+        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" id="itemFormMethod" value="POST">
 
@@ -190,9 +247,33 @@
             </div>
 
             {{-- Keterangan --}}
-            <div style="margin-bottom: 1.5rem;">
+            <div style="margin-bottom: 1rem;">
                 <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Keterangan</label>
                 <textarea name="keterangan" id="input_keterangan" rows="3" placeholder="Catatan tambahan..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none; resize: vertical;"></textarea>
+            </div>
+
+            {{-- Picture Upload (Sesuai Desain Mockup) --}}
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.88rem; font-weight: 500; color: #475569; margin-bottom: 0.4rem;">Picture</label>
+                
+                {{-- Preview Box --}}
+                <div id="itemPicturePreviewBox" style="width: 100%; height: 180px; border: 1.5px solid #cbd5e1; border-radius: 12px; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 0.65rem; overflow: hidden; position: relative;">
+                    <span id="itemImagePlaceholder" style="color: #64748b; font-size: 0.95rem; font-weight: 500;">Preview Image</span>
+                    <img id="itemImagePreview" src="" alt="Preview Gambar" style="display: none; width: 100%; height: 100%; object-fit: contain; background: #f8fafc;">
+                </div>
+
+                {{-- Add File Button --}}
+                <button type="button" class="btn-item-add-file" onclick="document.getElementById('input_item_foto').click()" style="width: 100%; display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #ffffff; cursor: pointer; transition: all 0.15s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1.5px solid #1e293b; border-radius: 4px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="16" y2="12"/>
+                        </svg>
+                    </div>
+                    <span style="font-size: 0.92rem; font-weight: 500; color: #475569;">Add file</span>
+                </button>
+
+                <input type="file" name="foto" id="input_item_foto" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: none;" onchange="handleItemImageChange(this)">
             </div>
 
             {{-- Action Buttons --}}
@@ -205,6 +286,36 @@
 </div>
 
 <script>
+    function handleItemImageChange(input) {
+        const preview = document.getElementById('itemImagePreview');
+        const placeholder = document.getElementById('itemImagePlaceholder');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function resetItemImagePreview(existingUrl = null) {
+        const preview = document.getElementById('itemImagePreview');
+        const placeholder = document.getElementById('itemImagePlaceholder');
+        document.getElementById('input_item_foto').value = '';
+
+        if (existingUrl) {
+            preview.src = existingUrl;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+    }
+
     function openAddItemModal() {
         document.getElementById('itemModalTitle').textContent = 'Add Item';
         document.getElementById('itemForm').action = '{{ route("admin.items.store") }}';
@@ -214,6 +325,7 @@
         document.getElementById('input_jumlah_baik').value = '0';
         document.getElementById('input_jumlah_kurang_baik').value = '0';
         document.getElementById('input_jumlah_rusak_berat').value = '0';
+        resetItemImagePreview(null);
         document.getElementById('itemModal').classList.add('modal-overlay--active');
     }
 
@@ -239,6 +351,7 @@
                 document.getElementById('input_jumlah_kurang_baik').value = data.jumlah_kurang_baik;
                 document.getElementById('input_jumlah_rusak_berat').value = data.jumlah_rusak_berat;
                 document.getElementById('input_keterangan').value = data.keterangan || '';
+                resetItemImagePreview(data.foto);
                 document.getElementById('itemModal').classList.add('modal-overlay--active');
             })
             .catch(err => alert('Gagal memuat data barang.'));
@@ -247,6 +360,23 @@
     function closeItemModal() {
         document.getElementById('itemModal').classList.remove('modal-overlay--active');
     }
+
+    // Category Filter Dropdown Handler
+    function toggleCategoryDropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('categoryDropdownMenu');
+        if (menu) {
+            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        const container = document.getElementById('category-filter-container');
+        const menu = document.getElementById('categoryDropdownMenu');
+        if (container && menu && !container.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
 
     // Auto-open modal jika ada validation errors
     @if($errors->any())

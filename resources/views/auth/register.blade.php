@@ -42,7 +42,7 @@
                 id="full_name"
                 name="full_name"
                 class="form-input @error('full_name') form-input--error @enderror"
-                placeholder=""
+                placeholder="Masukkan nama lengkap"
                 value="{{ old('full_name') }}"
                 required
                 autocomplete="name"
@@ -69,7 +69,7 @@
                 id="email"
                 name="email"
                 class="form-input @error('email') form-input--error @enderror"
-                placeholder=""
+                placeholder="contoh: nama@email.com"
                 value="{{ old('email') }}"
                 required
                 autocomplete="email"
@@ -83,7 +83,7 @@
                 id="username"
                 name="username"
                 class="form-input @error('username') form-input--error @enderror"
-                placeholder=""
+                placeholder="Masukkan username"
                 value="{{ old('username') }}"
                 required
                 autocomplete="username"
@@ -105,28 +105,56 @@
 
         <div class="form-group">
             <label for="password" class="form-label">Password</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                class="form-input @error('password') form-input--error @enderror"
-                placeholder="Minimal 8 karakter (huruf & angka)"
-                required
-                autocomplete="new-password"
-            >
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-input @error('password') form-input--error @enderror"
+                    placeholder="Minimal 8 karakter (huruf & angka)"
+                    required
+                    autocomplete="new-password"
+                >
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)" title="Lihat password" tabindex="-1">
+                    <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg class="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                        <line x1="2" y1="2" x2="22" y2="22"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <div class="form-group">
             <label for="password_confirmation" class="form-label">Confirm Password</label>
-            <input
-                type="password"
-                id="password_confirmation"
-                name="password_confirmation"
-                class="form-input"
-                placeholder=""
-                required
-                autocomplete="new-password"
-            >
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    class="form-input"
+                    placeholder="Ulangi password"
+                    required
+                    autocomplete="new-password"
+                >
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_confirmation', this)" title="Lihat password" tabindex="-1">
+                    <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg class="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                        <line x1="2" y1="2" x2="22" y2="22"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <button type="submit" class="btn-auth" id="register-btn">
@@ -139,4 +167,25 @@
         </p>
     </form>
 </div>
+
+<script>
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const eyeIcon = btn.querySelector('.eye-icon');
+        const eyeOffIcon = btn.querySelector('.eye-off-icon');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            if (eyeIcon) eyeIcon.style.display = 'none';
+            if (eyeOffIcon) eyeOffIcon.style.display = 'block';
+            btn.setAttribute('title', 'Sembunyikan password');
+        } else {
+            input.type = 'password';
+            if (eyeIcon) eyeIcon.style.display = 'block';
+            if (eyeOffIcon) eyeOffIcon.style.display = 'none';
+            btn.setAttribute('title', 'Lihat password');
+        }
+    }
+</script>
 @endsection

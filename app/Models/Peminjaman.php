@@ -22,6 +22,7 @@ class Peminjaman extends Model
         'keterangan_penggunaan',
         'lokasi_penggunaan',
         'status_pengajuan',
+        'alasan_penolakan',
     ];
 
     protected $casts = [

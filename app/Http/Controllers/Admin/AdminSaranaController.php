@@ -68,6 +68,11 @@ class AdminSaranaController extends Controller
             });
         }
 
+        // Filter Kategori
+        if ($kategori = $request->input('kategori')) {
+            $query->where('id_kategori', $kategori);
+        }
+
         $items = $query->orderBy('nama_barang', 'asc')->paginate(10)->withQueryString();
         $categories = Kategori::orderBy('nama_kategori')->get();
 
@@ -92,14 +97,30 @@ class AdminSaranaController extends Controller
             'jumlah_kurang_baik' => 'required|integer|min:0',
             'jumlah_rusak_berat' => 'required|integer|min:0',
             'keterangan'         => 'nullable|string',
+            'foto'               => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'kode_barang.required' => 'Kode barang wajib diisi.',
             'kode_barang.unique'   => 'Kode barang sudah digunakan.',
             'id_kategori.required' => 'Kategori wajib dipilih.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
+            'foto.image'           => 'File harus berupa gambar.',
+            'foto.max'             => 'Ukuran gambar maksimal 2MB.',
         ]);
 
-        Barang::create($request->all());
+        $data = $request->except(['foto']);
+
+        if ($request->hasFile('foto')) {
+            $destinationPath = public_path('uploads/items');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file = $request->file('foto');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($destinationPath, $filename);
+            $data['foto'] = 'uploads/items/' . $filename;
+        }
+
+        Barang::create($data);
 
         return redirect()->route('admin.items')
             ->with('success', 'Barang berhasil ditambahkan.');
@@ -127,6 +148,7 @@ class AdminSaranaController extends Controller
             'keterangan'         => $item->keterangan,
             'kategori_nama'      => $item->kategori->nama_kategori ?? '-',
             'status'             => $item->status,
+            'foto'               => $item->foto ? asset($item->foto) : null,
         ]);
     }
 
@@ -149,9 +171,32 @@ class AdminSaranaController extends Controller
             'jumlah_kurang_baik' => 'required|integer|min:0',
             'jumlah_rusak_berat' => 'required|integer|min:0',
             'keterangan'         => 'nullable|string',
+            'foto'               => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'id_kategori.required' => 'Kategori wajib dipilih.',
+            'nama_barang.required' => 'Nama barang wajib diisi.',
+            'foto.image'           => 'File harus berupa gambar.',
+            'foto.max'             => 'Ukuran gambar maksimal 2MB.',
         ]);
 
-        $item->update($request->except('kode_barang'));
+        $data = $request->except(['kode_barang', 'foto']);
+
+        if ($request->hasFile('foto')) {
+            $destinationPath = public_path('uploads/items');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            // Hapus foto lama jika ada
+            if ($item->foto && file_exists(public_path($item->foto))) {
+                @unlink(public_path($item->foto));
+            }
+            $file = $request->file('foto');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($destinationPath, $filename);
+            $data['foto'] = 'uploads/items/' . $filename;
+        }
+
+        $item->update($data);
 
         return redirect()->route('admin.items')
             ->with('success', 'Data barang berhasil diperbarui.');
@@ -172,6 +217,10 @@ class AdminSaranaController extends Controller
 
         if ($activeLoan) {
             return back()->with('error', 'Barang tidak dapat dihapus karena masih ada peminjaman aktif.');
+        }
+
+        if ($item->foto && file_exists(public_path($item->foto))) {
+            @unlink(public_path($item->foto));
         }
 
         $item->delete();
@@ -271,12 +320,13 @@ class AdminSaranaController extends Controller
             ->paginate(10, ['*'], 'req_page')
             ->withQueryString();
 
-        // Tab 2: Pending Returns (status = disetujui, belum ada pengembalian yang dikonfirmasi)
-        // Peminjaman disetujui yang sudah ada record pengembalian tapi belum di-confirm
+        // Tab 2: Pending Returns (hanya pengembalian yang belum dikonfirmasi / kondisi_barang IS NULL)
         $pendingReturns = Peminjaman::disetujui()
-            ->whereHas('pengembalian')
+            ->whereHas('pengembalian', function ($q) {
+                $q->whereNull('kondisi_barang');
+            })
             ->with(['siswa', 'barang', 'pengembalian'])
-            ->latest('pengembalian.created_at')
+            ->latest('created_at')
             ->paginate(10, ['*'], 'ret_page')
             ->withQueryString();
 
@@ -290,25 +340,35 @@ class AdminSaranaController extends Controller
      */
     public function approveRequest($kode)
     {
-        $peminjaman = Peminjaman::menunggu()->where('kode_pinjam', $kode)->firstOrFail();
+        $peminjaman = Peminjaman::menunggu()->with(['siswa', 'barang'])->where('kode_pinjam', $kode)->firstOrFail();
         $peminjaman->status_pengajuan = 'disetujui';
         $peminjaman->save();
 
+        $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
+        $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
+
         return redirect()->route('admin.verifications')
-            ->with('success', "Peminjaman {$kode} berhasil disetujui.");
+            ->with('success', "Aksi berhasil! Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.");
     }
 
     /**
      * Tolak peminjaman.
      */
-    public function rejectRequest($kode)
+    public function rejectRequest(Request $request, $kode)
     {
-        $peminjaman = Peminjaman::menunggu()->where('kode_pinjam', $kode)->firstOrFail();
+        $request->validate([
+            'alasan_penolakan' => 'nullable|string|max:1000',
+        ]);
+
+        $peminjaman = Peminjaman::menunggu()->with(['siswa', 'barang'])->where('kode_pinjam', $kode)->firstOrFail();
         $peminjaman->status_pengajuan = 'ditolak';
+        $peminjaman->alasan_penolakan = $request->input('alasan_penolakan');
         $peminjaman->save();
 
+        $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
+
         return redirect()->route('admin.verifications')
-            ->with('success', "Peminjaman {$kode} berhasil ditolak.");
+            ->with('success', "Aksi berhasil! Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.");
     }
 
     /**
@@ -346,6 +406,6 @@ class AdminSaranaController extends Controller
         }
 
         return redirect()->route('admin.verifications', ['tab' => 'returns'])
-            ->with('success', "Pengembalian untuk peminjaman {$kode} berhasil dikonfirmasi.");
+            ->with('success', "Aksi berhasil! Pengembalian peminjaman {$kode} telah dikonfirmasi (Kondisi: {$request->kondisi_barang}) dan stok barang telah diperbarui.");
     }
 }

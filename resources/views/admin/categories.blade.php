@@ -24,8 +24,12 @@
     </div>
 
     {{-- Filter & Add Category Bar --}}
-    <div class="system-filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; gap: 1rem;">
-        <form action="{{ route('admin.categories') }}" method="GET" class="system-search-box" style="flex: 1; max-width: 320px; position: relative;">
+    <div class="system-filter-bar">
+        <form action="{{ route('admin.categories') }}" method="GET" class="system-search-box">
+            <svg class="system-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+            </svg>
             <input
                 type="text"
                 class="system-search-input"
@@ -33,10 +37,9 @@
                 name="search"
                 placeholder="Search categories..."
                 value="{{ request('search') }}"
-                style="width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.88rem; outline: none; background: #ffffff;"
             >
         </form>
-        <button type="button" class="btn-add-primary" id="btn-add-category" onclick="openAddCategoryModal()" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.88rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+        <button type="button" class="btn-add-account" id="btn-add-category" onclick="openAddCategoryModal()">
             + Add Category
         </button>
     </div>
