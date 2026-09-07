@@ -20,6 +20,7 @@ class Pengembalian extends Model
         'tanggal_kembali',
         'kondisi_barang',
         'bukti_foto_video',
+        'catatan',
     ];
 
     protected $casts = [

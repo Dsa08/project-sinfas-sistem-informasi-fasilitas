@@ -6,11 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use App\Models\Akun;
 use App\Models\Siswa;
 use App\Models\Pegawai;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -193,6 +197,203 @@ class AuthController extends Controller
         }
 
         return redirect('/');
+    }
+
+    /**
+     * Menampilkan form lupa password
+     */
+    public function showForgotPasswordForm()
+    {
+        if (Auth::check()) {
+            return $this->redirectBasedOnRole(Auth::user());
+        }
+
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Proses pengiriman tautan reset password
+     */
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string',
+        ], [
+            'email.required' => 'Email, Username, atau NIS/NIP wajib diisi.',
+        ]);
+
+        $identifier = trim($request->email);
+
+        // Cari akun berdasarkan email, username, nis, atau nip
+        $akun = Akun::where('email', $identifier)
+            ->orWhere('username', $identifier)
+            ->orWhere('nis', $identifier)
+            ->orWhere('nip', $identifier)
+            ->first();
+
+        // Jika tidak ketemu langsung di akun, cari di tabel Siswa/Pegawai
+        if (!$akun) {
+            $siswa = Siswa::where('email', $identifier)->orWhere('nis', $identifier)->first();
+            if ($siswa) {
+                $akun = Akun::where('nis', $siswa->nis)->first();
+            }
+        }
+
+        if (!$akun) {
+            return back()->withErrors([
+                'email' => 'Akun dengan identitas tersebut tidak ditemukan dalam sistem.',
+            ])->withInput();
+        }
+
+        // Email target pengiriman
+        $targetEmail = $akun->email;
+        if (!$targetEmail && $akun->siswa && $akun->siswa->email) {
+            $targetEmail = $akun->siswa->email;
+        }
+        if (!$targetEmail && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $targetEmail = $identifier;
+        }
+
+        // Identifier untuk record token
+        $emailRecord = $targetEmail ?: ($akun->username . '@sinfas.local');
+
+        // Buat token unik aman 64 karakter
+        $token = Str::random(64);
+
+        // Hapus token lama untuk email ini
+        DB::table('password_reset_tokens')->where('email', $emailRecord)->delete();
+
+        // Simpan token baru
+        DB::table('password_reset_tokens')->insert([
+            'email' => $emailRecord,
+            'token' => $token,
+            'created_at' => Carbon::now(),
+        ]);
+
+        $resetUrl = route('password.reset', ['token' => $token, 'email' => $emailRecord]);
+
+        // Coba kirim email jika ada target email yang valid
+        $emailSent = false;
+        if ($targetEmail && filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
+            try {
+                Mail::raw("Halo {$akun->nama},\n\nAnda menerima email ini karena ada permohonan reset password untuk akun SINFAS Anda.\n\nSilakan klik tautan berikut untuk membuat password baru:\n{$resetUrl}\n\nTautan ini akan kedaluwarsa dalam waktu 60 menit.\nJika Anda tidak meminta reset password, abaikan email ini.\n\nSalam,\nTim SINFAS", function ($message) use ($targetEmail, $akun) {
+                    $message->to($targetEmail, $akun->nama)
+                            ->subject('Permintaan Reset Password - SINFAS');
+                });
+                $emailSent = true;
+            } catch (\Throwable $e) {
+                Log::warning("Gagal mengirim email reset password: " . $e->getMessage());
+            }
+        }
+
+        Log::info("Password reset request for [{$akun->username}] ({$emailRecord}): {$resetUrl}");
+
+        $statusMessage = 'Permintaan reset password berhasil diproses!';
+        if ($emailSent) {
+            $statusMessage .= " Tautan reset telah dikirimkan ke email: {$targetEmail}.";
+        } else {
+            $statusMessage .= " Silakan gunakan tautan verifikasi di bawah ini untuk melanjutkan reset password.";
+        }
+
+        return back()->with('status', $statusMessage)->with('direct_reset_url', $resetUrl);
+    }
+
+    /**
+     * Menampilkan formulir input password baru
+     */
+    public function showResetPasswordForm(Request $request, $token)
+    {
+        if (Auth::check()) {
+            return $this->redirectBasedOnRole(Auth::user());
+        }
+
+        $email = $request->query('email');
+
+        // Validasi keberadaan token di tabel password_reset_tokens
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('token', $token)
+            ->first();
+
+        if (!$resetRecord) {
+            return redirect()->route('password.request')
+                ->withErrors(['email' => 'Tautan reset password ini tidak valid atau sudah digunakan. Silakan ajukan permohonan baru.']);
+        }
+
+        // Cek kedaluwarsa token (maksimal 60 menit)
+        if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('token', $token)->delete();
+            return redirect()->route('password.request')
+                ->withErrors(['email' => 'Tautan reset password telah kedaluwarsa (berlaku 60 menit). Silakan ajukan permohonan baru.']);
+        }
+
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $email ?: $resetRecord->email,
+        ]);
+    }
+
+    /**
+     * Proses eksekusi pembaruan password baru
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|string',
+            'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
+        ], [
+            'token.required' => 'Token reset password tidak valid.',
+            'email.required' => 'Email atau identitas akun wajib disertakan.',
+            'password.required' => 'Password baru wajib diisi.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+        ]);
+
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('token', $request->token)
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$resetRecord) {
+            return back()->withErrors([
+                'email' => 'Token reset password tidak valid atau sesi telah berakhir.',
+            ])->withInput();
+        }
+
+        if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('token', $request->token)->delete();
+            return redirect()->route('password.request')
+                ->withErrors(['email' => 'Tautan reset password telah kedaluwarsa. Silakan ajukan permohonan baru.']);
+        }
+
+        // Cari akun yang cocok
+        $identifier = $request->email;
+        $usernameCandidate = str_replace('@sinfas.local', '', $identifier);
+
+        $akun = Akun::where('email', $identifier)
+            ->orWhere('username', $usernameCandidate)
+            ->orWhere('username', $identifier)
+            ->first();
+
+        if (!$akun) {
+            $siswa = Siswa::where('email', $identifier)->first();
+            if ($siswa) {
+                $akun = Akun::where('nis', $siswa->nis)->first();
+            }
+        }
+
+        if (!$akun) {
+            return back()->withErrors(['email' => 'Data akun tidak ditemukan.'])->withInput();
+        }
+
+        // Update password baru
+        $akun->password = Hash::make($request->password);
+        $akun->save();
+
+        // Hapus token yang telah berhasil digunakan
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('login')
+            ->with('success', 'Password berhasil diperbarui! Silakan login menggunakan password baru Anda.');
     }
 }
 

@@ -25,6 +25,12 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
+    // Forgot & Reset Password Routes
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
 // Authenticated Routes
@@ -42,7 +48,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
         Route::get('/loan-status', [UserController::class, 'loanStatus'])->name('loan.status');
         Route::get('/loan-request/{kode}', [UserController::class, 'loanRequest'])->name('loan.request');
-        Route::post('/loan-request/{kode}', [UserController::class, 'submitLoanRequest'])->name('loan.submit');
+        Route::post('/loan-request/{kode}', [UserController::class, 'submitLoanRequest'])
+            ->middleware('throttle:3,1')
+            ->name('loan.submit');
+        Route::get('/loan-return/{kode}', [UserController::class, 'loanReturn'])->name('loan.return');
+        Route::post('/loan-return/{kode}', [UserController::class, 'submitReturnRequest'])->name('loan.return.submit');
     });
 
     // Admin Sarana Routes
@@ -93,3 +103,12 @@ Route::get('/admin', function () {
 Route::get('/admin-sistem', function () {
     return redirect()->route('admin.sistem.dashboard');
 });
+
+// Fallback untuk melayani file uploads jika diakses lewat /storage/uploads/
+Route::get('/storage/uploads/{any}', function ($any) {
+    $path = public_path('uploads/' . $any);
+    if (file_exists($path)) {
+        return response()->file($path);
+    }
+    abort(404);
+})->where('any', '.*');

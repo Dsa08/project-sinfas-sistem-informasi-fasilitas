@@ -9,6 +9,9 @@ use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class AdminSaranaController extends Controller
 {
@@ -36,11 +39,67 @@ class AdminSaranaController extends Controller
             ->take(5)
             ->get();
 
-        // Top 6 barang paling banyak dipinjam untuk chart
+        // 1. Top 6 barang paling banyak dipinjam sepanjang masa
         $topLoanItems = Barang::withCount('peminjaman')
             ->orderByDesc('peminjaman_count')
             ->take(6)
             ->get();
+
+        // 2. Tentukan 6 bulan terakhir (dinamis berjalan otomatis mengikuti bulan saat ini)
+        $namaBulan = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+
+        $months = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $d = Carbon::now()->subMonths($i);
+            $months[] = [
+                'year'  => $d->year,
+                'month' => $d->month,
+                'label' => $namaBulan[$d->month] ?? $d->format('M'),
+            ];
+        }
+
+        $startDate = Carbon::now()->subMonths(5)->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+
+        // 3. Query agregasi peminjaman real-time dari tabel peminjaman
+        $loanCounts = Peminjaman::select(
+                'kode_barang',
+                DB::raw('YEAR(tanggal_pinjam) as yr'),
+                DB::raw('MONTH(tanggal_pinjam) as mo'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereIn('kode_barang', $topLoanItems->pluck('kode_barang'))
+            ->whereBetween('tanggal_pinjam', [$startDate, $endDate])
+            ->groupBy('kode_barang', 'yr', 'mo')
+            ->get()
+            ->groupBy('kode_barang');
+
+        $colors = ['#fb7185', '#38bdf8', '#fbbf24', '#60a5fa', '#4ade80', '#a855f7'];
+        $chartDatasets = [];
+
+        foreach ($topLoanItems as $index => $item) {
+            $itemLoans = $loanCounts->get($item->kode_barang, collect());
+            $monthlyCounts = [];
+            foreach ($months as $m) {
+                $matched = $itemLoans->first(fn($row) => $row->yr == $m['year'] && $row->mo == $m['month']);
+                $monthlyCounts[] = $matched ? (int) $matched->total : 0;
+            }
+
+            $chartDatasets[] = [
+                'label'              => $item->nama_barang,
+                'data'               => $monthlyCounts,
+                'backgroundColor'    => $colors[$index % count($colors)],
+                'borderRadius'       => 4,
+                'barPercentage'      => 0.82,
+                'categoryPercentage' => 0.8,
+            ];
+        }
+
+        $chartLabels = array_column($months, 'label');
 
         return view('admin.dashboard', compact(
             'pendingCount',
@@ -48,7 +107,9 @@ class AdminSaranaController extends Controller
             'borrowedCount',
             'damagedCount',
             'pendingLoans',
-            'topLoanItems'
+            'topLoanItems',
+            'chartLabels',
+            'chartDatasets'
         ));
     }
 
@@ -81,7 +142,9 @@ class AdminSaranaController extends Controller
         }
 
         $items = $query->orderBy('nama_barang', 'asc')->paginate(10)->withQueryString();
-        $categories = Kategori::orderBy('nama_kategori')->get();
+        $categories = Cache::remember('all_categories', 3600, function () {
+            return Kategori::orderBy('nama_kategori')->get();
+        });
 
         return view('admin.items', compact('items', 'categories'));
     }
@@ -269,6 +332,7 @@ class AdminSaranaController extends Controller
         ]);
 
         Kategori::create($request->only('nama_kategori'));
+        Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
             ->with('success', 'Kategori berhasil ditambahkan.');
@@ -289,6 +353,7 @@ class AdminSaranaController extends Controller
         ]);
 
         $kategori->update($request->only('nama_kategori'));
+        Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
             ->with('success', 'Kategori berhasil diperbarui.');
@@ -306,6 +371,7 @@ class AdminSaranaController extends Controller
         }
 
         $kategori->delete();
+        Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
             ->with('success', 'Kategori berhasil dihapus.');
