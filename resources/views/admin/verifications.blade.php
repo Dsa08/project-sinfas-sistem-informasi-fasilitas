@@ -130,17 +130,30 @@
                     @forelse($pendingReturns as $ret)
                     <tr>
                         <td class="td-name">{{ $ret->siswa->nama ?? '-' }}</td>
-                        <td class="td-item">{{ $ret->barang->nama_barang ?? '-' }}</td>
+                        <td class="td-item">
+                            {{ $ret->barang->nama_barang ?? '-' }}
+                            @if(!empty($ret->pengembalian->catatan))
+                                <div style="font-size: 0.76rem; color: #6b7280; margin-top: 0.25rem; font-style: italic; line-height: 1.3;">
+                                    <span style="font-weight: 600; color: #4b5563; font-style: normal;">Catatan:</span> "{{ $ret->pengembalian->catatan }}"
+                                </div>
+                            @endif
+                        </td>
                         <td class="td-date">{{ $ret->pengembalian->tanggal_kembali->format('Y-m-d') }}</td>
                         <td style="text-align: center;">
                             @if($ret->pengembalian->bukti_foto_video)
-                            <button type="button" class="btn-evidence" title="Lihat Bukti Foto" onclick="window.open('{{ asset('storage/' . $ret->pengembalian->bukti_foto_video) }}', '_blank')">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
-                                </svg>
-                            </button>
+                                @php
+                                    $rawBukti = $ret->pengembalian->bukti_foto_video;
+                                    $buktiUrl = str_starts_with($rawBukti, 'uploads/') 
+                                        ? asset($rawBukti) 
+                                        : (str_starts_with($rawBukti, 'http') ? $rawBukti : asset('storage/' . $rawBukti));
+                                @endphp
+                                <button type="button" class="btn-evidence" title="Lihat Bukti Foto/Video" onclick="window.open('{{ $buktiUrl }}', '_blank')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
+                                    </svg>
+                                </button>
                             @else
-                            <span style="color: #9ca3af; font-size: 0.82rem;">-</span>
+                                <span style="color: #9ca3af; font-size: 0.82rem;">-</span>
                             @endif
                         </td>
                         <td>

@@ -81,7 +81,7 @@
                 </button>
             </div>
             <div class="form-forgot">
-                <a href="#" class="auth-link" id="forgot-password-link">Forgot password?</a>
+                <a href="{{ route('password.request') }}" class="auth-link" id="forgot-password-link">Forgot password?</a>
             </div>
         </div>
 

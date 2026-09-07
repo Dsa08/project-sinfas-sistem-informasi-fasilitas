@@ -69,7 +69,17 @@
                     </div>
                 @endif
 
-                <form action="{{ route('loan.submit', $item->kode_barang) }}" method="POST" class="loan-request-form">
+                @if(isset($activeLoansCount) && $activeLoansCount >= 2)
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.88rem; line-height: 1.4;">
+                        <strong>Batas Kuota Tercapai:</strong> Anda saat ini memiliki {{ $activeLoansCount }} peminjaman aktif. Harap selesaikan peminjaman sebelumnya sebelum meminjam alat baru.
+                    </div>
+                @elseif(isset($alreadyPending) && $alreadyPending)
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.88rem; line-height: 1.4;">
+                        <strong>Permohonan Sedang Diproses:</strong> Anda sudah mengajukan alat ini dan statusnya masih menunggu verifikasi admin.
+                    </div>
+                @endif
+
+                <form action="{{ route('loan.submit', $item->kode_barang) }}" method="POST" class="loan-request-form" id="loanRequestForm">
                     @csrf
 
                     {{-- Loan Date --}}
@@ -90,17 +100,39 @@
                         <textarea name="keterangan_penggunaan" id="keterangan_penggunaan" class="loan-field-textarea" placeholder="Jelaskan keperluan peminjaman..." rows="4" required>{{ old('keterangan_penggunaan') }}</textarea>
                     </div>
 
-                    {{-- Submit --}}
-                    @if($item->status === 'Available')
-                        <button type="submit" class="loan-btn-submit">Submit Loan Request</button>
+                    {{-- Submit with Anti-Spam Check --}}
+                    @if(isset($activeLoansCount) && $activeLoansCount >= 2)
+                        <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Batas Kuota Pinjaman Penuh (2/2)</button>
+                    @elseif(isset($alreadyPending) && $alreadyPending)
+                        <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Pengajuan Sedang Menunggu</button>
+                    @elseif($item->status === 'Available')
+                        <button type="submit" id="btnSubmitLoan" class="loan-btn-submit">Submit Loan Request</button>
                     @else
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Barang Tidak Tersedia</button>
                     @endif
 
-                    <p class="loan-form-note">Note: Loan requests require admin approval. You will be notified once your request has been reviewed.</p>
+                    <p class="loan-form-note">Note: Kuota peminjaman maksimal 2 alat aktif per siswa. Permintaan memerlukan persetujuan Admin Sarana.</p>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('loanRequestForm')?.addEventListener('submit', function(e) {
+        const confirmed = confirm('Apakah Anda yakin ingin mengajukan permohonan peminjaman untuk alat "{{ addslashes($item->nama_barang) }}"?');
+        if (!confirmed) {
+            e.preventDefault();
+            return false;
+        }
+
+        const btn = document.getElementById('btnSubmitLoan');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Memproses Permintaan...';
+            btn.style.opacity = '0.75';
+            btn.style.cursor = 'not-allowed';
+        }
+    });
+</script>
 @endsection

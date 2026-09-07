@@ -149,58 +149,13 @@
                 return;
             }
 
-            @php
-                $colors = ['#fb7185', '#38bdf8', '#fbbf24', '#60a5fa', '#4ade80', '#a855f7'];
-                $defaultItems = [
-                    ['label' => 'Kabel HDMI 10 Meter', 'data' => [28, 36, 42, 30, 45, 50]],
-                    ['label' => 'Kamera DSLR Canon 3000D', 'data' => [45, 52, 60, 48, 55, 68]],
-                    ['label' => 'Wireless Presenter Laser', 'data' => [15, 22, 30, 18, 25, 34]],
-                    ['label' => 'Microphone Wireless Clip-on', 'data' => [32, 40, 38, 35, 42, 48]],
-                    ['label' => 'Tripod Kamera Takara', 'data' => [18, 28, 34, 25, 38, 43]],
-                    ['label' => 'Speaker Portable JBL', 'data' => [22, 30, 36, 28, 40, 42]],
-                ];
-
-                $datasets = [];
-                if (isset($topLoanItems) && $topLoanItems->count() > 0) {
-                    foreach ($topLoanItems as $index => $item) {
-                        $c = $colors[$index % count($colors)];
-                        $baseVal = max($item->peminjaman_count * 6, 12);
-                        $datasets[] = [
-                            'label' => $item->nama_barang,
-                            'data' => [
-                                max(8, round($baseVal * 0.6)),
-                                max(12, round($baseVal * 0.8)),
-                                max(16, round($baseVal * 1.0)),
-                                max(14, round($baseVal * 0.85)),
-                                max(20, round($baseVal * 1.2)),
-                                max(24, round($baseVal * 1.4))
-                            ],
-                            'backgroundColor' => $c,
-                            'borderRadius' => 4,
-                            'barPercentage' => 0.82,
-                            'categoryPercentage' => 0.8
-                        ];
-                    }
-                } else {
-                    foreach ($defaultItems as $index => $def) {
-                        $datasets[] = [
-                            'label' => $def['label'],
-                            'data' => $def['data'],
-                            'backgroundColor' => $colors[$index],
-                            'borderRadius' => 4,
-                            'barPercentage' => 0.82,
-                            'categoryPercentage' => 0.8
-                        ];
-                    }
-                }
-            @endphp
-
-            const chartDatasets = @json($datasets);
+            const chartLabels = {!! json_encode($chartLabels ?? []) !!};
+            const chartDatasets = {!! json_encode($chartDatasets ?? []) !!};
 
             new Chart(ctx.getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                    labels: chartLabels,
                     datasets: chartDatasets
                 },
                 options: {

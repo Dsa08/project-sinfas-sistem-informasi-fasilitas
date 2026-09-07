@@ -129,7 +129,7 @@
                     <td>
                         <div class="action-btn-group">
                             <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('{{ $item->kode_barang }}')">Edit</button>
-                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus barang {{ $item->nama_barang }}?')">
+                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data barang {{ addslashes($item->nama_barang) }}? Tindakan ini tidak dapat dibatalkan.')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-table-outline-red">Delete</button>
@@ -173,7 +173,7 @@
             </div>
         @endif
 
-        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}" enctype="multipart/form-data">
+        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}" enctype="multipart/form-data" onsubmit="return confirmItemFormSubmit()">
             @csrf
             <input type="hidden" name="_method" id="itemFormMethod" value="POST">
 
@@ -314,6 +314,16 @@
             preview.style.display = 'none';
             placeholder.style.display = 'block';
         }
+    }
+
+    function confirmItemFormSubmit() {
+        const isEdit = document.getElementById('itemFormMethod').value === 'PUT';
+        const nameInput = document.getElementById('input_nama_barang');
+        const itemName = nameInput ? nameInput.value.trim() : '';
+        const msg = isEdit 
+            ? (itemName ? `Apakah Anda yakin ingin menyimpan perubahan data barang "${itemName}"?` : 'Apakah Anda yakin ingin menyimpan perubahan data barang ini?')
+            : (itemName ? `Apakah Anda yakin ingin menambahkan data barang baru "${itemName}"?` : 'Apakah Anda yakin ingin menambahkan data barang baru ini?');
+        return confirm(msg);
     }
 
     function openAddItemModal() {

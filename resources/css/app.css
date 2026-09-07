@@ -1029,6 +1029,121 @@
     color: #991b1b;
 }
 
+.loan-badge--return-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.loan-badge--returned {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.loan-action-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.btn-loan-return {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background-color: #1D67F2;
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(29, 103, 242, 0.2);
+}
+
+.btn-loan-return:hover {
+    background-color: #1554cc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(29, 103, 242, 0.3);
+}
+
+/* Modal Popup Styles */
+.sinfas-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.sinfas-modal-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sinfas-modal-dialog {
+    background: #ffffff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+    overflow: hidden;
+}
+
+.sinfas-modal-backdrop.show .sinfas-modal-dialog {
+    transform: scale(1);
+}
+
+.sinfas-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.15rem 1.4rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sinfas-modal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.sinfas-modal-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+}
+
+.sinfas-modal-close:hover {
+    color: #374151;
+}
+
+.sinfas-modal-body {
+    padding: 1.25rem 1.4rem;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
 /* --- Loan Status Responsive --- */
 @media (max-width: 640px) {
     .loan-status-card {
