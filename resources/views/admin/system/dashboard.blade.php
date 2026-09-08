@@ -1,3 +1,10 @@
+{{-- 
+  DASHBOARD ADMINISTRATOR SISTEM (OVERVIEW KESEHATAN SISTEM) — SINFAS
+  File: resources/views/admin/system/dashboard.blade.php
+  Fitur:
+  - 3 Kartu Metrik: Total Accounts (dengan rincian per role), Akun Baru Bulan Ini, dan Status Backup Sistem.
+  - Ringkasan Aktivitas Sistem & Health Check (Log aktivitas otentikasi & performa server).
+--}}
 @extends('layouts.admin-system')
 
 @section('title', 'Dashboard - Admin Sistem SINFAS')

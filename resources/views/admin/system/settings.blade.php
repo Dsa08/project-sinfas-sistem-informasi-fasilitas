@@ -1,3 +1,10 @@
+{{-- 
+  HALAMAN PENGATURAN SISTEM (SYSTEM SETTINGS) — SINFAS
+  File: resources/views/admin/system/settings.blade.php
+  Fitur:
+  - Pengaturan Jam Operasional Layanan Sarana (Start Time & End Time).
+  - Status Konfigurasi & Pemeliharaan Aplikasi.
+--}}
 @extends('layouts.admin-system')
 
 @section('title', 'Kelola Pengaturan Sistem - Admin Sistem SINFAS')

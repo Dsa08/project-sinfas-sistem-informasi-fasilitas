@@ -1,3 +1,11 @@
+{{-- 
+  HALAMAN PENGEMBALIAN BARANG (RETURN ITEM) — SINFAS
+  File: resources/views/user/loan-return.blade.php
+  Fitur:
+  - Ringkasan data peminjaman aktif: Kode pinjam, tanggal mulai pinjam, lokasi dan tujuan penggunaan.
+  - Formulir pengembalian: Input tanggal aktual pengembalian, catatan kondisi barang dari siswa.
+  - Upload berkas bukti fisik serah terima (foto / video, maksimal 10MB) dengan preview interaktif.
+--}}
 @extends('layouts.app')
 
 @section('title', 'Pengembalian Barang - ' . ($loan->barang->nama_barang ?? 'Barang') . ' - SINFAS')

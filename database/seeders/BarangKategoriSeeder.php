@@ -6,10 +6,23 @@ use Illuminate\Database\Seeder;
 use App\Models\Kategori;
 use App\Models\Barang;
 
+/**
+ * Seeder BarangKategoriSeeder
+ * 
+ * Menginisialisasi katalog inventaris sarana dan prasarana sekolah:
+ * 1. 5 Kategori Pokok:
+ *    - Audio & Sound System
+ *    - Proyektor & Presentasi
+ *    - Kamera & Dokumentasi
+ *    - Kabel & Adapter
+ *    - Peralatan Lab & Multimedia
+ * 2. 25 Item Sarana dengan spesifikasi lengkap:
+ *    (Merk/Model, No Seri Pabrik, Dimensi, Bahan, Tahun Pembelian, Stok Fisik per Kondisi).
+ */
 class BarangKategoriSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Menjalankan proses seeding kategori dan data inventaris barang.
      */
     public function run(): void
     {

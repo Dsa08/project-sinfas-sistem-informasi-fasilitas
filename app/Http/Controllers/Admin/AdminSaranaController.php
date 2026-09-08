@@ -13,18 +13,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
+/**
+ * Controller AdminSaranaController
+ * 
+ * Mengelola seluruh operasional inventaris sarana dan prasarana sekolah:
+ * 1. Dashboard Analitik: Metrik sarana, antrean verifikasi, dan visualisasi agregasi Chart.js 6 bulan terakhir.
+ * 2. Manajemen Master Barang: CRUD inventaris sarana, pengelolaan kondisi fisik (baik, kurang baik, rusak berat),
+ *    serta upload berkas foto sarana ke public/uploads/items.
+ * 3. Manajemen Master Kategori: CRUD kategori sarana dan invalidasi cache otomatis.
+ * 4. Alur Verifikasi Transaksi: Persetujuan peminjaman (approve), penolakan beralasan (reject),
+ *    dan konfirmasi penerimaan fisik barang kembali serta penyesuaian otomatis stok inventaris.
+ */
 class AdminSaranaController extends Controller
 {
-    // =============================================
-    //  DASHBOARD
-    // =============================================
+    // =========================================================================
+    //  1. DASHBOARD & ANALITIK SARANA
+    // =========================================================================
 
     /**
-     * Dashboard Admin Sarana — statistik & pending loan requests.
+     * Menampilkan dashboard analitik admin sarana prasarana.
+     * Mengkalkulasi ringkasan statistik (pending, total barang, dipinjam, rusak)
+     * serta data tren peminjaman 6 bulan terakhir untuk grafik Chart.js.
+     *
+     * @return \Illuminate\View\View
      */
     public function dashboard()
     {
-        // Stat cards
+        // 1. Ringkasan Kartu Statistik (Metric Cards)
         $pendingCount = Peminjaman::menunggu()->count();
         $totalItems = Barang::count();
         $borrowedCount = Peminjaman::disetujui()
@@ -32,20 +47,20 @@ class AdminSaranaController extends Controller
             ->count();
         $damagedCount = Barang::sum('jumlah_rusak_berat');
 
-        // Pending loan requests (5 terbaru)
+        // 2. Daftar 5 permohonan pinjam terbaru yang masih berstatus menunggu verifikasi
         $pendingLoans = Peminjaman::menunggu()
             ->with(['siswa', 'barang'])
             ->latest('created_at')
             ->take(5)
             ->get();
 
-        // 1. Top 6 barang paling banyak dipinjam sepanjang masa
+        // 3. Mengambil Top 6 barang yang paling sering dipinjam sepanjang masa
         $topLoanItems = Barang::withCount('peminjaman')
             ->orderByDesc('peminjaman_count')
             ->take(6)
             ->get();
 
-        // 2. Tentukan 6 bulan terakhir (dinamis berjalan otomatis mengikuti bulan saat ini)
+        // 4. Membangun data time-series dinamis untuk 6 bulan terakhir
         $namaBulan = [
             1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
             5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
@@ -65,7 +80,7 @@ class AdminSaranaController extends Controller
         $startDate = Carbon::now()->subMonths(5)->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
 
-        // 3. Query agregasi peminjaman real-time dari tabel peminjaman
+        // 5. Agregasi data peminjaman per item per bulan dari database
         $loanCounts = Peminjaman::select(
                 'kode_barang',
                 DB::raw('YEAR(tanggal_pinjam) as yr'),
@@ -78,6 +93,7 @@ class AdminSaranaController extends Controller
             ->get()
             ->groupBy('kode_barang');
 
+        // 6. Palet warna kurva batang chart
         $colors = ['#fb7185', '#38bdf8', '#fbbf24', '#60a5fa', '#4ade80', '#a855f7'];
         $chartDatasets = [];
 
@@ -113,18 +129,21 @@ class AdminSaranaController extends Controller
         ));
     }
 
-    // =============================================
-    //  KELOLA DATA ALAT (BARANG)
-    // =============================================
+    // =========================================================================
+    //  2. KELOLA DATA MASTER BARANG (SARANA PRASARANA)
+    // =========================================================================
 
     /**
-     * Menampilkan daftar barang dengan search & pagination.
+     * Menampilkan daftar katalog barang dengan filter pencarian dan paginasi.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function items(Request $request)
     {
         $query = Barang::with('kategori');
 
-        // Search
+        // Pencarian multi-kolom
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
@@ -136,12 +155,14 @@ class AdminSaranaController extends Controller
             });
         }
 
-        // Filter Kategori
+        // Filter berdasarkan kategori sarana
         if ($kategori = $request->input('kategori')) {
             $query->where('id_kategori', $kategori);
         }
 
         $items = $query->orderBy('nama_barang', 'asc')->paginate(10)->withQueryString();
+        
+        // Cache master kategori
         $categories = Cache::remember('all_categories', 3600, function () {
             return Kategori::orderBy('nama_kategori')->get();
         });
@@ -150,7 +171,10 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Simpan barang baru.
+     * Menyimpan data item sarana prasarana baru ke inventaris.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function storeItem(Request $request)
     {
@@ -179,6 +203,7 @@ class AdminSaranaController extends Controller
 
         $data = $request->except(['foto']);
 
+        // Penanganan upload berkas gambar sarana
         if ($request->hasFile('foto')) {
             $destinationPath = public_path('uploads/items');
             if (!file_exists($destinationPath)) {
@@ -193,11 +218,14 @@ class AdminSaranaController extends Controller
         Barang::create($data);
 
         return redirect()->route('admin.items')
-            ->with('success', 'Barang berhasil ditambahkan.');
+            ->with('success', 'Barang berhasil ditambahkan ke inventaris.');
     }
 
     /**
-     * Ambil detail barang (JSON untuk modal edit).
+     * Mengambil detail satu barang dalam format respons JSON untuk modal AJAX edit barang.
+     *
+     * @param  string  $kode  Kode barang
+     * @return \Illuminate\Http\JsonResponse
      */
     public function showItem($kode)
     {
@@ -223,7 +251,11 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Update data barang.
+     * Memperbarui informasi dan stok kondisi sarana prasarana.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $kode  Kode barang
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateItem(Request $request, $kode)
     {
@@ -251,12 +283,13 @@ class AdminSaranaController extends Controller
 
         $data = $request->except(['kode_barang', 'foto']);
 
+        // Mengganti berkas gambar jika pengguna mengunggah berkas baru
         if ($request->hasFile('foto')) {
             $destinationPath = public_path('uploads/items');
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
-            // Hapus foto lama jika ada
+            // Hapus foto lama jika berkas fisik masih ada di storage
             if ($item->foto && file_exists(public_path($item->foto))) {
                 @unlink(public_path($item->foto));
             }
@@ -273,22 +306,27 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Hapus barang.
+     * Menghapus sarana prasarana dari sistem inventaris.
+     * Mencegah penghapusan jika ada transaksi peminjaman aktif yang belum selesai.
+     *
+     * @param  string  $kode  Kode barang
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyItem($kode)
     {
         $item = Barang::findOrFail($kode);
 
-        // Cek apakah ada peminjaman aktif
+        // Validasi Integritas Data: pastikan tidak ada peminjaman aktif
         $activeLoan = Peminjaman::where('kode_barang', $kode)
             ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
             ->whereDoesntHave('pengembalian')
             ->exists();
 
         if ($activeLoan) {
-            return back()->with('error', 'Barang tidak dapat dihapus karena masih ada peminjaman aktif.');
+            return back()->with('error', 'Barang tidak dapat dihapus karena masih ada transaksi peminjaman aktif.');
         }
 
+        // Hapus file fisik gambar jika tersimpan
         if ($item->foto && file_exists(public_path($item->foto))) {
             @unlink(public_path($item->foto));
         }
@@ -296,15 +334,18 @@ class AdminSaranaController extends Controller
         $item->delete();
 
         return redirect()->route('admin.items')
-            ->with('success', 'Barang berhasil dihapus.');
+            ->with('success', 'Barang berhasil dihapus dari inventaris.');
     }
 
-    // =============================================
-    //  KELOLA KATEGORI
-    // =============================================
+    // =========================================================================
+    //  3. KELOLA DATA MASTER KATEGORI
+    // =========================================================================
 
     /**
-     * Menampilkan daftar kategori dengan jumlah barang & pagination.
+     * Menampilkan daftar kategori sarana beserta jumlah sarana yang terasosiasi.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function categories(Request $request)
     {
@@ -320,7 +361,10 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Simpan kategori baru.
+     * Menyimpan kategori baru ke database dan membersihkan cache kategori.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function storeCategory(Request $request)
     {
@@ -335,11 +379,15 @@ class AdminSaranaController extends Controller
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori berhasil ditambahkan.');
+            ->with('success', 'Kategori baru berhasil ditambahkan.');
     }
 
     /**
-     * Update kategori.
+     * Memperbarui nama kategori dan merefresh cache kategori.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id  ID Kategori
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateCategory(Request $request, $id)
     {
@@ -360,7 +408,10 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Hapus kategori.
+     * Menghapus kategori sarana jika tidak memiliki barang inventaris yang terhubung.
+     *
+     * @param  int  $id  ID Kategori
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyCategory($id)
     {
@@ -377,23 +428,28 @@ class AdminSaranaController extends Controller
             ->with('success', 'Kategori berhasil dihapus.');
     }
 
-    // =============================================
-    //  VERIFIKASI PEMINJAMAN & PENGEMBALIAN
-    // =============================================
+    // =========================================================================
+    //  4. VERIFIKASI PERMOHONAN & PENGEMBALIAN SARANA
+    // =========================================================================
 
     /**
-     * Menampilkan halaman verifikasi: pending requests & pending returns.
+     * Menampilkan halaman verifikasi dengan 2 tab:
+     * - Tab 1: Antrean permohonan pinjam baru (status 'menunggu')
+     * - Tab 2: Antrean konfirmasi fisik barang kembali (status 'disetujui' dan pengembalian belum diverifikasi)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function verifications(Request $request)
     {
-        // Tab 1: Pending Requests (status = menunggu)
+        // Tab 1: Pending Requests
         $pendingRequests = Peminjaman::menunggu()
             ->with(['siswa', 'barang'])
             ->latest('created_at')
             ->paginate(10, ['*'], 'req_page')
             ->withQueryString();
 
-        // Tab 2: Pending Returns (hanya pengembalian yang belum dikonfirmasi / kondisi_barang IS NULL)
+        // Tab 2: Pending Returns (kondisi_barang masih NULL menunggu verifikasi fisik oleh admin)
         $pendingReturns = Peminjaman::disetujui()
             ->whereHas('pengembalian', function ($q) {
                 $q->whereNull('kondisi_barang');
@@ -409,7 +465,11 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Setujui peminjaman.
+     * Menyetujui permohonan peminjaman sarana.
+     * Mengubah status transaksi menjadi 'disetujui'.
+     *
+     * @param  string  $kode  Kode pinjam
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function approveRequest($kode)
     {
@@ -425,7 +485,11 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Tolak peminjaman.
+     * Menolak permohonan peminjaman sarana dengan menyertakan alasan penolakan.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $kode  Kode pinjam
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function rejectRequest(Request $request, $kode)
     {
@@ -445,7 +509,13 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Konfirmasi pengembalian barang + update kondisi.
+     * Mengonfirmasi pengembalian barang fisik oleh siswa.
+     * Menyimpan kondisi fisik hasil serah terima (Baik, Kurang Baik, atau Rusak Berat)
+     * dan otomatis mengembalikan unit stok ke kategori kondisi yang bersangkutan.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $kode  Kode pinjam
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function confirmReturn(Request $request, $kode)
     {
@@ -464,11 +534,11 @@ class AdminSaranaController extends Controller
             return back()->with('error', 'Data pengembalian tidak ditemukan.');
         }
 
-        // Update kondisi barang pada record pengembalian
+        // 1. Simpan kondisi barang yang telah diinspeksi ke tabel pengembalian
         $pengembalian->kondisi_barang = $request->kondisi_barang;
         $pengembalian->save();
 
-        // Update stok barang berdasarkan kondisi yang dipilih
+        // 2. Tambah kembali kuantitas stok barang berdasarkan kondisi fisik serah terima
         $barang = $peminjaman->barang;
         if ($barang) {
             match ($request->kondisi_barang) {

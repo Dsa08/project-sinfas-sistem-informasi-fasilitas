@@ -1,3 +1,13 @@
+{{-- 
+  HALAMAN STATUS PENGAJUAN & RIWAYAT PEMINJAMAN — SINFAS
+  File: resources/views/user/loan-status.blade.php
+  Fitur:
+  - Pelacakan status permohonan pinjam siswa (Menunggu Verifikasi, Disetujui, Ditolak, dan Selesai).
+  - Badge status dengan styling warna indikator dinamis.
+  - Penjelasan alasan penolakan dari admin sarana jika permohonan ditolak.
+  - Tombol aksi pengembalian sarana (Return Item) dengan modal popup interaktif atau halaman mandiri.
+  - Paginasi daftar riwayat transaksi peminjaman.
+--}}
 @extends('layouts.app')
 
 @section('title', 'Status Pengajuan - SINFAS')

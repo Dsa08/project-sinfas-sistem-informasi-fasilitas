@@ -1,3 +1,12 @@
+{{-- 
+  LAYOUT UTAMA PENGGUNA (SISWA) — SINFAS
+  File: resources/views/layouts/app.blade.php
+  Fungsi:
+  - Kerangka layout induk antarmuka siswa (Dashboard katalog, status peminjaman, form pinjam & kembali).
+  - Memuat Google Fonts (Inter & Poppins), bundle asset Vite (app.css & app.js).
+  - Menyediakan Navbar atas interaktif: Tombol status pengajuan, indikator lonceng notifikasi, dan avatar profil dropdown.
+  - Menampilkan global flash messages (success, error, status).
+--}}
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -1,3 +1,12 @@
+{{-- 
+  HALAMAN REGISTRASI SISWA BARU — SINFAS
+  File: resources/views/auth/register.blade.php
+  Fitur:
+  - Pendaftaran akun mandiri untuk siswa terdaftar.
+  - Validasi NIS terhadap database master siswa sekolah.
+  - Input nama lengkap, nomor kontak, username unik, dan email aktif.
+  - Validasi kata sandi kuat (minimal 8 karakter kombinasi huruf & angka) serta konfirmasi sandi.
+--}}
 @extends('layouts.auth')
 
 @section('title', 'Register - SINFAS')

@@ -1,3 +1,13 @@
+{{-- 
+  MANAJEMEN MASTER AKUN PENGGUNA (USER ACCOUNTS) — SINFAS
+  File: resources/views/admin/system/accounts.blade.php
+  Fitur:
+  - Tabel Akun: Avatar, nama, NIS/NIP, kontak, role, status aktif (Aktif / Nonaktif), dan tanggal terdaftar.
+  - Modal Tambah Akun Baru: Integrasi validasi NIS/NIP master data sekolah.
+  - Modal Detail Akun: Format kartu info pengguna via AJAX.
+  - Modal Edit Akun: Form update data profil, username, surel, dan password opsional.
+  - Aksi Toggle Aktif/Nonaktif (Soft deactivate) & Reset Password Darurat.
+--}}
 @extends('layouts.admin-system')
 
 @section('title', 'Kelola Akun User - Admin Sistem SINFAS')

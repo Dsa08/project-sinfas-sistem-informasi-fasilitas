@@ -1,3 +1,12 @@
+{{-- 
+  MANAJEMEN MASTER KATEGORI SARANA — SINFAS
+  File: resources/views/admin/categories.blade.php
+  Fitur:
+  - Tabel master kategori sarana dan kalkulasi agregat total item barang terkait.
+  - Modal Form Tambah Kategori Baru.
+  - Modal Form Edit Nama Kategori.
+  - Proteksi Hapus: Mencegah penghapusan kategori yang masih menaungi unit sarana.
+--}}
 @extends('layouts.admin-sarana')
 
 @section('title', 'Kelola Kategori - Admin Sarana SINFAS')

@@ -12,16 +12,32 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
+/**
+ * Controller AccountController
+ * 
+ * Mengelola administrasi data akun pengguna aplikasi SINFAS (Khusus Role Admin Sistem):
+ * 1. Menampilkan seluruh akun (Siswa & Admin Sarana) dengan fitur pencarian, penyortiran, dan paginasi.
+ * 2. Membuat akun pengguna baru dengan validasi integritas terhadap data master sekolah (NIS Siswa / NIP Pegawai).
+ * 3. Menampilkan detail akun via format JSON untuk keperluan modal antarmuka.
+ * 4. Memperbarui identitas, kontak, role, username, dan password akun.
+ * 5. Fitur soft-deactivate/toggle status aktif akun (mencegah akun menonaktifkan dirinya sendiri).
+ * 6. Fitur reset password darurat ke nilai default ('password123') oleh admin sistem.
+ */
 class AccountController extends Controller
 {
     /**
-     * Menampilkan daftar semua akun dengan search, sort, dan pagination.
+     * Menampilkan daftar seluruh akun pengguna selain admin sistem utama.
+     * Mendukung multi-field search (nama, username, nis, nip, email) dan sorting dinamis.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
+        // 1. Inisialisasi query: kecualikan akun bertipe admin sistem
         $query = Akun::where('role', '!=', 'admin_sistem');
 
-        // Search: nama, username, nis, nip, email
+        // 2. Pencarian data akun berdasarkan nama, username, nis, nip, atau email
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
@@ -32,7 +48,7 @@ class AccountController extends Controller
             });
         }
 
-        // Sort
+        // 3. Penyortiran kolom (Sort by field & direction)
         $sortField = $request->input('sort', 'nama');
         $sortDir = $request->input('dir', 'asc');
         $allowedSorts = ['nama', 'nis', 'nip', 'role', 'created_at'];
@@ -43,9 +59,10 @@ class AccountController extends Controller
             $query->orderBy('nama', 'asc');
         }
 
+        // 4. Ambil data terpaginasi (10 akun per halaman)
         $accounts = $query->paginate(10)->withQueryString();
 
-        // Statistik ringkas untuk header
+        // 5. Statistik ringkas metrik akun untuk widget header
         $totalAccounts = Akun::count();
         $totalActive = Akun::active()->count();
 
@@ -53,10 +70,15 @@ class AccountController extends Controller
     }
 
     /**
-     * Simpan akun baru ke database.
+     * Menyimpan data akun pengguna baru ke dalam sistem.
+     * Memvalidasi apakah NIS siswa atau NIP pegawai terdaftar resmi di basis data sekolah.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
+        // 1. Validasi struktur data input
         $request->validate([
             'nama'        => 'required|string|max:255',
             'nis_nip'     => 'required|string|max:20',
@@ -67,14 +89,14 @@ class AccountController extends Controller
             'password'    => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
             'foto'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
-            'nama.required'     => 'Nama wajib diisi.',
-            'nis_nip.required'  => 'NIS/NIP wajib diisi.',
-            'role.required'     => 'Role wajib dipilih.',
-            'username.required' => 'Username wajib diisi.',
-            'username.unique'   => 'Username sudah digunakan.',
-            'email.unique'      => 'Email sudah digunakan.',
-            'password.required' => 'Password wajib diisi.',
-            'password.confirmed'=> 'Konfirmasi password tidak cocok.',
+            'nama.required'      => 'Nama wajib diisi.',
+            'nis_nip.required'   => 'NIS/NIP wajib diisi.',
+            'role.required'      => 'Role wajib dipilih.',
+            'username.required'  => 'Username wajib diisi.',
+            'username.unique'    => 'Username sudah digunakan.',
+            'email.unique'       => 'Email sudah digunakan.',
+            'password.required'  => 'Password wajib diisi.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $nisNip = trim($request->nis_nip);
@@ -82,11 +104,11 @@ class AccountController extends Controller
         $nis = null;
         $nip = null;
 
-        // Validasi NIS/NIP sesuai role
+        // 2. Validasi keterkaitan NIS/NIP dengan data referensi master
         if ($role === 'siswa') {
             $siswa = Siswa::where('nis', $nisNip)->first();
             if (!$siswa) {
-                return back()->withErrors(['nis_nip' => 'NIS tidak ditemukan di data siswa.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'NIS tidak ditemukan di data master siswa.'])->withInput();
             }
             if (Akun::where('nis', $nisNip)->exists()) {
                 return back()->withErrors(['nis_nip' => 'NIS ini sudah memiliki akun terdaftar.'])->withInput();
@@ -95,21 +117,21 @@ class AccountController extends Controller
         } elseif ($role === 'admin_sarana') {
             $pegawai = Pegawai::where('nip', $nisNip)->first();
             if (!$pegawai) {
-                return back()->withErrors(['nis_nip' => 'NIP tidak ditemukan di data pegawai.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'NIP tidak ditemukan di data master pegawai.'])->withInput();
             }
             if (Akun::where('nip', $nisNip)->exists()) {
                 return back()->withErrors(['nis_nip' => 'NIP ini sudah memiliki akun terdaftar.'])->withInput();
             }
             $nip = $nisNip;
         }
-        // admin_sistem: NIS/NIP opsional, tetap disimpan sebagai referensi
 
-        // Upload foto jika ada
+        // 3. Upload berkas foto avatar pengguna jika disediakan
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('avatars', 'public');
         }
 
+        // 4. Eksekusi pembuatan akun baru
         Akun::create([
             'nis'          => $nis,
             'nip'          => $nip,
@@ -118,17 +140,20 @@ class AccountController extends Controller
             'email'        => $request->email,
             'role'         => $role,
             'username'     => $request->username,
-            'password'     => $request->password, // Auto-hashed via $casts
+            'password'     => $request->password, // Password otomatis di-hash via cast Eloquent
             'foto'         => $fotoPath,
             'is_active'    => true,
         ]);
 
         return redirect()->route('admin.sistem.accounts')
-            ->with('success', 'Akun berhasil ditambahkan.');
+            ->with('success', 'Akun pengguna berhasil ditambahkan.');
     }
 
     /**
-     * Ambil data detail akun (JSON untuk modal).
+     * Mengambil detail akun dalam format JSON untuk kebutuhan modal view/edit AJAX.
+     *
+     * @param  int  $id  ID Akun
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -152,12 +177,17 @@ class AccountController extends Controller
     }
 
     /**
-     * Update data akun yang ada.
+     * Memperbarui informasi akun pengguna yang telah ada.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id  ID Akun
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
         $akun = Akun::findOrFail($id);
 
+        // 1. Validasi input dengan pengecualian unique check untuk record saat ini
         $request->validate([
             'nama'        => 'required|string|max:255',
             'nis_nip'     => 'required|string|max:20',
@@ -168,13 +198,13 @@ class AccountController extends Controller
             'password'    => ['nullable', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
             'foto'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
-            'nama.required'     => 'Nama wajib diisi.',
-            'nis_nip.required'  => 'NIS/NIP wajib diisi.',
-            'role.required'     => 'Role wajib dipilih.',
-            'username.required' => 'Username wajib diisi.',
-            'username.unique'   => 'Username sudah digunakan.',
-            'email.unique'      => 'Email sudah digunakan.',
-            'password.confirmed'=> 'Konfirmasi password tidak cocok.',
+            'nama.required'      => 'Nama wajib diisi.',
+            'nis_nip.required'   => 'NIS/NIP wajib diisi.',
+            'role.required'      => 'Role wajib dipilih.',
+            'username.required'  => 'Username wajib diisi.',
+            'username.unique'    => 'Username sudah digunakan.',
+            'email.unique'       => 'Email sudah digunakan.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $nisNip = trim($request->nis_nip);
@@ -182,7 +212,7 @@ class AccountController extends Controller
         $nis = null;
         $nip = null;
 
-        // Validasi NIS/NIP sesuai role
+        // 2. Validasi integritas NIS/NIP
         if ($role === 'siswa') {
             $siswa = Siswa::where('nis', $nisNip)->first();
             if (!$siswa) {
@@ -190,7 +220,7 @@ class AccountController extends Controller
             }
             $existingAkun = Akun::where('nis', $nisNip)->where('id_akun', '!=', $akun->id_akun)->first();
             if ($existingAkun) {
-                return back()->withErrors(['nis_nip' => 'NIS ini sudah memiliki akun terdaftar.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'NIS ini sudah terhubung dengan akun lain.'])->withInput();
             }
             $nis = $nisNip;
         } elseif ($role === 'admin_sarana') {
@@ -200,20 +230,20 @@ class AccountController extends Controller
             }
             $existingAkun = Akun::where('nip', $nisNip)->where('id_akun', '!=', $akun->id_akun)->first();
             if ($existingAkun) {
-                return back()->withErrors(['nis_nip' => 'NIP ini sudah memiliki akun terdaftar.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'NIP ini sudah terhubung dengan akun lain.'])->withInput();
             }
             $nip = $nisNip;
         }
 
-        // Upload foto baru jika ada
+        // 3. Penggantian berkas avatar jika ada file baru diunggah
         if ($request->hasFile('foto')) {
-            // Hapus foto lama
             if ($akun->foto && Storage::disk('public')->exists($akun->foto)) {
                 Storage::disk('public')->delete($akun->foto);
             }
             $akun->foto = $request->file('foto')->store('avatars', 'public');
         }
 
+        // 4. Update data profil
         $akun->nis = $nis;
         $akun->nip = $nip;
         $akun->nama = $request->nama;
@@ -222,9 +252,9 @@ class AccountController extends Controller
         $akun->role = $role;
         $akun->username = $request->username;
 
-        // Update password hanya jika diisi
+        // 5. Update password hanya jika kolom password diisi oleh admin
         if ($request->filled('password')) {
-            $akun->password = $request->password; // Auto-hashed via $casts
+            $akun->password = $request->password;
         }
 
         $akun->save();
@@ -234,13 +264,17 @@ class AccountController extends Controller
     }
 
     /**
-     * Deactivate akun (soft toggle is_active).
+     * Mengaktifkan atau menonaktifkan akun pengguna (toggle is_active).
+     * Mencegah admin menonaktifkan akun dirinya sendiri.
+     *
+     * @param  int  $id  ID Akun
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
         $akun = Akun::findOrFail($id);
 
-        // Jangan biarkan admin mendeactivate dirinya sendiri
+        // Cegah admin menonaktifkan akun sendiri untuk menghindari lockout
         if ($akun->id_akun === auth()->user()->id_akun) {
             return back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
         }
@@ -255,16 +289,20 @@ class AccountController extends Controller
     }
 
     /**
-     * Reset password akun ke default 'password123'.
+     * Mereset kata sandi akun pengguna ke default ('password123').
+     * Berguna jika pengguna lupa sandi dan tidak dapat mengakses email.
+     *
+     * @param  int  $id  ID Akun
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function resetPassword($id)
     {
         $akun = Akun::findOrFail($id);
 
-        $akun->password = 'password123'; // Auto-hashed via $casts
+        $akun->password = 'password123';
         $akun->save();
 
         return redirect()->route('admin.sistem.accounts')
-            ->with('success', "Password akun {$akun->nama} berhasil di-reset ke default.");
+            ->with('success', "Password akun {$akun->nama} berhasil di-reset ke nilai bawaan ('password123').");
     }
 }

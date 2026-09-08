@@ -1,3 +1,12 @@
+{{-- 
+  HALAMAN LOGIN (MASUK APLIKASI) — SINFAS
+  File: resources/views/auth/login.blade.php
+  Fitur:
+  - Form otentikasi login multi-identifier (Username, Email, NIS Siswa, atau NIP Pegawai).
+  - Tampilan alert kesalahan validasi dan notifikasi rate-limiting brute force.
+  - Opsi checkbox "Ingat Saya" (Remember Me).
+  - Tautan navigasi menuju pendaftaran akun (register) dan pemulihan kata sandi (forgot password).
+--}}
 @extends('layouts.auth')
 
 @section('title', 'Login - SINFAS')

@@ -1,3 +1,14 @@
+{{-- 
+  DASHBOARD SISWA (KATALOG SARANA PRASARANA) — SINFAS
+  File: resources/views/user/dashboard.blade.php
+  Fitur:
+  - Hero banner sambutan interaktif.
+  - Search bar interaktif (pencarian nama barang, merk, kode barang, kategori).
+  - Filter pills kategori sarana prasarana sekolah dengan status aktif dinamis.
+  - Grid card katalog barang: Foto barang, nama, merk/model, spesifikasi dimensi/bahan, dan status ketersediaan.
+  - Tombol aksi peminjaman (aktif jika barang tersedia, disabled jika habis).
+  - Paginasi navigasi daftar sarana.
+--}}
 @extends('layouts.app')
 
 @section('title', 'Dashboard - SINFAS')

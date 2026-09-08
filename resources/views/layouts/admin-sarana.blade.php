@@ -1,3 +1,12 @@
+{{-- 
+  LAYOUT ADMIN SARANA PRASARANA — SINFAS
+  File: resources/views/layouts/admin-sarana.blade.php
+  Fungsi:
+  - Kerangka layout antarmuka pengelola sarana prasarana sekolah.
+  - Menyediakan Sidebar Navigasi: Dashboard Analitik, Master Data Alat (Barang), Master Kategori, dan Verifikasi Permohonan.
+  - Badge dinamis indikator antrean permohonan peminjaman yang masih menunggu verifikasi.
+  - Header profil admin sarana dengan menu logout cepat.
+--}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
