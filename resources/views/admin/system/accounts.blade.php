@@ -1,12 +1,12 @@
 @extends('layouts.admin-system')
 
 @section('title', 'Kelola Akun User - Admin Sistem SINFAS')
-@section('page_title', 'Manage Accounts')
+@section('page_title', 'Kelola Akun')
 
 @section('content')
 <div class="system-accounts-container">
     <div class="system-section-header">
-        <h2 class="system-section-heading">User Accounts</h2>
+        <h2 class="system-section-heading">Akun Pengguna</h2>
     </div>
 
     {{-- Flash Messages --}}
@@ -33,11 +33,11 @@
                 id="search-user-input"
                 name="search"
                 value="{{ request('search') }}"
-                placeholder="Search by name, NIS, or email..."
+                placeholder="Cari berdasarkan nama, NIS/NIP, atau email..."
             >
         </form>
         <button type="button" class="btn-add-account" id="btn-add-account">
-            + Add Account
+            + Tambah Akun
         </button>
     </div>
 
@@ -48,7 +48,7 @@
                 <tr>
                     <th>
                         <a href="{{ route('admin.sistem.accounts', array_merge(request()->query(), ['sort' => 'nama', 'dir' => request('sort') === 'nama' && request('dir') === 'asc' ? 'desc' : 'asc'])) }}" class="th-content">
-                            <span>Name</span>
+                            <span>Nama</span>
                             <x-heroicon-s-chevron-up-down class="sort-icon" />
                         </a>
                     </th>
@@ -60,11 +60,11 @@
                     </th>
                     <th>
                         <a href="{{ route('admin.sistem.accounts', array_merge(request()->query(), ['sort' => 'role', 'dir' => request('sort') === 'role' && request('dir') === 'asc' ? 'desc' : 'asc'])) }}" class="th-content">
-                            <span>Role</span>
+                            <span>Peran</span>
                             <x-heroicon-s-chevron-up-down class="sort-icon" />
                         </a>
                     </th>
-                    <th class="th-actions">Actions</th>
+                    <th class="th-actions">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -122,7 +122,7 @@
                                         <button type="submit" class="action-dropdown-item action-dropdown-item--danger btn-action-deactivate"
                                             onclick="return confirm('{{ $akun->is_active ? 'Nonaktifkan' : 'Aktifkan kembali' }} akun {{ $akun->nama }}?')">
                                             <x-heroicon-o-user-minus class="w-4 h-4" />
-                                            <span>{{ $akun->is_active ? 'Deactivate Account' : 'Activate Account' }}</span>
+                                            <span>{{ $akun->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}</span>
                                         </button>
                                     </form>
                                 </div>
@@ -151,9 +151,9 @@
     <div class="system-pagination-bar">
         {{-- Previous --}}
         @if($accounts->onFirstPage())
-            <button class="pagination-btn pagination-btn--disabled" disabled>Prev</button>
+            <button class="pagination-btn pagination-btn--disabled" disabled>Sebelumnya</button>
         @else
-            <a href="{{ $accounts->previousPageUrl() }}" class="pagination-btn">Prev</a>
+            <a href="{{ $accounts->previousPageUrl() }}" class="pagination-btn">Sebelumnya</a>
         @endif
 
         {{-- Page Numbers --}}
@@ -167,9 +167,9 @@
 
         {{-- Next --}}
         @if($accounts->hasMorePages())
-            <a href="{{ $accounts->nextPageUrl() }}" class="pagination-btn">Next</a>
+            <a href="{{ $accounts->nextPageUrl() }}" class="pagination-btn">Berikutnya</a>
         @else
-            <button class="pagination-btn pagination-btn--disabled" disabled>Next</button>
+            <button class="pagination-btn pagination-btn--disabled" disabled>Berikutnya</button>
         @endif
     </div>
     @endif
@@ -182,22 +182,22 @@
     <div class="account-modal-card">
         <form method="POST" action="{{ route('admin.sistem.accounts.store') }}" enctype="multipart/form-data" class="account-modal-body" id="add-account-form">
             @csrf
-            <h3 class="account-modal-title">Add Account</h3>
+            <h3 class="account-modal-title">Tambah Akun</h3>
 
             <div class="account-form-group">
                 <label class="account-form-label" for="add-nama">Nama</label>
-                <input type="text" id="add-nama" name="nama" class="account-form-input" placeholder="Enter full name" required value="{{ old('nama') }}">
+                <input type="text" id="add-nama" name="nama" class="account-form-input" placeholder="Masukkan nama lengkap" required value="{{ old('nama') }}">
             </div>
 
             <div class="account-form-row">
                 <div class="account-form-col">
                     <label class="account-form-label" for="add-nis-nip">NIS/NIP</label>
-                    <input type="text" id="add-nis-nip" name="nis_nip" class="account-form-input" placeholder="Enter NIS or NIP" required value="{{ old('nis_nip') }}">
+                    <input type="text" id="add-nis-nip" name="nis_nip" class="account-form-input" placeholder="Masukkan NIS atau NIP" required value="{{ old('nis_nip') }}">
                 </div>
                 <div class="account-form-col">
-                    <label class="account-form-label" for="add-role">Role</label>
+                    <label class="account-form-label" for="add-role">Peran</label>
                     <select id="add-role" name="role" class="account-form-select" required>
-                        <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select role</option>
+                        <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih peran</option>
                         <option value="siswa" {{ old('role') === 'siswa' ? 'selected' : '' }}>Siswa</option>
                         <option value="admin_sarana" {{ old('role') === 'admin_sarana' ? 'selected' : '' }}>Admin Sarana</option>
                     </select>
@@ -206,17 +206,17 @@
 
             <div class="account-form-group">
                 <label class="account-form-label" for="add-kontak">Nomor Kontak</label>
-                <input type="text" id="add-kontak" name="nomor_kontak" class="account-form-input" placeholder="e.g. 08123456789" value="{{ old('nomor_kontak') }}">
+                <input type="text" id="add-kontak" name="nomor_kontak" class="account-form-input" placeholder="Contoh: 08123456789" value="{{ old('nomor_kontak') }}">
             </div>
 
             <div class="account-form-group">
                 <label class="account-form-label" for="add-username">Username</label>
-                <input type="text" id="add-username" name="username" class="account-form-input" placeholder="e.g. ahmad.fadli" required value="{{ old('username') }}">
+                <input type="text" id="add-username" name="username" class="account-form-input" placeholder="Contoh: ahmad.fadli" required value="{{ old('username') }}">
             </div>
 
             <div class="account-form-group">
                 <label class="account-form-label" for="add-email">Email</label>
-                <input type="email" id="add-email" name="email" class="account-form-input" placeholder="e.g. ahmad.fadli@mail.com" value="{{ old('email') }}">
+                <input type="email" id="add-email" name="email" class="account-form-input" placeholder="Contoh: ahmad.fadli@mail.com" value="{{ old('email') }}">
             </div>
 
             <div class="account-form-group">
@@ -225,20 +225,20 @@
             </div>
 
             <div class="account-form-group">
-                <label class="account-form-label" for="add-confirm-password">Confirm Password</label>
+                <label class="account-form-label" for="add-confirm-password">Konfirmasi Password</label>
                 <input type="password" id="add-confirm-password" name="password_confirmation" class="account-form-input" placeholder="••••••••" required>
             </div>
 
             <div class="account-form-group">
-                <label class="account-form-label">Picture</label>
+                <label class="account-form-label">Foto Profil</label>
                 <div class="account-picture-box" id="add-picture-preview-container">
-                    <span class="account-picture-text" id="add-picture-placeholder">Preview Image</span>
+                    <span class="account-picture-text" id="add-picture-placeholder">Pratinjau Foto</span>
                     <img src="" alt="Preview" id="add-picture-preview-img" class="account-picture-preview-img" style="display: none;">
                 </div>
                 <input type="file" id="add-picture-file" name="foto" accept="image/*" style="display: none;">
                 <button type="button" class="btn-add-file" id="btn-add-file-trigger">
                     <x-heroicon-o-plus class="w-4 h-4" />
-                    <span>Add file</span>
+                    <span>Pilih Foto</span>
                 </button>
             </div>
 
@@ -253,8 +253,8 @@
             @endif
 
             <div class="account-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn-cancel-add">Cancel</button>
-                <button type="submit" class="btn-modal-save">Save</button>
+                <button type="button" class="btn-modal-cancel" id="btn-cancel-add">Batal</button>
+                <button type="submit" class="btn-modal-save">Simpan</button>
             </div>
         </form>
     </div>
@@ -269,22 +269,22 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="_edit_mode" value="1">
-            <h3 class="account-modal-title">Edit Account</h3>
+            <h3 class="account-modal-title">Edit Akun</h3>
 
             <div class="account-form-group">
                 <label class="account-form-label" for="edit-nama">Nama</label>
-                <input type="text" id="edit-nama" name="nama" class="account-form-input" placeholder="Enter full name" required>
+                <input type="text" id="edit-nama" name="nama" class="account-form-input" placeholder="Masukkan nama lengkap" required>
             </div>
 
             <div class="account-form-row">
                 <div class="account-form-col">
                     <label class="account-form-label" for="edit-nis-nip">NIS/NIP</label>
-                    <input type="text" id="edit-nis-nip" name="nis_nip" class="account-form-input" placeholder="Enter NIS or NIP" required>
+                    <input type="text" id="edit-nis-nip" name="nis_nip" class="account-form-input" placeholder="Masukkan NIS atau NIP" required>
                 </div>
                 <div class="account-form-col">
-                    <label class="account-form-label" for="edit-role">Role</label>
+                    <label class="account-form-label" for="edit-role">Peran</label>
                     <select id="edit-role" name="role" class="account-form-select" required>
-                        <option value="" disabled>Select role</option>
+                        <option value="" disabled>Pilih peran</option>
                         <option value="siswa">Siswa</option>
                         <option value="admin_sarana">Admin Sarana</option>
                     </select>
@@ -293,17 +293,17 @@
 
             <div class="account-form-group">
                 <label class="account-form-label" for="edit-kontak">Nomor Kontak</label>
-                <input type="text" id="edit-kontak" name="nomor_kontak" class="account-form-input" placeholder="e.g. 08123456789">
+                <input type="text" id="edit-kontak" name="nomor_kontak" class="account-form-input" placeholder="Contoh: 08123456789">
             </div>
 
             <div class="account-form-group">
                 <label class="account-form-label" for="edit-username">Username</label>
-                <input type="text" id="edit-username" name="username" class="account-form-input" placeholder="e.g. ahmad.fadli" required>
+                <input type="text" id="edit-username" name="username" class="account-form-input" placeholder="Contoh: ahmad.fadli" required>
             </div>
 
             <div class="account-form-group">
                 <label class="account-form-label" for="edit-email">Email</label>
-                <input type="email" id="edit-email" name="email" class="account-form-input" placeholder="e.g. ahmad.fadli@mail.com">
+                <input type="email" id="edit-email" name="email" class="account-form-input" placeholder="Contoh: ahmad.fadli@mail.com">
             </div>
 
             <div class="account-form-group">
@@ -312,20 +312,20 @@
             </div>
 
             <div class="account-form-group">
-                <label class="account-form-label" for="edit-confirm-password">Confirm Password</label>
+                <label class="account-form-label" for="edit-confirm-password">Konfirmasi Password</label>
                 <input type="password" id="edit-confirm-password" name="password_confirmation" class="account-form-input" placeholder="••••••••">
             </div>
 
             <div class="account-form-group">
-                <label class="account-form-label">Picture</label>
+                <label class="account-form-label">Foto Profil</label>
                 <div class="account-picture-box" id="edit-picture-preview-container">
-                    <span class="account-picture-text" id="edit-picture-placeholder">Preview Image</span>
+                    <span class="account-picture-text" id="edit-picture-placeholder">Pratinjau Foto</span>
                     <img src="" alt="Preview" id="edit-picture-preview-img" class="account-picture-preview-img" style="display: none;">
                 </div>
                 <input type="file" id="edit-picture-file" name="foto" accept="image/*" style="display: none;">
                 <button type="button" class="btn-add-file" id="btn-edit-file-trigger">
                     <x-heroicon-o-plus class="w-4 h-4" />
-                    <span>Change file</span>
+                    <span>Ubah Foto</span>
                 </button>
             </div>
 
@@ -340,8 +340,8 @@
             @endif
 
             <div class="account-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn-cancel-edit">Cancel</button>
-                <button type="submit" class="btn-modal-save">Save</button>
+                <button type="button" class="btn-modal-cancel" id="btn-cancel-edit">Batal</button>
+                <button type="submit" class="btn-modal-save">Simpan</button>
             </div>
         </form>
     </div>
@@ -353,7 +353,7 @@
 <div class="modal-overlay" id="account-detail-modal">
     <div class="account-modal-card">
         <div class="account-modal-body" id="detail-modal-body">
-            <h3 class="account-modal-title">Account Detail</h3>
+            <h3 class="account-modal-title">Detail Akun</h3>
             <div class="account-modal-divider"></div>
 
             <div class="detail-avatar-container">
@@ -376,7 +376,7 @@
                     <input type="text" id="detail-view-nisnip" class="account-form-input account-form-input--readonly" readonly>
                 </div>
                 <div class="account-form-col">
-                    <label class="account-form-label">Role</label>
+                    <label class="account-form-label">Peran</label>
                     <input type="text" id="detail-view-role" class="account-form-input account-form-input--readonly" readonly>
                 </div>
             </div>
@@ -399,7 +399,7 @@
             <div class="account-modal-divider"></div>
 
             <div class="account-modal-footer">
-                <button type="button" class="btn-modal-exit" id="btn-exit-detail-modal">Exit</button>
+                <button type="button" class="btn-modal-exit" id="btn-exit-detail-modal">Tutup</button>
             </div>
         </div>
     </div>

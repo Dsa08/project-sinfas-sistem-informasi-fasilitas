@@ -104,7 +104,7 @@
                                     </svg>
                                 </div>
                                 <p class="dropzone-title">
-                                    <span style="color: #1D67F2; font-weight: 600;">Klik untuk unggah</span> atau drag and drop
+                                    <span style="color: #1D67F2; font-weight: 600;">Klik untuk unggah</span> atau seret dan lepas file
                                 </p>
                                 <p class="dropzone-subtitle">Mendukung file JPG, PNG, WEBP, atau MP4 (Maks. 10MB)</p>
                             </div>

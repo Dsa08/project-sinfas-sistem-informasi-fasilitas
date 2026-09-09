@@ -41,29 +41,29 @@
     {{-- Tab Navigation Bar --}}
     <div class="sarana-tab-bar" id="verification-tabs">
         <button type="button" class="sarana-tab-btn {{ $activeTab === 'requests' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-requests" data-tab="requests">
-            Pending Requests
+            Permintaan Peminjaman
         </button>
         <button type="button" class="sarana-tab-btn {{ $activeTab === 'returns' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-returns" data-tab="returns">
-            Pending Returns
+            Menunggu Pengembalian
         </button>
     </div>
 
     {{-- Tab 1: Pending Requests Section --}}
     <div class="sarana-tab-content {{ $activeTab === 'requests' ? 'sarana-tab-content--active' : '' }}" id="tab-content-requests">
         <div class="system-section-header">
-            <h2 class="sarana-section-heading">Pending Requests</h2>
+            <h2 class="sarana-section-heading">Permintaan Peminjaman</h2>
         </div>
 
         <div class="system-table-card">
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 18%;">Borrower</th>
-                        <th style="width: 22%;">Item</th>
-                        <th style="width: 15%;">Location</th>
-                        <th style="width: 15%;">Reason</th>
-                        <th style="width: 12%;">Date</th>
-                        <th style="width: 18%;">Actions</th>
+                        <th style="width: 18%;">Peminjam</th>
+                        <th style="width: 22%;">Barang</th>
+                        <th style="width: 15%;">Lokasi</th>
+                        <th style="width: 15%;">Keperluan</th>
+                        <th style="width: 12%;">Tanggal Pinjam</th>
+                        <th style="width: 18%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,13 +80,13 @@
                                     type="button" 
                                     class="btn-action btn-approve"
                                     onclick="openApproveModal('{{ $req->kode_pinjam }}', '{{ addslashes($req->siswa->nama ?? 'Siswa') }}', '{{ addslashes($req->barang->nama_barang ?? 'Barang') }}')">
-                                    Approve
+                                    Setujui
                                 </button>
                                 <button 
                                     type="button" 
                                     class="btn-action btn-reject"
                                     onclick="openRejectModal('{{ $req->kode_pinjam }}')">
-                                    Reject
+                                    Tolak
                                 </button>
                             </div>
                         </td>
@@ -111,19 +111,19 @@
     {{-- Tab 2: Pending Returns Section --}}
     <div class="sarana-tab-content {{ $activeTab === 'returns' ? 'sarana-tab-content--active' : '' }}" id="tab-content-returns">
         <div class="system-section-header">
-            <h2 class="sarana-section-heading">Pending Returns</h2>
+            <h2 class="sarana-section-heading">Menunggu Pengembalian</h2>
         </div>
 
         <div class="system-table-card">
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 22%;">Borrower</th>
-                        <th style="width: 28%;">Item</th>
-                        <th style="width: 15%;">Return Date</th>
-                        <th style="width: 10%; text-align: center;">Evidence</th>
-                        <th style="width: 13%;">Condition</th>
-                        <th style="width: 12%;">Action</th>
+                        <th style="width: 22%;">Peminjam</th>
+                        <th style="width: 28%;">Barang</th>
+                        <th style="width: 15%;">Tanggal Kembali</th>
+                        <th style="width: 10%; text-align: center;">Bukti</th>
+                        <th style="width: 13%;">Kondisi</th>
+                        <th style="width: 12%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,7 +166,7 @@
                                 </select>
                         </td>
                         <td>
-                                <button type="submit" class="btn-confirm-return" onclick="return confirm('Konfirmasi pengembalian ini?')">Confirm</button>
+                                <button type="submit" class="btn-confirm-return" onclick="return confirm('Konfirmasi pengembalian ini?')">Konfirmasi</button>
                             </form>
                         </td>
                     </tr>
@@ -193,7 +193,7 @@
 {{-- ============================================================ --}}
 <div class="verification-modal-overlay" id="reject-modal-overlay" style="display: none;">
     <div class="verification-modal-card" id="reject-modal-card">
-        <h3 class="verification-modal-title">Reject Request</h3>
+        <h3 class="verification-modal-title">Tolak Pengajuan Peminjaman</h3>
         
         <form id="reject-request-form" method="POST" action="">
             @csrf
@@ -208,8 +208,8 @@
             </div>
 
             <div class="verification-modal-actions">
-                <button type="button" class="verification-btn-cancel" onclick="closeRejectModal()">Cancel</button>
-                <button type="submit" class="verification-btn-reject">Confirm Reject</button>
+                <button type="button" class="verification-btn-cancel" onclick="closeRejectModal()">Batal</button>
+                <button type="submit" class="verification-btn-reject">Tolak Pengajuan</button>
             </div>
         </form>
     </div>
@@ -233,7 +233,7 @@
         <form id="approve-request-form" method="POST" action="">
             @csrf
             <div class="verification-modal-actions">
-                <button type="button" class="verification-btn-cancel" onclick="closeApproveModal()">Cancel</button>
+                <button type="button" class="verification-btn-cancel" onclick="closeApproveModal()">Batal</button>
                 <button type="submit" class="verification-btn-approve">Ya, Setujui</button>
             </div>
         </form>

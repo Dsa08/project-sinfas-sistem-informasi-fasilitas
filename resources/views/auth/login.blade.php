@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Login - SINFAS')
+@section('title', 'Masuk - SINFAS')
 
 @section('content')
 <div class="auth-card auth-card--login">
@@ -81,17 +81,17 @@
                 </button>
             </div>
             <div class="form-forgot">
-                <a href="{{ route('password.request') }}" class="auth-link" id="forgot-password-link">Forgot password?</a>
+                <a href="{{ route('password.request') }}" class="auth-link" id="forgot-password-link">Lupa password?</a>
             </div>
         </div>
 
         <button type="submit" class="btn-auth" id="login-btn">
-            Login
+            Masuk
         </button>
 
         <p class="auth-link-text">
-            Don't have an account?
-            <a href="{{ route('register') }}" class="auth-link">Register</a>
+            Belum punya akun?
+            <a href="{{ route('register') }}" class="auth-link">Daftar Sekarang</a>
         </p>
     </form>
 </div>

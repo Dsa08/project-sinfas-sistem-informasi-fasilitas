@@ -37,7 +37,7 @@
                     class="system-search-input"
                     id="search-items-input"
                     name="search"
-                    placeholder="Search items..."
+                    placeholder="Cari barang..."
                     value="{{ request('search') }}"
                 >
             </form>
@@ -95,7 +95,7 @@
         </div>
 
         <button type="button" class="btn-add-account" id="btn-add-item" onclick="openAddItemModal()">
-            + Add Item
+            + Tambah Barang
         </button>
     </div>
 
@@ -104,13 +104,13 @@
         <table class="system-table">
             <thead>
                 <tr>
-                    <th style="width: 22%;">Item Name</th>
-                    <th style="width: 15%;">Category</th>
+                    <th style="width: 22%;">Nama Barang</th>
+                    <th style="width: 15%;">Kategori</th>
                     <th style="width: 10%;">Baik</th>
                     <th style="width: 10%;">K. Baik</th>
                     <th style="width: 10%;">R. Berat</th>
                     <th style="width: 13%;">Status</th>
-                    <th style="width: 20%;">Actions</th>
+                    <th style="width: 20%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -122,17 +122,17 @@
                     <td class="td-stock">{{ $item->jumlah_kurang_baik }}</td>
                     <td class="td-stock" style="{{ $item->jumlah_rusak_berat > 0 ? 'color: #b91c1c; font-weight: 600;' : '' }}">{{ $item->jumlah_rusak_berat }}</td>
                     <td>
-                        <span class="sarana-status-badge {{ $item->status === 'Available' ? 'sarana-status-badge--available' : 'sarana-status-badge--unavailable' }}">
-                            {{ $item->status }}
+                        <span class="sarana-status-badge {{ in_array($item->status, ['Available', 'Tersedia']) ? 'sarana-status-badge--available' : 'sarana-status-badge--unavailable' }}">
+                            {{ in_array($item->status, ['Available', 'Tersedia']) ? 'Tersedia' : 'Tidak Tersedia' }}
                         </span>
                     </td>
                     <td>
                         <div class="action-btn-group">
-                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('{{ $item->kode_barang }}')">Edit</button>
+                            <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('{{ $item->kode_barang }}')">Ubah</button>
                             <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data barang {{ addslashes($item->nama_barang) }}? Tindakan ini tidak dapat dibatalkan.')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-table-outline-red">Delete</button>
+                                <button type="submit" class="btn-table-outline-red">Hapus</button>
                             </form>
                         </div>
                     </td>
@@ -158,7 +158,7 @@
 <div class="modal-overlay" id="itemModal">
     <div class="modal-card" style="max-width: 640px; width: 92%; text-align: left; padding: 1.75rem; max-height: 90vh; overflow-y: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 1px solid #f3f4f6;">
-            <h3 class="modal-title" id="itemModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Add Item</h3>
+            <h3 class="modal-title" id="itemModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Tambah Barang</h3>
             <button type="button" onclick="closeItemModal()" style="background: transparent; border: none; color: #9ca3af; font-size: 1.25rem; cursor: pointer; padding: 0.25rem;">&times;</button>
         </div>
 
@@ -254,12 +254,12 @@
 
             {{-- Picture Upload (Sesuai Desain Mockup) --}}
             <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-size: 0.88rem; font-weight: 500; color: #475569; margin-bottom: 0.4rem;">Picture</label>
+                <label style="display: block; font-size: 0.88rem; font-weight: 500; color: #475569; margin-bottom: 0.4rem;">Foto Barang</label>
                 
                 {{-- Preview Box --}}
                 <div id="itemPicturePreviewBox" style="width: 100%; height: 180px; border: 1.5px solid #cbd5e1; border-radius: 12px; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 0.65rem; overflow: hidden; position: relative;">
-                    <span id="itemImagePlaceholder" style="color: #64748b; font-size: 0.95rem; font-weight: 500;">Preview Image</span>
-                    <img id="itemImagePreview" src="" alt="Preview Gambar" style="display: none; width: 100%; height: 100%; object-fit: contain; background: #f8fafc;">
+                    <span id="itemImagePlaceholder" style="color: #64748b; font-size: 0.95rem; font-weight: 500;">Pratinjau Foto</span>
+                    <img id="itemImagePreview" src="" alt="Pratinjau Gambar" style="display: none; width: 100%; height: 100%; object-fit: contain; background: #f8fafc;">
                 </div>
 
                 {{-- Add File Button --}}
@@ -270,7 +270,7 @@
                             <line x1="5" y1="12" x2="16" y2="12"/>
                         </svg>
                     </div>
-                    <span style="font-size: 0.92rem; font-weight: 500; color: #475569;">Add file</span>
+                    <span style="font-size: 0.92rem; font-weight: 500; color: #475569;">Pilih file foto</span>
                 </button>
 
                 <input type="file" name="foto" id="input_item_foto" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: none;" onchange="handleItemImageChange(this)">
@@ -278,8 +278,8 @@
 
             {{-- Action Buttons --}}
             <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="modal-btn modal-btn--cancel" onclick="closeItemModal()">Cancel</button>
-                <button type="submit" class="modal-btn" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Save</button>
+                <button type="button" class="modal-btn modal-btn--cancel" onclick="closeItemModal()">Batal</button>
+                <button type="submit" class="modal-btn" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Simpan</button>
             </div>
         </form>
     </div>
@@ -327,7 +327,7 @@
     }
 
     function openAddItemModal() {
-        document.getElementById('itemModalTitle').textContent = 'Add Item';
+        document.getElementById('itemModalTitle').textContent = 'Tambah Barang';
         document.getElementById('itemForm').action = '{{ route("admin.items.store") }}';
         document.getElementById('itemFormMethod').value = 'POST';
         document.getElementById('kodeBarangField').style.display = 'block';
@@ -340,7 +340,7 @@
     }
 
     function openEditItemModal(kode) {
-        document.getElementById('itemModalTitle').textContent = 'Edit Item';
+        document.getElementById('itemModalTitle').textContent = 'Ubah Data Barang';
         document.getElementById('itemFormMethod').value = 'PUT';
         document.getElementById('kodeBarangField').style.display = 'none';
 

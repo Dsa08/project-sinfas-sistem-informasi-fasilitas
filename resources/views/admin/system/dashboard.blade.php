@@ -1,7 +1,7 @@
 @extends('layouts.admin-system')
 
 @section('title', 'Dashboard - Admin Sistem SINFAS')
-@section('page_title', 'Home')
+@section('page_title', 'Beranda')
 
 @section('content')
 <div class="system-dashboard-container">
@@ -10,7 +10,7 @@
         {{-- Card 1: Total Accounts --}}
         <div class="system-stat-card">
             <div class="system-stat-value">{{ $totalAccounts }}</div>
-            <div class="system-stat-label">Total Accounts</div>
+            <div class="system-stat-label">Total Akun Pengguna</div>
             <div class="system-stat-subtext">{{ $totalSiswa }} Siswa · {{ $totalAdminSarana }} Admin Sarana · {{ $totalAdminSistem }} Admin Sistem</div>
         </div>
 
@@ -24,8 +24,8 @@
         {{-- Card 3: Backup Terakhir --}}
         <div class="system-stat-card">
             <div class="system-stat-value">–</div>
-            <div class="system-stat-label">Backup Terakhir</div>
-            <div class="system-stat-subtext">Belum ada data backup</div>
+            <div class="system-stat-label">Pencadangan Terakhir</div>
+            <div class="system-stat-subtext">Belum ada data cadangan</div>
         </div>
     </div>
 
@@ -42,8 +42,8 @@
                 </svg>
             </div>
             <div class="system-action-info">
-                <div class="system-action-title">Manage Accounts</div>
-                <div class="system-action-desc">View, add, edit, and deactivate user accounts</div>
+                <div class="system-action-title">Kelola Akun Pengguna</div>
+                <div class="system-action-desc">Lihat, tambah, edit, dan atur status akun pengguna</div>
             </div>
             <div class="system-action-arrow">
                 <x-heroicon-o-arrow-right class="w-5 h-5" />
@@ -59,8 +59,8 @@
                 </svg>
             </div>
             <div class="system-action-info">
-                <div class="system-action-title">System Settings</div>
-                <div class="system-action-desc">Configure operational hours, backups, and preferences</div>
+                <div class="system-action-title">Pengaturan Sistem</div>
+                <div class="system-action-desc">Atur jam operasional, pencadangan data, dan preferensi sistem</div>
             </div>
             <div class="system-action-arrow">
                 <x-heroicon-o-arrow-right class="w-5 h-5" />

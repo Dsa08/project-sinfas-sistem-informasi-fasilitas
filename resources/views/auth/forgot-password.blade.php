@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Lupa Password - SINFAS')
+@section('title', 'Lupa Kata Sandi - SINFAS')
 
 @section('content')
 <div class="auth-card auth-card--login">
@@ -15,7 +15,7 @@
             </div>
             <h1 class="auth-brand">SINFAS</h1>
         </div>
-        <p class="auth-subtitle">Reset Password Akun Anda</p>
+        <p class="auth-subtitle">Atur Ulang Kata Sandi Akun Anda</p>
     </div>
 
     {{-- Status Alerts --}}
@@ -28,7 +28,7 @@
                     @if(session('direct_reset_url'))
                         <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed #6ee7b7;">
                             <a href="{{ session('direct_reset_url') }}" style="color: #1D67F2; font-weight: 600; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                &rarr; Buka Formulir Reset Password Sekarang
+                                &rarr; Buka Formulir Atur Ulang Kata Sandi Sekarang
                             </a>
                         </div>
                     @endif
@@ -49,7 +49,7 @@
     @endif
 
     <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1.25rem; line-height: 1.45;">
-        Masukkan <strong>Email</strong>, <strong>Username</strong>, atau <strong>NIS / NIP</strong> yang terdaftar pada akun Anda. Kami akan menyiapkan tautan verifikasi untuk membuat password baru.
+        Masukkan <strong>Email</strong>, <strong>Username</strong>, atau <strong>NIS / NIP</strong> yang terdaftar pada akun Anda. Kami akan menyiapkan tautan verifikasi untuk membuat kata sandi baru.
     </p>
 
     {{-- Forgot Password Form --}}
@@ -71,12 +71,12 @@
         </div>
 
         <button type="submit" class="btn-auth" id="btn-submit-forgot" style="margin-top: 0.5rem;">
-            Kirim Link Reset Password
+            Kirim Tautan Atur Ulang Kata Sandi
         </button>
 
         <p class="auth-link-text" style="margin-top: 1.25rem;">
-            Sudah ingat password Anda?
-            <a href="{{ route('login') }}" class="auth-link">Kembali ke Login</a>
+            Sudah ingat kata sandi Anda?
+            <a href="{{ route('login') }}" class="auth-link">Kembali untuk Masuk</a>
         </p>
     </form>
 </div>

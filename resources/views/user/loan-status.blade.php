@@ -7,7 +7,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m15 18-6-6 6-6"/>
         </svg>
-        Back to Home
+        Kembali ke Beranda
     </a>
 @endsection
 
@@ -55,7 +55,7 @@
 
                 {{-- Item Info --}}
                 <div class="loan-status-info">
-                    <h3 class="loan-status-item-name">{{ $loan->barang->nama_barang ?? 'Unknown Item' }}</h3>
+                    <h3 class="loan-status-item-name">{{ $loan->barang->nama_barang ?? 'Barang' }}</h3>
                     <p class="loan-status-meta">
                         Dipinjam: {{ $loan->tanggal_pinjam->format('d M Y') }} &nbsp;&bull;&nbsp; Kode: <span style="font-weight: 600; color: #1f2937;">{{ $loan->kode_pinjam }}</span>
                     </p>
@@ -102,9 +102,9 @@
             <div class="loan-status-badge-wrapper">
                 <div class="loan-action-group">
                     @if($loan->status_pengajuan === 'menunggu')
-                        <span class="loan-status-badge loan-badge--pending">Pending</span>
+                        <span class="loan-status-badge loan-badge--pending">Menunggu</span>
                     @elseif($loan->status_pengajuan === 'ditolak')
-                        <span class="loan-status-badge loan-badge--rejected">Rejected</span>
+                        <span class="loan-status-badge loan-badge--rejected">Ditolak</span>
                     @elseif($loan->status_pengajuan === 'disetujui')
                         @if(!$loan->pengembalian)
                             {{-- Sedang Dipinjam + Tombol Pengembalian --}}
@@ -129,12 +129,12 @@
                         @elseif(is_null($loan->pengembalian->kondisi_barang))
                             {{-- Pengembalian Diajukan (Pending Admin Confirmation) --}}
                             <span class="loan-status-badge loan-badge--return-pending" title="Menunggu konfirmasi penerimaan oleh Admin Sarana">
-                                Return Pending
+                                Menunggu Verifikasi
                             </span>
                         @else
                             {{-- Pengembalian Selesai --}}
                             <span class="loan-status-badge loan-badge--returned">
-                                Returned
+                                Dikembalikan
                             </span>
                         @endif
                     @endif
@@ -220,7 +220,7 @@
                                 </svg>
                             </div>
                             <p class="dropzone-title" style="font-size: 0.84rem; margin: 0 0 0.15rem;">
-                                <span style="color: #1D67F2; font-weight: 600;">Klik untuk unggah</span> atau drag and drop
+                                <span style="color: #1D67F2; font-weight: 600;">Klik untuk unggah</span> atau seret dan lepas file
                             </p>
                             <p class="dropzone-subtitle" style="font-size: 0.72rem;">JPG, PNG, WEBP, atau MP4 (Maks. 10MB)</p>
                         </div>

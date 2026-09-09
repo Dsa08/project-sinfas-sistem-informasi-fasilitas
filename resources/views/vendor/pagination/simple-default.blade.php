@@ -3,9 +3,9 @@
         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem; margin-top: 1.25rem;">
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
-                <span class="pagination-btn pagination-btn--disabled">Prev</span>
+                <span class="pagination-btn pagination-btn--disabled">Sebelumnya</span>
             @else
-                <a href="{{ $paginator->previousPageUrl() }}" class="pagination-btn" style="text-decoration: none;">Prev</a>
+                <a href="{{ $paginator->previousPageUrl() }}" class="pagination-btn" style="text-decoration: none;">Sebelumnya</a>
             @endif
 
             {{-- Pagination Elements --}}
@@ -29,9 +29,9 @@
 
             {{-- Next Page Link --}}
             @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" class="pagination-btn" style="text-decoration: none;">Next</a>
+                <a href="{{ $paginator->nextPageUrl() }}" class="pagination-btn" style="text-decoration: none;">Berikutnya</a>
             @else
-                <span class="pagination-btn pagination-btn--disabled">Next</span>
+                <span class="pagination-btn pagination-btn--disabled">Berikutnya</span>
             @endif
         </div>
     </nav>

@@ -37,7 +37,7 @@
                     <li class="system-nav-item">
                         <a href="{{ route('admin.sistem.dashboard') }}" class="system-nav-link {{ request()->routeIs('admin.sistem.dashboard') ? 'system-nav-link--active' : '' }}" id="nav-home">
                             <x-heroicon-o-home class="system-nav-icon" />
-                            <span>Home</span>
+                            <span>Beranda</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
@@ -49,7 +49,7 @@
                     <li class="system-nav-item">
                         <a href="{{ route('admin.sistem.settings') }}" class="system-nav-link {{ request()->routeIs('admin.sistem.settings') ? 'system-nav-link--active' : '' }}" id="nav-settings">
                             <x-heroicon-o-cog-6-tooth class="system-nav-icon" />
-                            <span>Kelola System</span>
+                            <span>Pengaturan Sistem</span>
                         </a>
                     </li>
                 </ul>
@@ -60,7 +60,7 @@
                     <li class="system-nav-item">
                         <a href="{{ route('profile') }}" class="system-nav-link {{ request()->routeIs('profile') ? 'system-nav-link--active' : '' }}" id="nav-profile">
                             <x-heroicon-o-user class="system-nav-icon" />
-                            <span>Profile</span>
+                            <span>Profil</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
@@ -93,7 +93,7 @@
             {{-- Top Header Bar --}}
             <header class="system-topbar">
                 <div class="system-topbar-left">
-                    <h1 class="system-page-title">@yield('page_title', 'Home')</h1>
+                    <h1 class="system-page-title">@yield('page_title', 'Beranda')</h1>
                 </div>
                 <div class="system-topbar-right">
                     {{-- Bell Notifikasi --}}
@@ -128,11 +128,11 @@
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
             </div>
-            <h3 class="modal-title">Konfirmasi Logout</h3>
+            <h3 class="modal-title">Konfirmasi Keluar</h3>
             <p class="modal-message">Apakah Anda yakin ingin keluar dari Admin Sistem SINFAS?</p>
             <div class="modal-actions">
                 <button type="button" class="modal-btn modal-btn--cancel" id="logout-cancel-btn">Batal</button>
-                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Logout</button>
+                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Keluar</button>
             </div>
         </div>
     </div>

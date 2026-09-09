@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Request Loan - {{ $item->nama_barang }} - SINFAS')
+@section('title', 'Pengajuan Pinjaman - ' . $item->nama_barang . ' - SINFAS')
 
 @section('navbar_title')
     <a href="{{ route('dashboard') }}" style="color: #4b5563; text-decoration: none; font-size: 0.88rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m15 18-6-6 6-6"/>
         </svg>
-        Back to Home
+        Kembali ke Beranda
     </a>
 @endsection
 
@@ -41,14 +41,14 @@
 
             <div class="loan-info-section">
                 <h2 class="loan-product-name">{{ $item->nama_barang }}</h2>
-                <p class="loan-meta-text">Category: <span class="loan-meta-val">{{ $item->kategori->nama_kategori ?? '-' }}</span></p>
+                <p class="loan-meta-text">Kategori: <span class="loan-meta-val">{{ $item->kategori->nama_kategori ?? '-' }}</span></p>
                 @if($item->merk_model)
                 <p class="loan-meta-text">Merk/Model: <span class="loan-meta-val">{{ $item->merk_model }}</span></p>
                 @endif
-                <p class="loan-meta-text">Condition: <span class="loan-meta-val">{{ $item->jumlah_baik }} baik, {{ $item->jumlah_kurang_baik }} kurang baik, {{ $item->jumlah_rusak_berat }} rusak</span></p>
+                <p class="loan-meta-text">Kondisi: <span class="loan-meta-val">{{ $item->jumlah_baik }} baik, {{ $item->jumlah_kurang_baik }} kurang baik, {{ $item->jumlah_rusak_berat }} rusak</span></p>
                 <div class="loan-status-wrapper">
-                    <span class="loan-status-pill {{ $item->status === 'Available' ? 'loan-status-pill--available' : 'loan-status-pill--unavailable' }}">
-                        {{ $item->status }}
+                    <span class="loan-status-pill {{ in_array($item->status, ['Available', 'Tersedia']) ? 'loan-status-pill--available' : 'loan-status-pill--unavailable' }}">
+                        {{ in_array($item->status, ['Available', 'Tersedia']) ? 'Tersedia' : 'Tidak Tersedia' }}
                     </span>
                 </div>
             </div>
@@ -57,7 +57,7 @@
         {{-- Right Column: Loan Form --}}
         <div class="loan-form-column">
             <div class="loan-form-card">
-                <h3 class="loan-form-title">Loan Request Form</h3>
+                <h3 class="loan-form-title">Formulir Pengajuan Pinjaman</h3>
 
                 @if($errors->any())
                     <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.82rem;">
@@ -84,19 +84,19 @@
 
                     {{-- Loan Date --}}
                     <div class="loan-field-group">
-                        <label class="loan-field-label" for="tanggal_pinjam">Loan Date</label>
+                        <label class="loan-field-label" for="tanggal_pinjam">Tanggal Pinjam</label>
                         <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="loan-field-input" value="{{ old('tanggal_pinjam', date('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required>
                     </div>
 
                     {{-- Location --}}
                     <div class="loan-field-group">
-                        <label class="loan-field-label" for="lokasi_penggunaan">Location</label>
+                        <label class="loan-field-label" for="lokasi_penggunaan">Lokasi Penggunaan</label>
                         <input type="text" name="lokasi_penggunaan" id="lokasi_penggunaan" class="loan-field-input" placeholder="Contoh: Ruang 31, Aula Utama" value="{{ old('lokasi_penggunaan') }}" required>
                     </div>
 
                     {{-- Purpose / Reason --}}
                     <div class="loan-field-group">
-                        <label class="loan-field-label" for="keterangan_penggunaan">Purpose / Reason</label>
+                        <label class="loan-field-label" for="keterangan_penggunaan">Keperluan / Alasan Peminjaman</label>
                         <textarea name="keterangan_penggunaan" id="keterangan_penggunaan" class="loan-field-textarea" placeholder="Jelaskan keperluan peminjaman..." rows="4" required>{{ old('keterangan_penggunaan') }}</textarea>
                     </div>
 
@@ -105,13 +105,13 @@
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Batas Kuota Pinjaman Penuh (2/2)</button>
                     @elseif(isset($alreadyPending) && $alreadyPending)
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Pengajuan Sedang Menunggu</button>
-                    @elseif($item->status === 'Available')
-                        <button type="submit" id="btnSubmitLoan" class="loan-btn-submit">Submit Loan Request</button>
+                    @elseif(in_array($item->status, ['Available', 'Tersedia']))
+                        <button type="submit" id="btnSubmitLoan" class="loan-btn-submit">Kirim Pengajuan Pinjaman</button>
                     @else
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Barang Tidak Tersedia</button>
                     @endif
 
-                    <p class="loan-form-note">Note: Kuota peminjaman maksimal 2 alat aktif per siswa. Permintaan memerlukan persetujuan Admin Sarana.</p>
+                    <p class="loan-form-note">Catatan: Kuota peminjaman maksimal 2 alat aktif per siswa. Pengajuan memerlukan persetujuan Admin Sarana.</p>
                 </form>
             </div>
         </div>

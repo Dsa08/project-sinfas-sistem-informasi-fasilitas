@@ -40,7 +40,7 @@
                                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                                 <polyline points="9 22 9 12 15 12 15 22"/>
                             </svg>
-                            <span>Home</span>
+                            <span>Beranda</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
@@ -50,7 +50,7 @@
                                 <path d="m3.3 7 8.7 5 8.7-5"/>
                                 <path d="M12 22V12"/>
                             </svg>
-                            <span>Kelola Alat</span>
+                            <span>Kelola Barang</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
@@ -67,7 +67,7 @@
                                 <path d="m9 11 3 3L22 4"/>
                                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                             </svg>
-                            <span>Verifikasi Loan & Return</span>
+                            <span>Verifikasi Peminjaman</span>
                         </a>
                     </li>
                 </ul>
@@ -81,7 +81,7 @@
                                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                                 <circle cx="12" cy="7" r="4"/>
                             </svg>
-                            <span>Profile</span>
+                            <span>Profil</span>
                         </a>
                     </li>
                     <li class="system-nav-item">
@@ -118,7 +118,7 @@
             {{-- Top Header Bar --}}
             <header class="system-topbar">
                 <div class="system-topbar-left">
-                    <h1 class="system-page-title">@yield('page_title', 'Home')</h1>
+                    <h1 class="system-page-title">@yield('page_title', 'Beranda')</h1>
                 </div>
                 <div class="system-topbar-right">
                     {{-- Bell Notifikasi --}}
@@ -153,11 +153,11 @@
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
             </div>
-            <h3 class="modal-title">Konfirmasi Logout</h3>
+            <h3 class="modal-title">Konfirmasi Keluar</h3>
             <p class="modal-message">Apakah Anda yakin ingin keluar dari Admin Sarana SINFAS?</p>
             <div class="modal-actions">
                 <button type="button" class="modal-btn modal-btn--cancel" id="logout-cancel-btn">Batal</button>
-                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Logout</button>
+                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Keluar</button>
             </div>
         </div>
     </div>

@@ -54,7 +54,7 @@
             </button>
 
             {{-- User Profile Icon --}}
-            <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'User' }})">
+            <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'Pengguna' }})">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
@@ -62,7 +62,7 @@
             </a>
 
             {{-- Logout Button (triggers modal) --}}
-            <button type="button" class="navbar-icon-btn" id="logout-trigger-btn" title="Logout">
+            <button type="button" class="navbar-icon-btn" id="logout-trigger-btn" title="Keluar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
@@ -87,11 +87,11 @@
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
             </div>
-            <h3 class="modal-title">Konfirmasi Logout</h3>
+            <h3 class="modal-title">Konfirmasi Keluar</h3>
             <p class="modal-message">Apakah Anda yakin ingin keluar dari SINFAS?</p>
             <div class="modal-actions">
                 <button type="button" class="modal-btn modal-btn--cancel" id="logout-cancel-btn">Batal</button>
-                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Logout</button>
+                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Keluar</button>
             </div>
         </div>
     </div>
