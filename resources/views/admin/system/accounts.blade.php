@@ -46,25 +46,49 @@
         <table class="system-table" id="accounts-table">
             <thead>
                 <tr>
-                    <th>
-                        <a href="{{ route('admin.sistem.accounts', array_merge(request()->query(), ['sort' => 'nama', 'dir' => request('sort') === 'nama' && request('dir') === 'asc' ? 'desc' : 'asc'])) }}" class="th-content">
+                    <th style="width: 35%;">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'nama', 'dir' => request('sort') === 'nama' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'nama' ? 'th-content--active' : '' }}">
                             <span>Nama</span>
-                            <x-heroicon-s-chevron-up-down class="sort-icon" />
+                            @if(request('sort') === 'nama')
+                                @if(request('dir') === 'desc')
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                @endif
+                            @else
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                            @endif
                         </a>
                     </th>
-                    <th>
-                        <div class="th-content">
+                    <th style="width: 25%;">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'nis_nip', 'dir' => request('sort') === 'nis_nip' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'nis_nip' ? 'th-content--active' : '' }}">
                             <span>NIS / NIP</span>
-                            <x-heroicon-s-chevron-up-down class="sort-icon" />
-                        </div>
-                    </th>
-                    <th>
-                        <a href="{{ route('admin.sistem.accounts', array_merge(request()->query(), ['sort' => 'role', 'dir' => request('sort') === 'role' && request('dir') === 'asc' ? 'desc' : 'asc'])) }}" class="th-content">
-                            <span>Peran</span>
-                            <x-heroicon-s-chevron-up-down class="sort-icon" />
+                            @if(request('sort') === 'nis_nip')
+                                @if(request('dir') === 'desc')
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                @endif
+                            @else
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                            @endif
                         </a>
                     </th>
-                    <th class="th-actions">Aksi</th>
+                    <th style="width: 25%;">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'role', 'dir' => request('sort') === 'role' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'role' ? 'th-content--active' : '' }}">
+                            <span>Peran</span>
+                            @if(request('sort') === 'role')
+                                @if(request('dir') === 'desc')
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                @endif
+                            @else
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="th-actions" style="width: 15%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>

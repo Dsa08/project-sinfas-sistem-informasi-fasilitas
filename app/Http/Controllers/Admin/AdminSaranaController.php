@@ -32,10 +32,10 @@ class AdminSaranaController extends Controller
             ->count();
         $damagedCount = Barang::sum('jumlah_rusak_berat');
 
-        // Pending loan requests (5 terbaru)
+        // Pending loan requests (5 terbaru berdasarkan pembaruan/penambahan)
         $pendingLoans = Peminjaman::menunggu()
             ->with(['siswa', 'barang'])
-            ->latest('created_at')
+            ->orderBy('updated_at', 'desc')
             ->take(5)
             ->get();
 
@@ -141,7 +141,22 @@ class AdminSaranaController extends Controller
             $query->where('id_kategori', $kategori);
         }
 
-        $items = $query->orderBy('nama_barang', 'asc')->paginate(10)->withQueryString();
+        // Sort: default data paling baru di atas (updated_at desc)
+        $sort = $request->input('sort');
+        $dir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $allowedSorts = ['nama_barang', 'kategori', 'jumlah_baik', 'jumlah_kurang_baik', 'jumlah_rusak_berat', 'status'];
+
+        if ($sort === 'kategori') {
+            $query->leftJoin('kategori', 'barang.id_kategori', '=', 'kategori.id_kategori')
+                  ->select('barang.*')
+                  ->orderBy('kategori.nama_kategori', $dir);
+        } elseif (in_array($sort, $allowedSorts)) {
+            $query->orderBy("barang.{$sort}", $dir);
+        } else {
+            $query->orderBy('barang.updated_at', 'desc');
+        }
+
+        $items = $query->paginate(10)->withQueryString();
         $categories = Cache::remember('all_categories', 3600, function () {
             return Kategori::orderBy('nama_kategori')->get();
         });
@@ -323,7 +338,19 @@ class AdminSaranaController extends Controller
             $query->where('nama_kategori', 'like', "%{$search}%");
         }
 
-        $categories = $query->orderBy('nama_kategori', 'asc')->paginate(10)->withQueryString();
+        // Sort: default data paling baru di atas (updated_at desc)
+        $sort = $request->input('sort');
+        $dir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        if ($sort === 'barang_count') {
+            $query->orderBy('barang_count', $dir);
+        } elseif ($sort === 'nama_kategori') {
+            $query->orderBy('nama_kategori', $dir);
+        } else {
+            $query->orderBy('updated_at', 'desc');
+        }
+
+        $categories = $query->paginate(10)->withQueryString();
 
         return view('admin.categories', compact('categories'));
     }
@@ -405,21 +432,56 @@ class AdminSaranaController extends Controller
     public function verifications(Request $request)
     {
         // Tab 1: Pending Requests (status = menunggu)
-        $pendingRequests = Peminjaman::menunggu()
-            ->with(['siswa', 'barang'])
-            ->latest('created_at')
-            ->paginate(10, ['*'], 'req_page')
-            ->withQueryString();
+        $reqSort = $request->input('req_sort');
+        $reqDir = strtolower($request->input('req_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $reqQuery = Peminjaman::menunggu()->with(['siswa', 'barang']);
+
+        if ($reqSort === 'siswa') {
+            $reqQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                     ->select('peminjaman.*')
+                     ->orderBy('siswa.nama', $reqDir);
+        } elseif ($reqSort === 'barang') {
+            $reqQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                     ->select('peminjaman.*')
+                     ->orderBy('barang.nama_barang', $reqDir);
+        } elseif (in_array($reqSort, ['lokasi_penggunaan', 'keterangan_penggunaan', 'tanggal_pinjam'])) {
+            $reqQuery->orderBy("peminjaman.{$reqSort}", $reqDir);
+        } else {
+            // Default: data paling baru di atas
+            $reqQuery->orderBy('peminjaman.updated_at', 'desc');
+        }
+
+        $pendingRequests = $reqQuery->paginate(10, ['*'], 'req_page')->withQueryString();
 
         // Tab 2: Pending Returns (hanya pengembalian yang belum dikonfirmasi / kondisi_barang IS NULL)
-        $pendingReturns = Peminjaman::disetujui()
+        $retSort = $request->input('ret_sort');
+        $retDir = strtolower($request->input('ret_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $retQuery = Peminjaman::disetujui()
             ->whereHas('pengembalian', function ($q) {
                 $q->whereNull('kondisi_barang');
             })
-            ->with(['siswa', 'barang', 'pengembalian'])
-            ->latest('created_at')
-            ->paginate(10, ['*'], 'ret_page')
-            ->withQueryString();
+            ->with(['siswa', 'barang', 'pengembalian']);
+
+        if ($retSort === 'siswa') {
+            $retQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                     ->select('peminjaman.*')
+                     ->orderBy('siswa.nama', $retDir);
+        } elseif ($retSort === 'barang') {
+            $retQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                     ->select('peminjaman.*')
+                     ->orderBy('barang.nama_barang', $retDir);
+        } elseif ($retSort === 'tanggal_kembali') {
+            $retQuery->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
+                     ->select('peminjaman.*')
+                     ->orderBy('pengembalian.tanggal_kembali', $retDir);
+        } elseif ($retSort === 'tanggal_pinjam') {
+            $retQuery->orderBy('peminjaman.tanggal_pinjam', $retDir);
+        } else {
+            // Default: data paling baru di atas
+            $retQuery->orderBy('peminjaman.updated_at', 'desc');
+        }
+
+        $pendingReturns = $retQuery->paginate(10, ['*'], 'ret_page')->withQueryString();
 
         $activeTab = $request->input('tab', 'requests');
 

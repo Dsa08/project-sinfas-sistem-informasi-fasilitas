@@ -2293,6 +2293,11 @@ a.th-content:hover {
     color: #1E40AF;
 }
 
+.th-content--active {
+    color: #1D67F2 !important;
+    font-weight: 700;
+}
+
 .sort-icon {
     color: #9ca3af;
     width: 14px;

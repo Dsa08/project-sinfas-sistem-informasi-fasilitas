@@ -25,12 +25,77 @@
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 18%;">Peminjam</th>
-                        <th style="width: 22%;">Barang</th>
-                        <th style="width: 15%;">Lokasi</th>
-                        <th style="width: 15%;">Keperluan</th>
-                        <th style="width: 12%;">Tanggal Pinjam</th>
-                        <th style="width: 18%;">Aksi</th>
+                        <th style="width: 18%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'siswa', 'req_dir' => request('req_sort') === 'siswa' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'siswa' ? 'th-content--active' : '' }}">
+                                <span>Peminjam</span>
+                                @if(request('req_sort') === 'siswa')
+                                    @if(request('req_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 22%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'barang', 'req_dir' => request('req_sort') === 'barang' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}">
+                                <span>Barang</span>
+                                @if(request('req_sort') === 'barang')
+                                    @if(request('req_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 15%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'lokasi_penggunaan', 'req_dir' => request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'lokasi_penggunaan' ? 'th-content--active' : '' }}">
+                                <span>Lokasi</span>
+                                @if(request('req_sort') === 'lokasi_penggunaan')
+                                    @if(request('req_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 15%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'keterangan_penggunaan', 'req_dir' => request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'keterangan_penggunaan' ? 'th-content--active' : '' }}">
+                                <span>Keperluan</span>
+                                @if(request('req_sort') === 'keterangan_penggunaan')
+                                    @if(request('req_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 15%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'tanggal_pinjam', 'req_dir' => request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}">
+                                <span>Tanggal Pinjam</span>
+                                @if(request('req_sort') === 'tanggal_pinjam')
+                                    @if(request('req_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 15%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,9 +150,48 @@
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 22%;">Peminjam</th>
-                        <th style="width: 28%;">Barang</th>
-                        <th style="width: 15%;">Tanggal Kembali</th>
+                        <th style="width: 22%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => 'siswa', 'ret_dir' => request('ret_sort') === 'siswa' && request('ret_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('ret_sort') === 'siswa' ? 'th-content--active' : '' }}">
+                                <span>Peminjam</span>
+                                @if(request('ret_sort') === 'siswa')
+                                    @if(request('ret_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 28%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => 'barang', 'ret_dir' => request('ret_sort') === 'barang' && request('ret_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}">
+                                <span>Barang</span>
+                                @if(request('ret_sort') === 'barang')
+                                    @if(request('ret_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th style="width: 15%;">
+                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => 'tanggal_kembali', 'ret_dir' => request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('ret_sort') === 'tanggal_kembali' ? 'th-content--active' : '' }}">
+                                <span>Tanggal Kembali</span>
+                                @if(request('ret_sort') === 'tanggal_kembali')
+                                    @if(request('ret_dir') === 'desc')
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                    @else
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                    @endif
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
                         <th style="width: 10%; text-align: center;">Bukti</th>
                         <th style="width: 13%;">Kondisi</th>
                         <th style="width: 12%;">Aksi</th>

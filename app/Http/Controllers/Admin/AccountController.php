@@ -32,15 +32,18 @@ class AccountController extends Controller
             });
         }
 
-        // Sort
-        $sortField = $request->input('sort', 'nama');
-        $sortDir = $request->input('dir', 'asc');
-        $allowedSorts = ['nama', 'nis', 'nip', 'role', 'created_at'];
+        // Sort: default data paling baru di atas (updated_at desc)
+        $sortField = $request->input('sort');
+        $sortDir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $allowedSorts = ['nama', 'nis', 'nip', 'role', 'is_active', 'created_at', 'updated_at'];
 
-        if (in_array($sortField, $allowedSorts)) {
-            $query->orderBy($sortField, $sortDir === 'desc' ? 'desc' : 'asc');
+        if ($sortField === 'nis' || $sortField === 'nis_nip') {
+            $query->orderByRaw("COALESCE(nis, nip) {$sortDir}");
+        } elseif ($sortField && in_array($sortField, $allowedSorts)) {
+            $query->orderBy($sortField, $sortDir);
         } else {
-            $query->orderBy('nama', 'asc');
+            // Default: data paling baru di atas
+            $query->orderBy('updated_at', 'desc');
         }
 
         $accounts = $query->paginate(10)->withQueryString();

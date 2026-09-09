@@ -37,8 +37,34 @@
         <table class="system-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
             <thead>
                 <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-weight: 600; text-align: left;">
-                    <th style="padding: 0.85rem 1.25rem; width: 45%;">Nama Kategori</th>
-                    <th style="padding: 0.85rem 1.25rem; width: 35%;">Jumlah Barang</th>
+                    <th style="padding: 0.85rem 1.25rem; width: 45%;">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'nama_kategori', 'dir' => request('sort') === 'nama_kategori' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'nama_kategori' ? 'th-content--active' : '' }}">
+                            <span>Nama Kategori</span>
+                            @if(request('sort') === 'nama_kategori')
+                                @if(request('dir') === 'desc')
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                @endif
+                            @else
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                            @endif
+                        </a>
+                    </th>
+                    <th style="padding: 0.85rem 1.25rem; width: 35%;">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'barang_count', 'dir' => request('sort') === 'barang_count' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'barang_count' ? 'th-content--active' : '' }}">
+                            <span>Jumlah Barang</span>
+                            @if(request('sort') === 'barang_count')
+                                @if(request('dir') === 'desc')
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
+                                @else
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
+                                @endif
+                            @else
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                            @endif
+                        </a>
+                    </th>
                     <th style="padding: 0.85rem 1.25rem; width: 20%; text-align: center;">Aksi</th>
                 </tr>
             </thead>
