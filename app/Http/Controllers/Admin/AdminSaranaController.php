@@ -465,18 +465,9 @@ class AdminSaranaController extends Controller
         }
 
         // Update kondisi barang pada record pengembalian
+        // (Stok barang pada tabel barang otomatis diperbarui oleh trigger: trg_kembalikan_stok_barang)
         $pengembalian->kondisi_barang = $request->kondisi_barang;
         $pengembalian->save();
-
-        // Update stok barang berdasarkan kondisi yang dipilih
-        $barang = $peminjaman->barang;
-        if ($barang) {
-            match ($request->kondisi_barang) {
-                'Baik'         => $barang->increment('jumlah_baik'),
-                'Kurang Baik'  => $barang->increment('jumlah_kurang_baik'),
-                'Rusak Berat'  => $barang->increment('jumlah_rusak_berat'),
-            };
-        }
 
         return redirect()->route('admin.verifications', ['tab' => 'returns'])
             ->with('success', "Aksi berhasil! Pengembalian peminjaman {$kode} telah dikonfirmasi (Kondisi: {$request->kondisi_barang}) dan stok barang telah diperbarui.");
