@@ -193,7 +193,9 @@ class AdminSaranaController extends Controller
         Barang::create($data);
 
         return redirect()->route('admin.items')
-            ->with('success', 'Barang berhasil ditambahkan.');
+            ->with('toast_title', 'Penambahan data barang berhasil')
+            ->with('toast_message', "Data barang {$data['nama_barang']} berhasil ditambahkan.")
+            ->with('success', 'Penambahan data barang berhasil');
     }
 
     /**
@@ -269,7 +271,9 @@ class AdminSaranaController extends Controller
         $item->update($data);
 
         return redirect()->route('admin.items')
-            ->with('success', 'Data barang berhasil diperbarui.');
+            ->with('toast_title', 'Perubahan data barang berhasil')
+            ->with('toast_message', "Data barang {$item->nama_barang} berhasil diperbarui.")
+            ->with('success', 'Perubahan data barang berhasil');
     }
 
     /**
@@ -286,7 +290,10 @@ class AdminSaranaController extends Controller
             ->exists();
 
         if ($activeLoan) {
-            return back()->with('error', 'Barang tidak dapat dihapus karena masih ada peminjaman aktif.');
+            return back()
+                ->with('toast_title', 'Penghapusan data barang gagal')
+                ->with('toast_message', 'Barang tidak dapat dihapus karena masih ada peminjaman aktif.')
+                ->with('error', 'Barang tidak dapat dihapus karena masih ada peminjaman aktif.');
         }
 
         if ($item->foto && file_exists(public_path($item->foto))) {
@@ -296,7 +303,9 @@ class AdminSaranaController extends Controller
         $item->delete();
 
         return redirect()->route('admin.items')
-            ->with('success', 'Barang berhasil dihapus.');
+            ->with('toast_title', 'Penghapusan data barang berhasil')
+            ->with('toast_message', 'Barang berhasil dihapus.')
+            ->with('success', 'Penghapusan data barang berhasil');
     }
 
     // =============================================
@@ -335,7 +344,9 @@ class AdminSaranaController extends Controller
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori berhasil ditambahkan.');
+            ->with('toast_title', 'Penambahan kategori berhasil')
+            ->with('toast_message', "Kategori baru berhasil ditambahkan.")
+            ->with('success', 'Penambahan kategori berhasil');
     }
 
     /**
@@ -356,7 +367,9 @@ class AdminSaranaController extends Controller
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori berhasil diperbarui.');
+            ->with('toast_title', 'Perubahan kategori berhasil')
+            ->with('toast_message', "Kategori berhasil diperbarui.")
+            ->with('success', 'Perubahan kategori berhasil');
     }
 
     /**
@@ -367,14 +380,19 @@ class AdminSaranaController extends Controller
         $kategori = Kategori::withCount('barang')->findOrFail($id);
 
         if ($kategori->barang_count > 0) {
-            return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki barang terkait.');
+            return back()
+                ->with('toast_title', 'Penghapusan kategori gagal')
+                ->with('toast_message', 'Kategori tidak dapat dihapus karena masih memiliki barang terkait.')
+                ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki barang terkait.');
         }
 
         $kategori->delete();
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori berhasil dihapus.');
+            ->with('toast_title', 'Penghapusan kategori berhasil')
+            ->with('toast_message', 'Kategori berhasil dihapus.')
+            ->with('success', 'Penghapusan kategori berhasil');
     }
 
     // =============================================
@@ -421,7 +439,9 @@ class AdminSaranaController extends Controller
         $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
 
         return redirect()->route('admin.verifications')
-            ->with('success', "Aksi berhasil! Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.");
+            ->with('toast_title', 'Persetujuan pengajuan berhasil')
+            ->with('toast_message', "Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.")
+            ->with('success', 'Persetujuan pengajuan berhasil');
     }
 
     /**
@@ -441,7 +461,9 @@ class AdminSaranaController extends Controller
         $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
 
         return redirect()->route('admin.verifications')
-            ->with('success', "Aksi berhasil! Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.");
+            ->with('toast_title', 'Penolakan pengajuan berhasil')
+            ->with('toast_message', "Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.")
+            ->with('success', 'Penolakan pengajuan berhasil');
     }
 
     /**
@@ -455,13 +477,16 @@ class AdminSaranaController extends Controller
 
         $peminjaman = Peminjaman::disetujui()
             ->where('kode_pinjam', $kode)
-            ->with('pengembalian')
+            ->with(['pengembalian', 'barang'])
             ->firstOrFail();
 
         $pengembalian = $peminjaman->pengembalian;
 
         if (!$pengembalian) {
-            return back()->with('error', 'Data pengembalian tidak ditemukan.');
+            return back()
+                ->with('toast_title', 'Konfirmasi pengembalian barang gagal')
+                ->with('toast_message', 'Data pengembalian tidak ditemukan.')
+                ->with('error', 'Data pengembalian tidak ditemukan.');
         }
 
         // Update kondisi barang pada record pengembalian
@@ -469,7 +494,11 @@ class AdminSaranaController extends Controller
         $pengembalian->kondisi_barang = $request->kondisi_barang;
         $pengembalian->save();
 
+        $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
+
         return redirect()->route('admin.verifications', ['tab' => 'returns'])
-            ->with('success', "Aksi berhasil! Pengembalian peminjaman {$kode} telah dikonfirmasi (Kondisi: {$request->kondisi_barang}) dan stok barang telah diperbarui.");
+            ->with('toast_title', 'Konfirmasi pengembalian barang berhasil')
+            ->with('toast_message', "Pengembalian {$namaBarang} ({$kode}) telah dikonfirmasi dengan kondisi {$request->kondisi_barang}.")
+            ->with('success', 'Konfirmasi pengembalian barang berhasil');
     }
 }

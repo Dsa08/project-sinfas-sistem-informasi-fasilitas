@@ -5,13 +5,6 @@
 
 @section('content')
 <div class="sarana-dashboard-container">
-    {{-- Flash Messages --}}
-    @if(session('success'))
-        <div class="alert-success" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
-            {{ session('success') }}
-        </div>
-    @endif
-
     {{-- 4 Stat Cards --}}
     <div class="sarana-stats-grid">
         {{-- Card 1 --}}

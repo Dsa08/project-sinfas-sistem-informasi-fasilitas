@@ -167,8 +167,184 @@
         @csrf
     </form>
 
+    {{-- Global Toast Notification Container (Admin Sarana) --}}
+    <div id="sarana-toast-container" style="position: fixed; top: 1.5rem; right: 1.5rem; z-index: 99999; display: flex; flex-direction: column; gap: 0.75rem; pointer-events: none;">
+        @if(session('success') || session('toast_type') === 'success')
+            <div class="sarana-toast-card sarana-toast-card--success" style="pointer-events: auto;">
+                <div class="sarana-toast-icon-circle sarana-toast-icon-circle--success">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <div class="sarana-toast-content">
+                    <div class="sarana-toast-title">{{ session('toast_title', 'Aksi berhasil disimpan') }}</div>
+                    @if(session('toast_message') || (session('success') && session('success') !== session('toast_title')))
+                        <div class="sarana-toast-desc">{{ session('toast_message') ?? session('success') }}</div>
+                    @endif
+                </div>
+                <button type="button" class="sarana-toast-close" onclick="closeAdminSaranaToast(this)">&times;</button>
+            </div>
+        @endif
+
+        @if(session('error') || session('toast_type') === 'error')
+            <div class="sarana-toast-card sarana-toast-card--error" style="pointer-events: auto;">
+                <div class="sarana-toast-icon-circle sarana-toast-icon-circle--error">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+                <div class="sarana-toast-content">
+                    <div class="sarana-toast-title">{{ session('toast_title', 'Terjadi kendala') }}</div>
+                    @if(session('toast_message') || (session('error') && session('error') !== session('toast_title')))
+                        <div class="sarana-toast-desc">{{ session('toast_message') ?? session('error') }}</div>
+                    @endif
+                </div>
+                <button type="button" class="sarana-toast-close" onclick="closeAdminSaranaToast(this)">&times;</button>
+            </div>
+        @endif
+    </div>
+
+    <style>
+        .sarana-toast-card {
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+            background: #ffffff;
+            min-width: 320px;
+            max-width: 460px;
+            padding: 1.15rem 1.4rem;
+            border-radius: 16px;
+            box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+            border: 1px solid #edf2f7;
+            animation: saranaToastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sarana-toast-card.sarana-toast--hiding {
+            opacity: 0;
+            transform: translateX(40px) scale(0.95);
+        }
+        @keyframes saranaToastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px) scale(0.92);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        .sarana-toast-icon-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sarana-toast-icon-circle--success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+        .sarana-toast-icon-circle--error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+        }
+        .sarana-toast-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .sarana-toast-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.35;
+        }
+        .sarana-toast-desc {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .sarana-toast-close {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.35rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 6px;
+            transition: color 0.15s ease;
+            margin-left: -0.25rem;
+            align-self: flex-start;
+        }
+        .sarana-toast-close:hover {
+            color: #374151;
+        }
+    </style>
+
     <script>
+        function closeAdminSaranaToast(btnOrEl) {
+            const card = btnOrEl.closest('.sarana-toast-card');
+            if (!card) return;
+            card.classList.add('sarana-toast--hiding');
+            setTimeout(() => { card.remove(); }, 300);
+        }
+
+        window.showAdminSaranaToast = function(type, title, message) {
+            let container = document.getElementById('sarana-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'sarana-toast-container';
+                container.style.cssText = 'position: fixed; top: 1.5rem; right: 1.5rem; z-index: 99999; display: flex; flex-direction: column; gap: 0.75rem; pointer-events: none;';
+                document.body.appendChild(container);
+            }
+
+            const isSuccess = type === 'success';
+            const card = document.createElement('div');
+            card.className = `sarana-toast-card sarana-toast-card--${isSuccess ? 'success' : 'error'}`;
+            card.style.pointerEvents = 'auto';
+
+            const iconSvg = isSuccess 
+                ? `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+                : `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+            card.innerHTML = `
+                <div class="sarana-toast-icon-circle sarana-toast-icon-circle--${isSuccess ? 'success' : 'error'}">
+                    ${iconSvg}
+                </div>
+                <div class="sarana-toast-content">
+                    <div class="sarana-toast-title">${title || (isSuccess ? 'Aksi berhasil' : 'Terjadi kendala')}</div>
+                    ${message ? `<div class="sarana-toast-desc">${message}</div>` : ''}
+                </div>
+                <button type="button" class="sarana-toast-close" onclick="closeAdminSaranaToast(this)">&times;</button>
+            `;
+
+            container.appendChild(card);
+
+            setTimeout(() => {
+                if (card.parentElement) {
+                    closeAdminSaranaToast(card);
+                }
+            }, 4500);
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Auto dismiss flash toasts after 4.5s
+            const sessionToasts = document.querySelectorAll('.sarana-toast-card');
+            sessionToasts.forEach(t => {
+                setTimeout(() => {
+                    if (t.parentElement) {
+                        closeAdminSaranaToast(t);
+                    }
+                }, 4500);
+            });
+
+            // Logout modal logic
             const triggerBtn = document.getElementById('logout-trigger-btn');
             const modal = document.getElementById('logout-modal');
             const cancelBtn = document.getElementById('logout-cancel-btn');

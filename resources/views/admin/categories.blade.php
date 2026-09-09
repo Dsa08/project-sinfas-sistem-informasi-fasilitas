@@ -5,18 +5,6 @@
 
 @section('content')
 <div class="sarana-categories-container">
-    {{-- Flash Messages --}}
-    @if(session('success'))
-        <div class="alert-success" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-error" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
-            {{ session('error') }}
-        </div>
-    @endif
-
     {{-- Header & Subtitle --}}
     <div class="system-section-header" style="margin-bottom: 1.25rem;">
         <h2 class="system-section-heading" style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 0.25rem;">Kelola Kategori</h2>
