@@ -47,10 +47,10 @@ class AdminSaranaController extends Controller
             ->count();
         $damagedCount = Barang::sum('jumlah_rusak_berat');
 
-        // 2. Daftar 5 permohonan pinjam terbaru yang masih berstatus menunggu verifikasi
+        // 2. Daftar 5 permohonan pinjam terbaru yang masih berstatus menunggu verifikasi (berdasarkan pembaruan/penambahan)
         $pendingLoans = Peminjaman::menunggu()
             ->with(['siswa', 'barang'])
-            ->latest('created_at')
+            ->orderBy('updated_at', 'desc')
             ->take(5)
             ->get();
 
@@ -160,9 +160,24 @@ class AdminSaranaController extends Controller
             $query->where('id_kategori', $kategori);
         }
 
-        $items = $query->orderBy('nama_barang', 'asc')->paginate(10)->withQueryString();
-        
-        // Cache master kategori
+        // 3. Penyortiran kolom (Sort by field & direction): default data paling baru di atas (updated_at desc)
+        $sort = $request->input('sort');
+        $dir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $allowedSorts = ['nama_barang', 'kategori', 'waktu_ditambahkan', 'jumlah_baik', 'jumlah_kurang_baik', 'jumlah_rusak_berat', 'status'];
+
+        if ($sort === 'kategori') {
+            $query->leftJoin('kategori', 'barang.id_kategori', '=', 'kategori.id_kategori')
+                  ->select('barang.*')
+                  ->orderBy('kategori.nama_kategori', $dir);
+        } elseif ($sort === 'waktu_ditambahkan') {
+            $query->orderBy('barang.created_at', $dir);
+        } elseif (in_array($sort, $allowedSorts)) {
+            $query->orderBy("barang.{$sort}", $dir);
+        } else {
+            $query->orderBy('barang.updated_at', 'desc');
+        }
+
+        $items = $query->paginate(10)->withQueryString();
         $categories = Cache::remember('all_categories', 3600, function () {
             return Kategori::orderBy('nama_kategori')->get();
         });
@@ -218,7 +233,9 @@ class AdminSaranaController extends Controller
         Barang::create($data);
 
         return redirect()->route('admin.items')
-            ->with('success', 'Barang berhasil ditambahkan ke inventaris.');
+            ->with('toast_title', 'Penambahan data barang berhasil')
+            ->with('toast_message', "Data barang {$data['nama_barang']} berhasil ditambahkan.")
+            ->with('success', 'Penambahan data barang berhasil');
     }
 
     /**
@@ -302,7 +319,9 @@ class AdminSaranaController extends Controller
         $item->update($data);
 
         return redirect()->route('admin.items')
-            ->with('success', 'Data barang berhasil diperbarui.');
+            ->with('toast_title', 'Perubahan data barang berhasil')
+            ->with('toast_message', "Data barang {$item->nama_barang} berhasil diperbarui.")
+            ->with('success', 'Perubahan data barang berhasil');
     }
 
     /**
@@ -323,7 +342,10 @@ class AdminSaranaController extends Controller
             ->exists();
 
         if ($activeLoan) {
-            return back()->with('error', 'Barang tidak dapat dihapus karena masih ada transaksi peminjaman aktif.');
+            return back()
+                ->with('toast_title', 'Penghapusan data barang gagal')
+                ->with('toast_message', 'Barang tidak dapat dihapus karena masih ada transaksi peminjaman aktif.')
+                ->with('error', 'Barang tidak dapat dihapus karena masih ada peminjaman aktif.');
         }
 
         // Hapus file fisik gambar jika tersimpan
@@ -334,7 +356,9 @@ class AdminSaranaController extends Controller
         $item->delete();
 
         return redirect()->route('admin.items')
-            ->with('success', 'Barang berhasil dihapus dari inventaris.');
+            ->with('toast_title', 'Penghapusan data barang berhasil')
+            ->with('toast_message', 'Barang berhasil dihapus.')
+            ->with('success', 'Penghapusan data barang berhasil');
     }
 
     // =========================================================================
@@ -355,7 +379,19 @@ class AdminSaranaController extends Controller
             $query->where('nama_kategori', 'like', "%{$search}%");
         }
 
-        $categories = $query->orderBy('nama_kategori', 'asc')->paginate(10)->withQueryString();
+        // Sort: default data paling baru di atas (updated_at desc)
+        $sort = $request->input('sort');
+        $dir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        if ($sort === 'barang_count') {
+            $query->orderBy('barang_count', $dir);
+        } elseif ($sort === 'nama_kategori') {
+            $query->orderBy('nama_kategori', $dir);
+        } else {
+            $query->orderBy('updated_at', 'desc');
+        }
+
+        $categories = $query->paginate(10)->withQueryString();
 
         return view('admin.categories', compact('categories'));
     }
@@ -379,7 +415,9 @@ class AdminSaranaController extends Controller
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori baru berhasil ditambahkan.');
+            ->with('toast_title', 'Penambahan kategori berhasil')
+            ->with('toast_message', "Kategori baru berhasil ditambahkan.")
+            ->with('success', 'Penambahan kategori berhasil');
     }
 
     /**
@@ -404,7 +442,9 @@ class AdminSaranaController extends Controller
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori berhasil diperbarui.');
+            ->with('toast_title', 'Perubahan kategori berhasil')
+            ->with('toast_message', "Kategori berhasil diperbarui.")
+            ->with('success', 'Perubahan kategori berhasil');
     }
 
     /**
@@ -418,14 +458,19 @@ class AdminSaranaController extends Controller
         $kategori = Kategori::withCount('barang')->findOrFail($id);
 
         if ($kategori->barang_count > 0) {
-            return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki barang terkait.');
+            return back()
+                ->with('toast_title', 'Penghapusan kategori gagal')
+                ->with('toast_message', 'Kategori tidak dapat dihapus karena masih memiliki barang terkait.')
+                ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki barang terkait.');
         }
 
         $kategori->delete();
         Cache::forget('all_categories');
 
         return redirect()->route('admin.categories')
-            ->with('success', 'Kategori berhasil dihapus.');
+            ->with('toast_title', 'Penghapusan kategori berhasil')
+            ->with('toast_message', 'Kategori berhasil dihapus.')
+            ->with('success', 'Penghapusan kategori berhasil');
     }
 
     // =========================================================================
@@ -442,22 +487,57 @@ class AdminSaranaController extends Controller
      */
     public function verifications(Request $request)
     {
-        // Tab 1: Pending Requests
-        $pendingRequests = Peminjaman::menunggu()
-            ->with(['siswa', 'barang'])
-            ->latest('created_at')
-            ->paginate(10, ['*'], 'req_page')
-            ->withQueryString();
+        // Tab 1: Pending Requests (status = menunggu)
+        $reqSort = $request->input('req_sort');
+        $reqDir = strtolower($request->input('req_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $reqQuery = Peminjaman::menunggu()->with(['siswa', 'barang']);
 
-        // Tab 2: Pending Returns (kondisi_barang masih NULL menunggu verifikasi fisik oleh admin)
-        $pendingReturns = Peminjaman::disetujui()
+        if ($reqSort === 'siswa') {
+            $reqQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                     ->select('peminjaman.*')
+                     ->orderBy('siswa.nama', $reqDir);
+        } elseif ($reqSort === 'barang') {
+            $reqQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                     ->select('peminjaman.*')
+                     ->orderBy('barang.nama_barang', $reqDir);
+        } elseif (in_array($reqSort, ['lokasi_penggunaan', 'keterangan_penggunaan', 'tanggal_pinjam'])) {
+            $reqQuery->orderBy("peminjaman.{$reqSort}", $reqDir);
+        } else {
+            // Default: data paling baru di atas
+            $reqQuery->orderBy('peminjaman.updated_at', 'desc');
+        }
+
+        $pendingRequests = $reqQuery->paginate(10, ['*'], 'req_page')->withQueryString();
+
+        // Tab 2: Pending Returns (hanya pengembalian yang belum dikonfirmasi / kondisi_barang IS NULL)
+        $retSort = $request->input('ret_sort');
+        $retDir = strtolower($request->input('ret_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $retQuery = Peminjaman::disetujui()
             ->whereHas('pengembalian', function ($q) {
                 $q->whereNull('kondisi_barang');
             })
-            ->with(['siswa', 'barang', 'pengembalian'])
-            ->latest('created_at')
-            ->paginate(10, ['*'], 'ret_page')
-            ->withQueryString();
+            ->with(['siswa', 'barang', 'pengembalian']);
+
+        if ($retSort === 'siswa') {
+            $retQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                     ->select('peminjaman.*')
+                     ->orderBy('siswa.nama', $retDir);
+        } elseif ($retSort === 'barang') {
+            $retQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                     ->select('peminjaman.*')
+                     ->orderBy('barang.nama_barang', $retDir);
+        } elseif ($retSort === 'tanggal_kembali') {
+            $retQuery->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
+                     ->select('peminjaman.*')
+                     ->orderBy('pengembalian.tanggal_kembali', $retDir);
+        } elseif ($retSort === 'tanggal_pinjam') {
+            $retQuery->orderBy('peminjaman.tanggal_pinjam', $retDir);
+        } else {
+            // Default: data paling baru di atas
+            $retQuery->orderBy('peminjaman.updated_at', 'desc');
+        }
+
+        $pendingReturns = $retQuery->paginate(10, ['*'], 'ret_page')->withQueryString();
 
         $activeTab = $request->input('tab', 'requests');
 
@@ -481,7 +561,9 @@ class AdminSaranaController extends Controller
         $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
 
         return redirect()->route('admin.verifications')
-            ->with('success', "Aksi berhasil! Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.");
+            ->with('toast_title', 'Persetujuan pengajuan berhasil')
+            ->with('toast_message', "Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.")
+            ->with('success', 'Persetujuan pengajuan berhasil');
     }
 
     /**
@@ -505,7 +587,9 @@ class AdminSaranaController extends Controller
         $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
 
         return redirect()->route('admin.verifications')
-            ->with('success', "Aksi berhasil! Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.");
+            ->with('toast_title', 'Penolakan pengajuan berhasil')
+            ->with('toast_message', "Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.")
+            ->with('success', 'Penolakan pengajuan berhasil');
     }
 
     /**
@@ -525,30 +609,28 @@ class AdminSaranaController extends Controller
 
         $peminjaman = Peminjaman::disetujui()
             ->where('kode_pinjam', $kode)
-            ->with('pengembalian')
+            ->with(['pengembalian', 'barang'])
             ->firstOrFail();
 
         $pengembalian = $peminjaman->pengembalian;
 
         if (!$pengembalian) {
-            return back()->with('error', 'Data pengembalian tidak ditemukan.');
+            return back()
+                ->with('toast_title', 'Konfirmasi pengembalian barang gagal')
+                ->with('toast_message', 'Data pengembalian tidak ditemukan.')
+                ->with('error', 'Data pengembalian tidak ditemukan.');
         }
 
-        // 1. Simpan kondisi barang yang telah diinspeksi ke tabel pengembalian
+        // Update kondisi barang pada record pengembalian
+        // (Stok barang pada tabel barang otomatis diperbarui oleh trigger database: trg_kembalikan_stok_barang)
         $pengembalian->kondisi_barang = $request->kondisi_barang;
         $pengembalian->save();
 
-        // 2. Tambah kembali kuantitas stok barang berdasarkan kondisi fisik serah terima
-        $barang = $peminjaman->barang;
-        if ($barang) {
-            match ($request->kondisi_barang) {
-                'Baik'         => $barang->increment('jumlah_baik'),
-                'Kurang Baik'  => $barang->increment('jumlah_kurang_baik'),
-                'Rusak Berat'  => $barang->increment('jumlah_rusak_berat'),
-            };
-        }
+        $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
 
         return redirect()->route('admin.verifications', ['tab' => 'returns'])
-            ->with('success', "Aksi berhasil! Pengembalian peminjaman {$kode} telah dikonfirmasi (Kondisi: {$request->kondisi_barang}) dan stok barang telah diperbarui.");
+            ->with('toast_title', 'Konfirmasi pengembalian barang berhasil')
+            ->with('toast_message', "Pengembalian {$namaBarang} ({$kode}) telah dikonfirmasi dengan kondisi {$request->kondisi_barang}.")
+            ->with('success', 'Konfirmasi pengembalian barang berhasil');
     }
 }

@@ -9,7 +9,7 @@
 --}}
 @extends('layouts.auth')
 
-@section('title', 'Register - SINFAS')
+@section('title', 'Daftar Akun - SINFAS')
 
 @section('content')
 <div class="auth-card auth-card--register">
@@ -45,7 +45,7 @@
         @csrf
 
         <div class="form-group">
-            <label for="full_name" class="form-label">Full Name</label>
+            <label for="full_name" class="form-label">Nama Lengkap</label>
             <input
                 type="text"
                 id="full_name"
@@ -100,7 +100,7 @@
         </div>
 
         <div class="form-group">
-            <label for="contact_number" class="form-label">Contact Number</label>
+            <label for="contact_number" class="form-label">Nomor Kontak</label>
             <input
                 type="tel"
                 id="contact_number"
@@ -140,7 +140,7 @@
         </div>
 
         <div class="form-group">
-            <label for="password_confirmation" class="form-label">Confirm Password</label>
+            <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
             <div class="password-input-wrapper">
                 <input
                     type="password"
@@ -167,12 +167,12 @@
         </div>
 
         <button type="submit" class="btn-auth" id="register-btn">
-            Register
+            Daftar
         </button>
 
         <p class="auth-link-text">
-            Already have an account?
-            <a href="{{ route('login') }}" class="auth-link">Login</a>
+            Sudah punya akun?
+            <a href="{{ route('login') }}" class="auth-link">Masuk</a>
         </p>
     </form>
 </div>

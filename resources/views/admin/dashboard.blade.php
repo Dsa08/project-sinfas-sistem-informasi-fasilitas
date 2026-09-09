@@ -9,55 +9,48 @@
 @extends('layouts.admin-sarana')
 
 @section('title', 'Dashboard - Admin Sarana SINFAS')
-@section('page_title', 'Home')
+@section('page_title', 'Beranda')
 
 @section('content')
 <div class="sarana-dashboard-container">
-    {{-- Flash Messages --}}
-    @if(session('success'))
-        <div class="alert-success" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
-            {{ session('success') }}
-        </div>
-    @endif
-
     {{-- 4 Stat Cards --}}
     <div class="sarana-stats-grid">
         {{-- Card 1 --}}
         <div class="system-stat-card">
             <div class="system-stat-value">{{ $pendingCount }}</div>
-            <div class="system-stat-label">Pending Verification</div>
+            <div class="system-stat-label">Menunggu Verifikasi</div>
         </div>
 
         {{-- Card 2 --}}
         <div class="system-stat-card">
             <div class="system-stat-value">{{ $totalItems }}</div>
-            <div class="system-stat-label">Total Items</div>
+            <div class="system-stat-label">Total Barang</div>
         </div>
 
         {{-- Card 3 --}}
         <div class="system-stat-card">
             <div class="system-stat-value">{{ $borrowedCount }}</div>
-            <div class="system-stat-label">Currently Borrowed</div>
+            <div class="system-stat-label">Sedang Dipinjam</div>
         </div>
 
         {{-- Card 4: Damaged (amber highlight) --}}
         <div class="system-stat-card" style="border-color: #f59e0b;">
             <div class="system-stat-value" style="color: #d97706;">{{ $damagedCount }}</div>
-            <div class="system-stat-label">Damaged</div>
+            <div class="system-stat-label">Kondisi Rusak</div>
         </div>
     </div>
 
     {{-- Pending Loan Requests Section --}}
     <div class="sarana-section">
-        <h2 class="sarana-section-heading">Pending Loan Requests</h2>
+        <h2 class="sarana-section-heading">Permintaan Peminjaman Menunggu</h2>
         <div class="system-table-card">
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 25%;">Borrower</th>
-                        <th style="width: 35%;">Item</th>
-                        <th style="width: 20%;">Date</th>
-                        <th style="width: 20%;">Actions</th>
+                        <th style="width: 25%;">Peminjam</th>
+                        <th style="width: 35%;">Barang</th>
+                        <th style="width: 20%;">Tanggal Pinjam</th>
+                        <th style="width: 20%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,11 +63,11 @@
                             <div class="action-btn-group">
                                 <form action="{{ route('admin.verifications.approve', $loan->kode_pinjam) }}" method="POST" style="display:inline;">
                                     @csrf
-                                    <button type="submit" class="btn-action btn-approve" onclick="return confirm('Setujui peminjaman ini?')">Approve</button>
+                                    <button type="submit" class="btn-action btn-approve" onclick="return confirm('Setujui peminjaman ini?')">Setujui</button>
                                 </form>
                                 <form action="{{ route('admin.verifications.reject', $loan->kode_pinjam) }}" method="POST" style="display:inline;">
                                     @csrf
-                                    <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak peminjaman ini?')">Reject</button>
+                                    <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak peminjaman ini?')">Tolak</button>
                                 </form>
                             </div>
                         </td>
@@ -114,7 +107,7 @@
                     <path d="M12 22V12"/>
                 </svg>
             </div>
-            <div class="sarana-action-text">Manage Items</div>
+            <div class="sarana-action-text">Kelola Barang</div>
         </a>
 
         {{-- Card 2: History & Print Report --}}
@@ -128,7 +121,7 @@
                     <line x1="10" y1="9" x2="8" y2="9"/>
                 </svg>
             </div>
-            <div class="sarana-action-text">History & Print Report</div>
+            <div class="sarana-action-text">Riwayat & Cetak Laporan</div>
         </div>
 
         {{-- Card 3: Verify Returns --}}
@@ -139,7 +132,7 @@
                     <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                 </svg>
             </div>
-            <div class="sarana-action-text">Verify Returns</div>
+            <div class="sarana-action-text">Verifikasi Pengembalian</div>
         </a>
     </div>
 </div>

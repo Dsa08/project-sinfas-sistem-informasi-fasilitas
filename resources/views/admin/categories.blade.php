@@ -14,22 +14,10 @@
 
 @section('content')
 <div class="sarana-categories-container">
-    {{-- Flash Messages --}}
-    @if(session('success'))
-        <div class="alert-success" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-error" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;">
-            {{ session('error') }}
-        </div>
-    @endif
-
     {{-- Header & Subtitle --}}
     <div class="system-section-header" style="margin-bottom: 1.25rem;">
         <h2 class="system-section-heading" style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 0.25rem;">Kelola Kategori</h2>
-        <p style="font-size: 0.88rem; color: #6b7280; margin: 0;">Manage asset categories and item counts</p>
+        <p style="font-size: 0.88rem; color: #6b7280; margin: 0;">Kelola kategori aset dan jumlah barang</p>
     </div>
 
     {{-- Filter & Add Category Bar --}}
@@ -44,34 +32,69 @@
                 class="system-search-input"
                 id="search-categories-input"
                 name="search"
-                placeholder="Search categories..."
+                placeholder="Cari kategori..."
                 value="{{ request('search') }}"
             >
         </form>
         <button type="button" class="btn-add-account" id="btn-add-category" onclick="openAddCategoryModal()">
-            + Add Category
+            + Tambah Kategori
         </button>
     </div>
 
     {{-- Categories Table Card --}}
+    @php
+        $getSortUrl = function($col) {
+            if (request('sort') === $col) {
+                if (request('dir') === 'asc') {
+                    return request()->fullUrlWithQuery(['sort' => $col, 'dir' => 'desc']);
+                }
+                return request()->fullUrlWithoutQuery(['sort', 'dir']);
+            }
+            return request()->fullUrlWithQuery(['sort' => $col, 'dir' => 'asc']);
+        };
+        $getSortTitle = function($col) {
+            if (request('sort') === $col) {
+                return request('dir') === 'asc' 
+                    ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
+                    : 'Klik untuk mengembalikan ke urutan default (Terbaru di atas)';
+            }
+            return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
+        };
+    @endphp
     <div class="system-table-card" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
         <table class="system-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
             <thead>
                 <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-weight: 600; text-align: left;">
-                    <th style="padding: 0.85rem 1.25rem; width: 45%;">Nama Kategori</th>
-                    <th style="padding: 0.85rem 1.25rem; width: 35%;">Jumlah Barang</th>
-                    <th style="padding: 0.85rem 1.25rem; width: 20%; text-align: center;">Actions</th>
+                    <th style="padding: 0.85rem 1.25rem; width: 45%;">
+                        <a href="{{ $getSortUrl('nama_kategori') }}" class="th-content {{ request('sort') === 'nama_kategori' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama_kategori') }}">
+                            <span>Nama Kategori</span>
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'nama_kategori' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nama_kategori' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'nama_kategori' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nama_kategori' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
+                        </a>
+                    </th>
+                    <th style="padding: 0.85rem 1.25rem; width: 35%;">
+                        <a href="{{ $getSortUrl('barang_count') }}" class="th-content {{ request('sort') === 'barang_count' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('barang_count') }}">
+                            <span>Jumlah Barang</span>
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'barang_count' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'barang_count' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'barang_count' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'barang_count' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
+                        </a>
+                    </th>
+                    <th style="padding: 0.85rem 1.25rem; width: 20%; text-align: center;">Aksi</th>
                 </tr>
             </thead>
             <tbody id="categoriesTableBody">
                 @forelse($categories as $cat)
                 <tr style="border-bottom: 1px solid #f3f4f6;">
                     <td style="padding: 0.85rem 1.25rem; font-weight: 500; color: #111827;">{{ $cat->nama_kategori }}</td>
-                    <td style="padding: 0.85rem 1.25rem; color: #4b5563;">{{ $cat->barang_count }} items</td>
+                    <td style="padding: 0.85rem 1.25rem; color: #4b5563;">{{ $cat->barang_count }} barang</td>
                     <td style="padding: 0.85rem 1.25rem; text-align: center;">
                         <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                            <button type="button" class="btn-table-outline-blue" onclick="openEditCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Edit</button>
-                            <button type="button" class="btn-table-outline-red" onclick="openDeleteCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Delete</button>
+                            <button type="button" class="btn-table-outline-blue" onclick="openEditCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Ubah</button>
+                            <button type="button" class="btn-table-outline-red" onclick="openDeleteCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Hapus</button>
                         </div>
                     </td>
                 </tr>
@@ -96,7 +119,7 @@
 <div class="modal-overlay" id="categoryModal">
     <div class="modal-card" style="max-width: 440px; width: 90%; text-align: left; padding: 1.75rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 1px solid #f3f4f6;">
-            <h3 class="modal-title" id="categoryModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Add Category</h3>
+            <h3 class="modal-title" id="categoryModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Tambah Kategori</h3>
             <button type="button" onclick="closeCategoryModal()" style="background: transparent; border: none; color: #9ca3af; font-size: 1.25rem; cursor: pointer; padding: 0.25rem;">&times;</button>
         </div>
 
@@ -116,12 +139,12 @@
 
             <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem;">Nama Kategori</label>
-                <input type="text" name="nama_kategori" id="categoryNameInput" placeholder="Enter category name" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
+                <input type="text" name="nama_kategori" id="categoryNameInput" placeholder="Masukkan nama kategori" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;">
             </div>
 
             <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="modal-btn modal-btn--cancel" onclick="closeCategoryModal()">Cancel</button>
-                <button type="submit" class="modal-btn" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Save</button>
+                <button type="button" class="modal-btn modal-btn--cancel" onclick="closeCategoryModal()">Batal</button>
+                <button type="submit" class="modal-btn" style="background-color: #1D67F2; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Simpan</button>
             </div>
         </form>
     </div>
@@ -136,8 +159,8 @@
             @csrf
             @method('DELETE')
             <div class="modal-actions" style="display: flex; justify-content: center; gap: 0.75rem;">
-                <button type="button" class="modal-btn modal-btn--cancel" onclick="closeDeleteCategoryModal()">Cancel</button>
-                <button type="submit" class="modal-btn" style="background-color: #dc2626; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Delete</button>
+                <button type="button" class="modal-btn modal-btn--cancel" onclick="closeDeleteCategoryModal()">Batal</button>
+                <button type="submit" class="modal-btn" style="background-color: #dc2626; color: #ffffff; border: none; border-radius: 8px; padding: 0.55rem 1.4rem; font-weight: 600;">Hapus</button>
             </div>
         </form>
     </div>
@@ -145,7 +168,7 @@
 
 <script>
     function openAddCategoryModal() {
-        document.getElementById('categoryModalTitle').textContent = 'Add Category';
+        document.getElementById('categoryModalTitle').textContent = 'Tambah Kategori';
         document.getElementById('categoryForm').action = '{{ route("admin.categories.store") }}';
         document.getElementById('categoryFormMethod').value = 'POST';
         document.getElementById('categoryForm').reset();
@@ -153,7 +176,7 @@
     }
 
     function openEditCategoryModal(id, name) {
-        document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+        document.getElementById('categoryModalTitle').textContent = 'Ubah Kategori';
         document.getElementById('categoryForm').action = '/admin/categories/' + id;
         document.getElementById('categoryFormMethod').value = 'PUT';
         document.getElementById('categoryNameInput').value = name;

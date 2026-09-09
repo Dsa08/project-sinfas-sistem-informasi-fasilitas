@@ -8,9 +8,9 @@
 --}}
 @extends('layouts.app')
 
-@section('title', 'My Profile - SINFAS')
+@section('title', 'Profil Saya - SINFAS')
 
-@section('navbar_title', 'My Profile')
+@section('navbar_title', 'Profil Saya')
 
 @section('content')
 <div class="profile-container">
@@ -31,25 +31,25 @@
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
             </div>
-            <span class="profile-avatar-link" id="change-photo-link">Change Photo</span>
+            <span class="profile-avatar-link" id="change-photo-link">Ubah Foto</span>
         </div>
 
         {{-- Personal Information Section --}}
         <div class="profile-section">
-            <h2 class="profile-section-title">Personal Information</h2>
+            <h2 class="profile-section-title">Informasi Pribadi</h2>
             <form action="{{ route('profile.update') }}" method="POST" class="profile-form" id="profile-info-form">
                 @csrf
                 @method('PUT')
 
                 <div class="profile-form-group">
-                    <label class="profile-form-label" for="full-name">Full Name</label>
+                    <label class="profile-form-label" for="full-name">Nama Lengkap</label>
                     <input
                         type="text"
                         class="profile-form-input"
                         id="full-name"
                         name="full_name"
                         value="{{ old('full_name', $user->nama) }}"
-                        placeholder="Enter your full name"
+                        placeholder="Masukkan nama lengkap Anda"
                     >
                     @error('full_name')
                         <span class="profile-input-error">{{ $message }}</span>
@@ -78,7 +78,7 @@
                         id="email"
                         name="email"
                         value="{{ old('email', $email) }}"
-                        placeholder="Enter your email address"
+                        placeholder="Masukkan alamat email Anda"
                     >
                     @error('email')
                         <span class="profile-input-error">{{ $message }}</span>
@@ -87,14 +87,14 @@
                 @endif
 
                 <div class="profile-form-group">
-                    <label class="profile-form-label" for="contact-number">Contact Number</label>
+                    <label class="profile-form-label" for="contact-number">Nomor Kontak</label>
                     <input
                         type="text"
                         class="profile-form-input"
                         id="contact-number"
                         name="contact_number"
                         value="{{ old('contact_number', $user->nomor_kontak) }}"
-                        placeholder="Enter your contact number"
+                        placeholder="Masukkan nomor kontak Anda"
                     >
                     @error('contact_number')
                         <span class="profile-input-error">{{ $message }}</span>
@@ -103,7 +103,7 @@
 
                 <div class="profile-form-actions">
                     <button type="submit" class="btn-profile-save" id="save-info-btn">
-                        Save Changes
+                        Simpan Perubahan
                     </button>
                 </div>
             </form>
@@ -111,19 +111,19 @@
 
         {{-- Change Password Section --}}
         <div class="profile-section">
-            <h2 class="profile-section-title">Change Password</h2>
+            <h2 class="profile-section-title">Ubah Kata Sandi</h2>
             <form action="{{ route('profile.password') }}" method="POST" class="profile-form" id="profile-password-form">
                 @csrf
                 @method('PUT')
 
                 <div class="profile-form-group">
-                    <label class="profile-form-label" for="current-password">Current Password</label>
+                    <label class="profile-form-label" for="current-password">Kata Sandi Saat Ini</label>
                     <input
                         type="password"
                         class="profile-form-input"
                         id="current-password"
                         name="current_password"
-                        placeholder="Enter current password"
+                        placeholder="Masukkan kata sandi saat ini"
                     >
                     @error('current_password')
                         <span class="profile-input-error">{{ $message }}</span>
@@ -131,13 +131,13 @@
                 </div>
 
                 <div class="profile-form-group">
-                    <label class="profile-form-label" for="new-password">New Password</label>
+                    <label class="profile-form-label" for="new-password">Kata Sandi Baru</label>
                     <input
                         type="password"
                         class="profile-form-input"
                         id="new-password"
                         name="new_password"
-                        placeholder="Enter new password"
+                        placeholder="Masukkan kata sandi baru"
                     >
                     @error('new_password')
                         <span class="profile-input-error">{{ $message }}</span>
@@ -145,19 +145,19 @@
                 </div>
 
                 <div class="profile-form-group">
-                    <label class="profile-form-label" for="confirm-password">Confirm New Password</label>
+                    <label class="profile-form-label" for="confirm-password">Konfirmasi Kata Sandi Baru</label>
                     <input
                         type="password"
                         class="profile-form-input"
                         id="confirm-password"
                         name="new_password_confirmation"
-                        placeholder="Re-enter new password"
+                        placeholder="Ulangi kata sandi baru"
                     >
                 </div>
 
                 <div class="profile-form-actions">
                     <button type="submit" class="btn-profile-save" id="save-password-btn">
-                        Save Changes
+                        Simpan Kata Sandi
                     </button>
                 </div>
             </form>

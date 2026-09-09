@@ -63,7 +63,7 @@
             </button>
 
             {{-- User Profile Icon --}}
-            <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'User' }})">
+            <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'Pengguna' }})">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
@@ -71,7 +71,7 @@
             </a>
 
             {{-- Logout Button (triggers modal) --}}
-            <button type="button" class="navbar-icon-btn" id="logout-trigger-btn" title="Logout">
+            <button type="button" class="navbar-icon-btn" id="logout-trigger-btn" title="Keluar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
@@ -96,11 +96,43 @@
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
             </div>
-            <h3 class="modal-title">Konfirmasi Logout</h3>
+            <h3 class="modal-title">Konfirmasi Keluar</h3>
             <p class="modal-message">Apakah Anda yakin ingin keluar dari SINFAS?</p>
             <div class="modal-actions">
                 <button type="button" class="modal-btn modal-btn--cancel" id="logout-cancel-btn">Batal</button>
-                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Logout</button>
+                <button type="button" class="modal-btn modal-btn--confirm" id="logout-confirm-btn">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Waiting Approval Confirmation Pop Up (Sesuai Desain Figma) --}}
+    <div class="modal-overlay" id="waiting-approval-modal">
+        <div class="waiting-popup-card">
+            <div class="waiting-popup-body">
+                {{-- Clock Icon --}}
+                <div class="waiting-popup-icon">
+                    <svg width="86" height="86" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {{-- Outer Cyan Ring & Face --}}
+                        <circle cx="50" cy="50" r="41" stroke="#00A3C4" stroke-width="11" fill="#f1f5f9"/>
+                        {{-- Minute Hand (Points to 12) --}}
+                        <line x1="50" y1="50" x2="50" y2="24" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/>
+                        {{-- Hour Hand (Points to ~4:20) --}}
+                        <line x1="50" y1="50" x2="70" y2="70" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/>
+                        {{-- Center Pivot --}}
+                        <circle cx="50" cy="50" r="4.5" fill="#00A3C4" stroke="#0f172a" stroke-width="2"/>
+                    </svg>
+                </div>
+                {{-- Text Content --}}
+                <div class="waiting-popup-text">
+                    <h3 class="waiting-popup-title">Menunggu Persetujuan Admin</h3>
+                    <p class="waiting-popup-desc">
+                        Permintaan peminjaman Anda telah masuk ke dalam antrean. Mohon tunggu konfirmasi dari Admin Sarana.
+                    </p>
+                </div>
+            </div>
+            {{-- Action Button --}}
+            <div class="waiting-popup-actions">
+                <button type="button" class="btn-waiting-popup-close" onclick="closeWaitingApprovalModal()">Tutup</button>
             </div>
         </div>
     </div>
@@ -110,31 +142,161 @@
         @yield('content')
     </main>
 
+    <style>
+        .waiting-popup-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem 2.25rem;
+            max-width: 540px;
+            width: 90%;
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: waitingPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes waitingPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .waiting-popup-body {
+            display: flex;
+            align-items: center;
+            gap: 1.75rem;
+        }
+        .waiting-popup-icon {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .waiting-popup-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .waiting-popup-title {
+            font-size: 1.28rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.3;
+        }
+        .waiting-popup-desc {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.55;
+            margin: 0;
+        }
+        .waiting-popup-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-waiting-popup-close {
+            background-color: #1e40af;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.65rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+        .btn-waiting-popup-close:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-waiting-popup-close:active {
+            transform: scale(0.98);
+        }
+        @media (max-width: 600px) {
+            .waiting-popup-body {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            .waiting-popup-actions {
+                justify-content: center;
+            }
+            .btn-waiting-popup-close {
+                width: 100%;
+            }
+        }
+    </style>
+
     <script>
+        window.openWaitingApprovalModal = function() {
+            const modal = document.getElementById('waiting-approval-modal');
+            if (modal) {
+                modal.classList.add('modal-overlay--active');
+            }
+        };
+
+        window.closeWaitingApprovalModal = function() {
+            const modal = document.getElementById('waiting-approval-modal');
+            if (modal) {
+                modal.classList.remove('modal-overlay--active');
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Auto open waiting approval modal if flash session is set
+            @if(session('show_waiting_modal'))
+                openWaitingApprovalModal();
+            @endif
+
+            const waitingModal = document.getElementById('waiting-approval-modal');
+            if (waitingModal) {
+                waitingModal.addEventListener('click', function (e) {
+                    if (e.target === waitingModal) {
+                        closeWaitingApprovalModal();
+                    }
+                });
+            }
+
+            // Close on escape
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeWaitingApprovalModal();
+                }
+            });
+
+            // Logout modal logic
             const triggerBtn = document.getElementById('logout-trigger-btn');
             const modal = document.getElementById('logout-modal');
             const cancelBtn = document.getElementById('logout-cancel-btn');
             const confirmBtn = document.getElementById('logout-confirm-btn');
             const logoutForm = document.getElementById('logout-form');
 
-            triggerBtn.addEventListener('click', function () {
-                modal.classList.add('modal-overlay--active');
-            });
+            if (triggerBtn && modal) {
+                triggerBtn.addEventListener('click', function () {
+                    modal.classList.add('modal-overlay--active');
+                });
 
-            cancelBtn.addEventListener('click', function () {
-                modal.classList.remove('modal-overlay--active');
-            });
-
-            confirmBtn.addEventListener('click', function () {
-                logoutForm.submit();
-            });
-
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    modal.classList.remove('modal-overlay--active');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function () {
+                        modal.classList.remove('modal-overlay--active');
+                    });
                 }
-            });
+
+                if (confirmBtn && logoutForm) {
+                    confirmBtn.addEventListener('click', function () {
+                        logoutForm.submit();
+                    });
+                }
+
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('modal-overlay--active');
+                    }
+                });
+            }
         });
     </script>
 </body>

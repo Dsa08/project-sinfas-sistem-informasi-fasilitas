@@ -8,7 +8,7 @@
 --}}
 @extends('layouts.auth')
 
-@section('title', 'Reset Password - SINFAS')
+@section('title', 'Atur Ulang Kata Sandi - SINFAS')
 
 @section('content')
 <div class="auth-card auth-card--login">
@@ -23,7 +23,7 @@
             </div>
             <h1 class="auth-brand">SINFAS</h1>
         </div>
-        <p class="auth-subtitle">Buat Password Baru</p>
+        <p class="auth-subtitle">Buat Kata Sandi Baru</p>
     </div>
 
     {{-- Error Alerts --}}
@@ -38,7 +38,7 @@
     @endif
 
     <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1.25rem; line-height: 1.45;">
-        Masukkan password baru untuk akun <strong>{{ $email }}</strong>. Minimal 8 karakter, mengandung kombinasi huruf dan angka.
+        Masukkan kata sandi baru untuk akun <strong>{{ $email }}</strong>. Minimal 8 karakter, mengandung kombinasi huruf dan angka.
     </p>
 
     {{-- Reset Password Form --}}
@@ -51,7 +51,7 @@
 
         {{-- New Password --}}
         <div class="form-group">
-            <label for="new_password" class="form-label">Password Baru</label>
+            <label for="new_password" class="form-label">Kata Sandi Baru</label>
             <div class="password-input-wrapper">
                 <input
                     type="password"
@@ -63,7 +63,7 @@
                     autocomplete="new-password"
                     autofocus
                 >
-                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('new_password', this)" title="Lihat password" tabindex="-1">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('new_password', this)" title="Lihat kata sandi" tabindex="-1">
                     <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                         <circle cx="12" cy="12" r="3"/>
@@ -80,18 +80,18 @@
 
         {{-- Confirm Password --}}
         <div class="form-group">
-            <label for="password_confirmation" class="form-label">Konfirmasi Password Baru</label>
+            <label for="password_confirmation" class="form-label">Konfirmasi Kata Sandi Baru</label>
             <div class="password-input-wrapper">
                 <input
                     type="password"
                     id="password_confirmation"
                     name="password_confirmation"
                     class="form-input"
-                    placeholder="Ulangi password baru"
+                    placeholder="Ulangi kata sandi baru"
                     required
                     autocomplete="new-password"
                 >
-                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_confirmation', this)" title="Lihat password" tabindex="-1">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_confirmation', this)" title="Lihat kata sandi" tabindex="-1">
                     <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                         <circle cx="12" cy="12" r="3"/>
@@ -107,12 +107,12 @@
         </div>
 
         <button type="submit" class="btn-auth" id="btn-submit-reset" style="margin-top: 0.5rem;">
-            Perbarui Password
+            Perbarui Kata Sandi
         </button>
 
         <p class="auth-link-text" style="margin-top: 1.25rem;">
             Batal dan kembali?
-            <a href="{{ route('login') }}" class="auth-link">Kembali ke Login</a>
+            <a href="{{ route('login') }}" class="auth-link">Kembali untuk Masuk</a>
         </p>
     </form>
 </div>
@@ -128,12 +128,12 @@
             input.type = 'text';
             if (eyeIcon) eyeIcon.style.display = 'none';
             if (eyeOffIcon) eyeOffIcon.style.display = 'block';
-            btn.setAttribute('title', 'Sembunyikan password');
+            btn.setAttribute('title', 'Sembunyikan kata sandi');
         } else {
             input.type = 'password';
             if (eyeIcon) eyeIcon.style.display = 'block';
             if (eyeOffIcon) eyeOffIcon.style.display = 'none';
-            btn.setAttribute('title', 'Lihat password');
+            btn.setAttribute('title', 'Lihat kata sandi');
         }
     }
 </script>

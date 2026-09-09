@@ -117,7 +117,7 @@
             </div>
             <div class="item-info">
                 <h3 class="item-name">{{ $item->nama_barang }}</h3>
-                <p class="item-category">Category: {{ $item->kategori->nama_kategori ?? '-' }}</p>
+                <p class="item-category">Kategori: {{ $item->kategori->nama_kategori ?? '-' }}</p>
                 <span class="item-status {{ $item->status === 'Available' ? 'item-status--available' : 'item-status--unavailable' }}">
                     @if($item->status === 'Available')
                         {{ $item->jumlah_baik }} tersedia
@@ -126,9 +126,9 @@
                     @endif
                 </span>
                 @if($item->status === 'Available')
-                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="btn-request" id="request-btn-{{ $item->kode_barang }}">Request Loan</a>
+                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="btn-request" id="request-btn-{{ $item->kode_barang }}">Ajukan Pinjaman</a>
                 @else
-                    <button class="btn-request" disabled style="background-color: #9ca3af; cursor: not-allowed;">Unavailable</button>
+                    <button class="btn-request" disabled style="background-color: #9ca3af; cursor: not-allowed;">Tidak Tersedia</button>
                 @endif
             </div>
         </div>
