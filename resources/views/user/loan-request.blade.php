@@ -104,7 +104,7 @@
                     @if(isset($activeLoansCount) && $activeLoansCount >= 2)
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Batas Kuota Pinjaman Penuh (2/2)</button>
                     @elseif(isset($alreadyPending) && $alreadyPending)
-                        <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Pengajuan Sedang Menunggu</button>
+                        <button type="button" class="loan-btn-submit" onclick="openWaitingApprovalModal()" style="background-color: #0284c7; cursor: pointer;">Pengajuan Sedang Menunggu (Lihat Info)</button>
                     @elseif(in_array($item->status, ['Available', 'Tersedia']))
                         <button type="submit" id="btnSubmitLoan" class="loan-btn-submit">Kirim Pengajuan Pinjaman</button>
                     @else

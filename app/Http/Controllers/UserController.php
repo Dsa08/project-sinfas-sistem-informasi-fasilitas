@@ -161,7 +161,8 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('loan.status')
-            ->with('success', 'Pengajuan peminjaman berhasil dikirim! Kode: ' . $kodePinjam);
+            ->with('success', 'Pengajuan peminjaman berhasil dikirim! Kode: ' . $kodePinjam)
+            ->with('show_waiting_modal', true);
     }
 
     /**

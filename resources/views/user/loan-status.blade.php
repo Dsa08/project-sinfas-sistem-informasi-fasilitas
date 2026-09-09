@@ -102,7 +102,7 @@
             <div class="loan-status-badge-wrapper">
                 <div class="loan-action-group">
                     @if($loan->status_pengajuan === 'menunggu')
-                        <span class="loan-status-badge loan-badge--pending">Menunggu</span>
+                        <span class="loan-status-badge loan-badge--pending" onclick="openWaitingApprovalModal()" style="cursor: pointer;" title="Klik untuk melihat informasi antrean">Menunggu</span>
                     @elseif($loan->status_pengajuan === 'ditolak')
                         <span class="loan-status-badge loan-badge--rejected">Ditolak</span>
                     @elseif($loan->status_pengajuan === 'disetujui')
