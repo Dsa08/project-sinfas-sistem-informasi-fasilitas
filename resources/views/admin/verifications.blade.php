@@ -16,6 +16,27 @@
     </div>
 
     {{-- Tab 1: Pending Requests Section --}}
+    @php
+        $getReqSortUrl = function($col) {
+            if (request('req_sort') === $col) {
+                if (request('req_dir') === 'asc') {
+                    return request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => $col, 'req_dir' => 'desc']);
+                }
+                $params = request()->except(['req_sort', 'req_dir']);
+                $params['tab'] = 'requests';
+                return url()->current() . '?' . http_build_query($params);
+            }
+            return request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => $col, 'req_dir' => 'asc']);
+        };
+        $getReqSortTitle = function($col) {
+            if (request('req_sort') === $col) {
+                return request('req_dir') === 'asc' 
+                    ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
+                    : 'Klik untuk mengembalikan ke urutan default (Terbaru di atas)';
+            }
+            return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
+        };
+    @endphp
     <div class="sarana-tab-content {{ $activeTab === 'requests' ? 'sarana-tab-content--active' : '' }}" id="tab-content-requests">
         <div class="system-section-header">
             <h2 class="sarana-section-heading">Permintaan Peminjaman</h2>
@@ -26,7 +47,7 @@
                 <thead>
                     <tr>
                         <th style="width: 18%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'siswa', 'req_dir' => request('req_sort') === 'siswa' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'siswa' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getReqSortUrl('siswa') }}" class="th-content {{ request('req_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('siswa') }}">
                                 <span>Peminjam</span>
                                 @if(request('req_sort') === 'siswa')
                                     @if(request('req_dir') === 'desc')
@@ -40,7 +61,7 @@
                             </a>
                         </th>
                         <th style="width: 22%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'barang', 'req_dir' => request('req_sort') === 'barang' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getReqSortUrl('barang') }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('barang') }}">
                                 <span>Barang</span>
                                 @if(request('req_sort') === 'barang')
                                     @if(request('req_dir') === 'desc')
@@ -54,7 +75,7 @@
                             </a>
                         </th>
                         <th style="width: 15%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'lokasi_penggunaan', 'req_dir' => request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'lokasi_penggunaan' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getReqSortUrl('lokasi_penggunaan') }}" class="th-content {{ request('req_sort') === 'lokasi_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('lokasi_penggunaan') }}">
                                 <span>Lokasi</span>
                                 @if(request('req_sort') === 'lokasi_penggunaan')
                                     @if(request('req_dir') === 'desc')
@@ -68,7 +89,7 @@
                             </a>
                         </th>
                         <th style="width: 15%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'keterangan_penggunaan', 'req_dir' => request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'keterangan_penggunaan' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getReqSortUrl('keterangan_penggunaan') }}" class="th-content {{ request('req_sort') === 'keterangan_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('keterangan_penggunaan') }}">
                                 <span>Keperluan</span>
                                 @if(request('req_sort') === 'keterangan_penggunaan')
                                     @if(request('req_dir') === 'desc')
@@ -82,7 +103,7 @@
                             </a>
                         </th>
                         <th style="width: 15%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => 'tanggal_pinjam', 'req_dir' => request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('req_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getReqSortUrl('tanggal_pinjam') }}" class="th-content {{ request('req_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('tanggal_pinjam') }}">
                                 <span>Tanggal Pinjam</span>
                                 @if(request('req_sort') === 'tanggal_pinjam')
                                     @if(request('req_dir') === 'desc')
@@ -141,6 +162,27 @@
     </div>
 
     {{-- Tab 2: Pending Returns Section --}}
+    @php
+        $getRetSortUrl = function($col) {
+            if (request('ret_sort') === $col) {
+                if (request('ret_dir') === 'asc') {
+                    return request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => $col, 'ret_dir' => 'desc']);
+                }
+                $params = request()->except(['ret_sort', 'ret_dir']);
+                $params['tab'] = 'returns';
+                return url()->current() . '?' . http_build_query($params);
+            }
+            return request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => $col, 'ret_dir' => 'asc']);
+        };
+        $getRetSortTitle = function($col) {
+            if (request('ret_sort') === $col) {
+                return request('ret_dir') === 'asc' 
+                    ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
+                    : 'Klik untuk mengembalikan ke urutan default (Terbaru di atas)';
+            }
+            return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
+        };
+    @endphp
     <div class="sarana-tab-content {{ $activeTab === 'returns' ? 'sarana-tab-content--active' : '' }}" id="tab-content-returns">
         <div class="system-section-header">
             <h2 class="sarana-section-heading">Menunggu Pengembalian</h2>
@@ -151,7 +193,7 @@
                 <thead>
                     <tr>
                         <th style="width: 22%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => 'siswa', 'ret_dir' => request('ret_sort') === 'siswa' && request('ret_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('ret_sort') === 'siswa' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getRetSortUrl('siswa') }}" class="th-content {{ request('ret_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('siswa') }}">
                                 <span>Peminjam</span>
                                 @if(request('ret_sort') === 'siswa')
                                     @if(request('ret_dir') === 'desc')
@@ -165,7 +207,7 @@
                             </a>
                         </th>
                         <th style="width: 28%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => 'barang', 'ret_dir' => request('ret_sort') === 'barang' && request('ret_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getRetSortUrl('barang') }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('barang') }}">
                                 <span>Barang</span>
                                 @if(request('ret_sort') === 'barang')
                                     @if(request('ret_dir') === 'desc')
@@ -179,7 +221,7 @@
                             </a>
                         </th>
                         <th style="width: 15%;">
-                            <a href="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => 'tanggal_kembali', 'ret_dir' => request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('ret_sort') === 'tanggal_kembali' ? 'th-content--active' : '' }}">
+                            <a href="{{ $getRetSortUrl('tanggal_kembali') }}" class="th-content {{ request('ret_sort') === 'tanggal_kembali' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_kembali') }}">
                                 <span>Tanggal Kembali</span>
                                 @if(request('ret_sort') === 'tanggal_kembali')
                                     @if(request('ret_dir') === 'desc')

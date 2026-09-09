@@ -42,12 +42,31 @@
     </div>
 
     {{-- Accounts Table Card --}}
+    @php
+        $getSortUrl = function($col) {
+            if (request('sort') === $col) {
+                if (request('dir') === 'asc') {
+                    return request()->fullUrlWithQuery(['sort' => $col, 'dir' => 'desc']);
+                }
+                return request()->fullUrlWithoutQuery(['sort', 'dir']);
+            }
+            return request()->fullUrlWithQuery(['sort' => $col, 'dir' => 'asc']);
+        };
+        $getSortTitle = function($col) {
+            if (request('sort') === $col) {
+                return request('dir') === 'asc' 
+                    ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
+                    : 'Klik untuk mengembalikan ke urutan default (Terbaru di atas)';
+            }
+            return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
+        };
+    @endphp
     <div class="system-table-card">
         <table class="system-table" id="accounts-table">
             <thead>
                 <tr>
                     <th style="width: 35%;">
-                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'nama', 'dir' => request('sort') === 'nama' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'nama' ? 'th-content--active' : '' }}">
+                        <a href="{{ $getSortUrl('nama') }}" class="th-content {{ request('sort') === 'nama' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama') }}">
                             <span>Nama</span>
                             @if(request('sort') === 'nama')
                                 @if(request('dir') === 'desc')
@@ -61,7 +80,7 @@
                         </a>
                     </th>
                     <th style="width: 25%;">
-                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'nis_nip', 'dir' => request('sort') === 'nis_nip' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'nis_nip' ? 'th-content--active' : '' }}">
+                        <a href="{{ $getSortUrl('nis_nip') }}" class="th-content {{ request('sort') === 'nis_nip' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nis_nip') }}">
                             <span>NIS / NIP</span>
                             @if(request('sort') === 'nis_nip')
                                 @if(request('dir') === 'desc')
@@ -75,7 +94,7 @@
                         </a>
                     </th>
                     <th style="width: 25%;">
-                        <a href="{{ request()->fullUrlWithQuery(['sort' => 'role', 'dir' => request('sort') === 'role' && request('dir') === 'asc' ? 'desc' : 'asc']) }}" class="th-content {{ request('sort') === 'role' ? 'th-content--active' : '' }}">
+                        <a href="{{ $getSortUrl('role') }}" class="th-content {{ request('sort') === 'role' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('role') }}">
                             <span>Peran</span>
                             @if(request('sort') === 'role')
                                 @if(request('dir') === 'desc')
