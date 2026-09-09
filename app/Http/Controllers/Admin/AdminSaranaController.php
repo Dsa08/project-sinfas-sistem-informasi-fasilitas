@@ -144,12 +144,14 @@ class AdminSaranaController extends Controller
         // Sort: default data paling baru di atas (updated_at desc)
         $sort = $request->input('sort');
         $dir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $allowedSorts = ['nama_barang', 'kategori', 'jumlah_baik', 'jumlah_kurang_baik', 'jumlah_rusak_berat', 'status'];
+        $allowedSorts = ['nama_barang', 'kategori', 'waktu_ditambahkan', 'jumlah_baik', 'jumlah_kurang_baik', 'jumlah_rusak_berat', 'status'];
 
         if ($sort === 'kategori') {
             $query->leftJoin('kategori', 'barang.id_kategori', '=', 'kategori.id_kategori')
                   ->select('barang.*')
                   ->orderBy('kategori.nama_kategori', $dir);
+        } elseif ($sort === 'waktu_ditambahkan') {
+            $query->orderBy('barang.created_at', $dir);
         } elseif (in_array($sort, $allowedSorts)) {
             $query->orderBy("barang.{$sort}", $dir);
         } else {

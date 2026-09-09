@@ -49,74 +49,49 @@
                         <th style="width: 18%;">
                             <a href="{{ $getReqSortUrl('siswa') }}" class="th-content {{ request('req_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('siswa') }}">
                                 <span>Peminjam</span>
-                                @if(request('req_sort') === 'siswa')
-                                    @if(request('req_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'siswa' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'siswa' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'siswa' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'siswa' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
                         <th style="width: 22%;">
                             <a href="{{ $getReqSortUrl('barang') }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('barang') }}">
                                 <span>Barang</span>
-                                @if(request('req_sort') === 'barang')
-                                    @if(request('req_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'barang' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'barang' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'barang' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'barang' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
                         <th style="width: 15%;">
                             <a href="{{ $getReqSortUrl('lokasi_penggunaan') }}" class="th-content {{ request('req_sort') === 'lokasi_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('lokasi_penggunaan') }}">
                                 <span>Lokasi</span>
-                                @if(request('req_sort') === 'lokasi_penggunaan')
-                                    @if(request('req_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
-                        <th style="width: 15%;">
+                        <th style="width: 17%;">
                             <a href="{{ $getReqSortUrl('keterangan_penggunaan') }}" class="th-content {{ request('req_sort') === 'keterangan_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('keterangan_penggunaan') }}">
                                 <span>Keperluan</span>
-                                @if(request('req_sort') === 'keterangan_penggunaan')
-                                    @if(request('req_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
-                        <th style="width: 15%;">
+                        <th style="width: 14%;">
                             <a href="{{ $getReqSortUrl('tanggal_pinjam') }}" class="th-content {{ request('req_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('tanggal_pinjam') }}">
                                 <span>Tanggal Pinjam</span>
-                                @if(request('req_sort') === 'tanggal_pinjam')
-                                    @if(request('req_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
-                        <th style="width: 15%;">Aksi</th>
+                        <th style="width: 14%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -192,51 +167,45 @@
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 22%;">
+                        <th style="width: 18%;">
                             <a href="{{ $getRetSortUrl('siswa') }}" class="th-content {{ request('ret_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('siswa') }}">
                                 <span>Peminjam</span>
-                                @if(request('ret_sort') === 'siswa')
-                                    @if(request('ret_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
-                        <th style="width: 28%;">
+                        <th style="width: 22%;">
                             <a href="{{ $getRetSortUrl('barang') }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('barang') }}">
                                 <span>Barang</span>
-                                @if(request('ret_sort') === 'barang')
-                                    @if(request('ret_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
-                        <th style="width: 15%;">
+                        <th style="width: 14%;">
+                            <a href="{{ $getRetSortUrl('tanggal_pinjam') }}" class="th-content {{ request('ret_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_pinjam') }}">
+                                <span>Tanggal Pinjam</span>
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
+                            </a>
+                        </th>
+                        <th style="width: 14%;">
                             <a href="{{ $getRetSortUrl('tanggal_kembali') }}" class="th-content {{ request('ret_sort') === 'tanggal_kembali' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_kembali') }}">
                                 <span>Tanggal Kembali</span>
-                                @if(request('ret_sort') === 'tanggal_kembali')
-                                    @if(request('ret_dir') === 'desc')
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                    @else
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                    @endif
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                                @endif
+                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                                </svg>
                             </a>
                         </th>
-                        <th style="width: 10%; text-align: center;">Bukti</th>
-                        <th style="width: 13%;">Kondisi</th>
-                        <th style="width: 12%;">Aksi</th>
+                        <th style="width: 12%; text-align: center;">Bukti</th>
+                        <th style="width: 10%;">Kondisi</th>
+                        <th style="width: 10%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -251,7 +220,8 @@
                                 </div>
                             @endif
                         </td>
-                        <td class="td-date">{{ $ret->pengembalian->tanggal_kembali->format('Y-m-d') }}</td>
+                        <td class="td-date">{{ $ret->tanggal_pinjam ? $ret->tanggal_pinjam->format('Y-m-d') : '-' }}</td>
+                        <td class="td-date">{{ $ret->pengembalian->tanggal_kembali ? $ret->pengembalian->tanggal_kembali->format('Y-m-d') : '-' }}</td>
                         <td style="text-align: center;">
                             @if($ret->pengembalian->bukti_foto_video)
                                 @php
@@ -260,11 +230,18 @@
                                         ? asset($rawBukti) 
                                         : (str_starts_with($rawBukti, 'http') ? $rawBukti : asset('storage/' . $rawBukti));
                                 @endphp
-                                <button type="button" class="btn-evidence" title="Lihat Bukti Foto/Video" onclick="window.open('{{ $buktiUrl }}', '_blank')">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
-                                    </svg>
-                                </button>
+                                <div style="display: flex; gap: 0.35rem; justify-content: center; align-items: center;">
+                                    <button type="button" title="Lihat Bukti Foto" onclick="window.open('{{ $buktiUrl }}', '_blank')" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.3rem 0.45rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: #1e293b;">
+                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" title="Lihat Bukti Video" onclick="window.open('{{ $buktiUrl }}', '_blank')" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.3rem 0.45rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: #1e293b;">
+                                            <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             @else
                                 <span style="color: #9ca3af; font-size: 0.82rem;">-</span>
                             @endif
@@ -282,7 +259,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; color: #9ca3af; padding: 2rem;">Tidak ada pengembalian yang menunggu konfirmasi.</td>
+                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 2rem;">Tidak ada pengembalian yang menunggu konfirmasi.</td>
                     </tr>
                     @endforelse
                 </tbody>

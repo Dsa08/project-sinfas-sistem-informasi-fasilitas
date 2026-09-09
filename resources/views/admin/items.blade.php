@@ -6,7 +6,7 @@
 @section('content')
 <div class="sarana-items-container">
     <div class="system-section-header">
-        <h2 class="system-section-heading">Kelola Barang</h2>
+        <h2 class="system-section-heading" style="font-size: 1.35rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Kelola data alat</h2>
     </div>
 
     {{-- Filter & Add Item Bar --}}
@@ -25,7 +25,7 @@
                     class="system-search-input"
                     id="search-items-input"
                     name="search"
-                    placeholder="Cari barang..."
+                    placeholder="Cari alat..."
                     value="{{ request('search') }}"
                 >
             </form>
@@ -83,7 +83,7 @@
         </div>
 
         <button type="button" class="btn-add-account" id="btn-add-item" onclick="openAddItemModal()">
-            + Tambah Barang
+            + Tambah Alat
         </button>
     </div>
 
@@ -113,89 +113,68 @@
                 <tr>
                     <th style="width: 22%;">
                         <a href="{{ $getSortUrl('nama_barang') }}" class="th-content {{ request('sort') === 'nama_barang' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama_barang') }}">
-                            <span>Nama Barang</span>
-                            @if(request('sort') === 'nama_barang')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <span>Nama Alat</span>
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'nama_barang' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nama_barang' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'nama_barang' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nama_barang' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
+                        </a>
+                    </th>
+                    <th style="width: 14%;">
+                        <a href="{{ $getSortUrl('kategori') }}" class="th-content {{ request('sort') === 'kategori' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('kategori') }}">
+                            <span>Kategori</span>
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'kategori' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'kategori' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'kategori' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'kategori' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
                     <th style="width: 15%;">
-                        <a href="{{ $getSortUrl('kategori') }}" class="th-content {{ request('sort') === 'kategori' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('kategori') }}">
-                            <span>Kategori</span>
-                            @if(request('sort') === 'kategori')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                        <a href="{{ $getSortUrl('waktu_ditambahkan') }}" class="th-content {{ request('sort') === 'waktu_ditambahkan' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('waktu_ditambahkan') }}">
+                            <span>Waktu ditambahkan</span>
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
-                    <th style="width: 10%;">
+                    <th style="width: 7%;">
                         <a href="{{ $getSortUrl('jumlah_baik') }}" class="th-content {{ request('sort') === 'jumlah_baik' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('jumlah_baik') }}">
                             <span>Baik</span>
-                            @if(request('sort') === 'jumlah_baik')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'jumlah_baik' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'jumlah_baik' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'jumlah_baik' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'jumlah_baik' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
-                    <th style="width: 10%;">
+                    <th style="width: 8%;">
                         <a href="{{ $getSortUrl('jumlah_kurang_baik') }}" class="th-content {{ request('sort') === 'jumlah_kurang_baik' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('jumlah_kurang_baik') }}">
                             <span>K. Baik</span>
-                            @if(request('sort') === 'jumlah_kurang_baik')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'jumlah_kurang_baik' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'jumlah_kurang_baik' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'jumlah_kurang_baik' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'jumlah_kurang_baik' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
-                    <th style="width: 10%;">
+                    <th style="width: 8%;">
                         <a href="{{ $getSortUrl('jumlah_rusak_berat') }}" class="th-content {{ request('sort') === 'jumlah_rusak_berat' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('jumlah_rusak_berat') }}">
                             <span>R. Berat</span>
-                            @if(request('sort') === 'jumlah_rusak_berat')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'jumlah_rusak_berat' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'jumlah_rusak_berat' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'jumlah_rusak_berat' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'jumlah_rusak_berat' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
-                    <th style="width: 13%;">
+                    <th style="width: 12%;">
                         <a href="{{ $getSortUrl('status') }}" class="th-content {{ request('sort') === 'status' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('status') }}">
                             <span>Status</span>
-                            @if(request('sort') === 'status')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'status' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'status' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'status' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'status' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
-                    <th style="width: 20%;">Aksi</th>
+                    <th style="width: 14%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -203,11 +182,16 @@
                 <tr>
                     <td class="td-name">{{ $item->nama_barang }}</td>
                     <td class="td-category">{{ $item->kategori->nama_kategori ?? '-' }}</td>
+                    <td class="td-date">{{ $item->created_at ? $item->created_at->format('d-m-Y') : '-' }}</td>
                     <td class="td-stock">{{ $item->jumlah_baik }}</td>
                     <td class="td-stock">{{ $item->jumlah_kurang_baik }}</td>
-                    <td class="td-stock" style="{{ $item->jumlah_rusak_berat > 0 ? 'color: #b91c1c; font-weight: 600;' : '' }}">{{ $item->jumlah_rusak_berat }}</td>
+                    <td class="td-stock">
+                        <span style="{{ $item->jumlah_rusak_berat > 0 ? 'color: #ef4444; font-weight: 600;' : '' }}">
+                            {{ $item->jumlah_rusak_berat }}
+                        </span>
+                    </td>
                     <td>
-                        <span class="sarana-status-badge {{ in_array($item->status, ['Available', 'Tersedia']) ? 'sarana-status-badge--available' : 'sarana-status-badge--unavailable' }}">
+                        <span style="font-weight: 500; font-size: 0.85rem; color: {{ in_array($item->status, ['Available', 'Tersedia']) ? '#16a34a' : '#ef4444' }};">
                             {{ in_array($item->status, ['Available', 'Tersedia']) ? 'Tersedia' : 'Tidak Tersedia' }}
                         </span>
                     </td>
@@ -224,7 +208,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; color: #9ca3af; padding: 2rem;">Belum ada data barang.</td>
+                    <td colspan="8" style="text-align: center; color: #9ca3af; padding: 2rem;">Belum ada data barang.</td>
                 </tr>
                 @endforelse
             </tbody>

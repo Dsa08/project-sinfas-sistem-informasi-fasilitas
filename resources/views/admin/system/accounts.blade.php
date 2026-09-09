@@ -68,43 +68,28 @@
                     <th style="width: 35%;">
                         <a href="{{ $getSortUrl('nama') }}" class="th-content {{ request('sort') === 'nama' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama') }}">
                             <span>Nama</span>
-                            @if(request('sort') === 'nama')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'nama' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nama' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'nama' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nama' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
                     <th style="width: 25%;">
                         <a href="{{ $getSortUrl('nis_nip') }}" class="th-content {{ request('sort') === 'nis_nip' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nis_nip') }}">
                             <span>NIS / NIP</span>
-                            @if(request('sort') === 'nis_nip')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'nis_nip' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nis_nip' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'nis_nip' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'nis_nip' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
                     <th style="width: 25%;">
                         <a href="{{ $getSortUrl('role') }}" class="th-content {{ request('sort') === 'role' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('role') }}">
                             <span>Peran</span>
-                            @if(request('sort') === 'role')
-                                @if(request('dir') === 'desc')
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m6 9 6 6 6-6"/></svg>
-                                @else
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #1D67F2;"><path d="m18 15-6-6-6 6"/></svg>
-                                @endif
-                            @else
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                            @endif
+                            <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
+                                <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'role' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'role' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
+                                <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'role' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'role' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
+                            </svg>
                         </a>
                     </th>
                     <th class="th-actions" style="width: 15%;">Aksi</th>
