@@ -1,3 +1,16 @@
+/**
+ * SINFAS — Stylesheet Utama & Design System
+ * File: resources/css/app.css
+ * 
+ * Cakupan Sistem Desain:
+ * - Tailwind CSS v4 (@import "tailwindcss")
+ * - CSS Custom Properties (Design Tokens): Warna utama (#1E40AF), background, radius, shadow, font family (Inter & Poppins).
+ * - Modul Auth: Formulir login, registrasi, forgot password, reset password, layout hero background.
+ * - Modul Pengguna (Siswa): Dashboard katalog sarana, hero banner, search & filter pills, modal waiting approval.
+ * - Modul Admin Sarana & Admin Sistem: Layout sidebar, dashboard metrics, tabel responsif dengan 3-state sorting cycle,
+ *   standarisasi toast notification feedback, modal form CRUD, dan popup konfirmasi aksi.
+ */
+
 @import "tailwindcss";
 
 /* ============================================

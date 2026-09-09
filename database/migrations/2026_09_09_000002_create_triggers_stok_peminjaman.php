@@ -3,10 +3,20 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Migration: Create Triggers Stok Peminjaman
+ * 
+ * Mengimplementasikan Trigger database untuk menjamin integritas kuantitas stok sarana secara atomik:
+ * 1. trg_kurangi_stok_peminjaman: Mengurangi stok 'jumlah_baik' pada tabel barang secara otomatis saat
+ *    status peminjaman diubah dari 'menunggu' menjadi 'disetujui'.
+ * 2. trg_kembalikan_stok_barang: Mengembalikan kuantitas stok barang ke kolom kondisi yang sesuai
+ *    ('jumlah_baik', 'jumlah_kurang_baik', atau 'jumlah_rusak_berat') saat inspeksi fisik pengembalian
+ *    diverifikasi oleh admin sarana.
+ */
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Menjalankan migration dan mendefinisikan triggers otomatisasi stok.
      */
     public function up(): void
     {
@@ -52,7 +62,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Membatalkan migration dan menghapus triggers stok.
      */
     public function down(): void
     {

@@ -3,10 +3,18 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Migration: Create Stored Functions Peminjaman
+ * 
+ * Mengimplementasikan Stored Functions pada level RDBMS (MySQL/MariaDB) untuk efisiensi logika bisnis:
+ * 1. fn_sisa_kuota_siswa(p_nis): Menghitung sisa kuota peminjaman aktif siswa secara deterministik di DB (maks 2 alat).
+ * 2. fn_hitung_terlambat_hari(p_tgl_pinjam, p_tgl_kembali): Menghitung selisih hari keterlambatan pengembalian
+ *    berdasarkan durasi standar peminjaman (3 hari).
+ */
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Menjalankan migration dan mendefinisikan stored functions.
      */
     public function up(): void
     {
@@ -52,7 +60,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Membatalkan migration dan menghapus stored functions.
      */
     public function down(): void
     {
