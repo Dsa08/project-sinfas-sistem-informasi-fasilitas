@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -121,5 +122,56 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('profile')->with('success', 'Password berhasil diubah.');
+    }
+
+    /**
+     * Memproses pengunggahan dan penggantian foto profil pengguna.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'foto.required' => 'Silakan pilih berkas foto terlebih dahulu.',
+            'foto.image'    => 'Berkas harus berupa gambar valid.',
+            'foto.mimes'    => 'Format gambar harus berupa jpeg, png, jpg, atau webp.',
+            'foto.max'      => 'Ukuran foto profil maksimal 2MB.',
+        ]);
+
+        $user = Auth::user();
+
+        // Hapus foto lama dari penyimpanan disk publik jika ada
+        if ($user->foto && Storage::disk('public')->exists($user->foto)) {
+            Storage::disk('public')->delete($user->foto);
+        }
+
+        // Simpan foto baru ke direktori 'avatars' pada disk public
+        $path = $request->file('foto')->store('avatars', 'public');
+        $user->foto = $path;
+        $user->save();
+
+        return redirect()->route('profile')->with('success', 'Foto profil berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus foto profil pengguna dan mengembalikannya ke avatar default.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deletePhoto()
+    {
+        $user = Auth::user();
+
+        if ($user->foto && Storage::disk('public')->exists($user->foto)) {
+            Storage::disk('public')->delete($user->foto);
+        }
+
+        $user->foto = null;
+        $user->save();
+
+        return redirect()->route('profile')->with('success', 'Foto profil berhasil dihapus.');
     }
 }

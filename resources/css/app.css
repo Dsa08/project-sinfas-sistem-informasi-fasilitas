@@ -771,121 +771,438 @@
     background-color: #f9fafb;
 }
 
-/* --- Items Grid --- */
-.items-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+/* --- Kategori Cepat (Quick Category Chips) --- */
+.quick-categories-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
-/* --- Item Card --- */
-.item-card {
+.quick-categories-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+}
+
+.quick-chips-list {
     display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.quick-chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     background: #ffffff;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: box-shadow 0.15s ease;
+    border-radius: 9999px;
+    padding: 0.45rem 1.15rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: var(--sinfas-font);
+    color: #4b5563;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    user-select: none;
 }
 
-.item-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-/* --- Item Image --- */
-.item-image {
-    width: 180px;
-    min-height: 160px;
-    flex-shrink: 0;
+.quick-chip-btn:hover {
     background: #f9fafb;
+    border-color: #d1d5db;
+    color: #111827;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Active State - Biru Minimalis & Profesional */
+.quick-chip-btn--active {
+    background-color: #1D67F2 !important;
+    border-color: #1D67F2 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(29, 103, 242, 0.24) !important;
+}
+
+.quick-chip-btn--active:hover {
+    background-color: #1958d6 !important;
+    border-color: #1958d6 !important;
+    color: #ffffff !important;
+}
+
+/* Category Active Filter Banner */
+.category-active-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 0.65rem 1.1rem;
+    margin-bottom: 1.5rem;
+    color: #1e40af;
+    font-size: 0.88rem;
+    animation: fadeInSlideDown 0.25s ease-out;
+}
+
+.category-active-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #1D67F2;
+    display: inline-block;
+}
+
+.btn-reset-category-filter {
+    background: transparent;
+    border: 1px solid #93c5fd;
+    color: #1D67F2;
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-reset-category-filter:hover {
+    background: #dbeafe;
+    border-color: #60a5fa;
+}
+
+@keyframes fadeInSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInCategory {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.category-section--fadein {
+    animation: fadeInCategory 0.35s ease-out;
+}
+
+/* --- Category Section --- */
+.category-section {
+    margin-bottom: 2.25rem;
+}
+
+.category-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+}
+
+.category-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.category-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #111827;
+    text-decoration: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.category-view-all:hover {
+    color: #1D67F2;
+    transform: translateX(2px);
+}
+
+/* --- Carousel Container & Controls --- */
+.carousel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.carousel-arrow {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    z-index: 10;
+    color: #374151;
+    transition: all 0.18s ease;
 }
 
-.item-image img {
+.carousel-arrow:hover {
+    background: #f8fafc;
+    color: #111827;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+    transform: scale(1.08);
+}
+
+.carousel-arrow:active {
+    transform: scale(0.96);
+}
+
+.carousel-arrow--prev {
+    margin-right: 0.6rem;
+}
+
+.carousel-arrow--next {
+    margin-left: 0.6rem;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    flex: 1;
+    padding: 0.4rem 0.2rem 0.75rem 0.2rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- Tampilan Grid saat Kategori Spesifik Dipilih (Tanpa Tombol Slide) --- */
+.category-section--grid .carousel-container {
+    display: block;
+}
+
+.category-section--grid .carousel-arrow {
+    display: none !important;
+}
+
+.category-section--grid .carousel-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    overflow-x: visible;
+    padding: 0.5rem 0 1rem 0;
+}
+
+.category-section--grid .item-card-horizontal {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+/* --- Horizontal Item Card (Sesuai Figma) --- */
+.item-card-horizontal {
+    flex: 0 0 350px;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.85rem;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.item-card-horizontal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+.card-thumb {
+    width: 145px;
+    height: 125px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.25s ease;
 }
 
-.item-image-placeholder {
+.item-card-horizontal:hover .card-thumb img {
+    transform: scale(1.04);
+}
+
+.card-thumb-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    background: #f3f4f6;
+    color: #94a3b8;
+    text-align: center;
+    padding: 0.5rem;
+    background: #f8fafc;
 }
 
-/* --- Item Info --- */
-.item-info {
+.card-details {
     flex: 1;
-    padding: 1rem 1.25rem;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
 }
 
-.item-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--sinfas-text);
+.card-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #111827;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
 }
 
-.item-category {
+.card-category {
     font-size: 0.8rem;
-    color: var(--sinfas-text-muted);
+    color: #6b7280;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* --- Status Badge --- */
-.item-status {
+/* --- Stock Badges --- */
+.badge-stock {
     display: inline-block;
     width: fit-content;
     padding: 0.2rem 0.65rem;
-    border-radius: 20px;
+    border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 600;
-    margin-top: 0.25rem;
+    margin: 0.15rem 0;
 }
 
-.item-status--available {
+.badge-stock--available {
     background-color: #dcfce7;
-    color: #166534;
+    color: #15803d;
 }
 
-.item-status--unavailable {
+.badge-stock--empty {
     background-color: #fee2e2;
-    color: #991b1b;
+    color: #dc2626;
 }
 
-/* --- Request Loan Button --- */
-.btn-request {
-    display: inline-block;
-    width: fit-content;
-    padding: 0.45rem 1.1rem;
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
+/* --- Pinjam Action Button (Pill) --- */
+.btn-pinjam-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 1.35rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
     font-weight: 600;
     font-family: var(--sinfas-font);
-    color: #ffffff;
-    background-color: #1E40AF;
+    text-decoration: none;
     border: none;
-    border-radius: 8px;
+    width: fit-content;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
-.btn-request:hover {
-    background-color: #1E3A8A;
+.btn-pinjam-pill--primary {
+    background-color: #1e40af;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(30, 64, 175, 0.2);
 }
 
-.btn-request:active {
+.btn-pinjam-pill--primary:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-pinjam-pill--primary:active {
     background-color: #172554;
+    transform: translateY(0);
+}
+
+.btn-pinjam-pill--disabled {
+    background-color: #9ca3af;
+    color: #ffffff;
+    cursor: not-allowed;
+    border: none;
+}
+
+/* --- Filtered / Full Grid Mode --- */
+.filtered-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.btn-back-katalog {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #1e40af;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.btn-back-katalog:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.items-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.items-grid-container .item-card-horizontal {
+    flex: 1 1 auto;
+    width: 100%;
 }
 
 /* --- Dashboard Responsive --- */
@@ -898,13 +1215,24 @@
         padding: 1rem;
     }
 
-    .items-grid {
-        grid-template-columns: 1fr;
+    .quick-categories-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
     }
 
-    .item-image {
-        width: 140px;
-        min-height: 130px;
+    .item-card-horizontal {
+        flex: 0 0 290px;
+    }
+
+    .card-thumb {
+        width: 110px;
+        height: 105px;
+    }
+
+    .carousel-arrow {
+        width: 32px;
+        height: 32px;
     }
 }
 

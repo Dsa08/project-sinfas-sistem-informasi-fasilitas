@@ -102,6 +102,28 @@ class Akun extends Authenticatable
     }
 
     /**
+     * Accessor untuk mendapatkan URL lengkap foto profil akun.
+     *
+     * @return string|null
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        if (!$this->foto) {
+            return null;
+        }
+        if (filter_var($this->foto, FILTER_VALIDATE_URL)) {
+            return $this->foto;
+        }
+        if (file_exists(public_path($this->foto))) {
+            return asset($this->foto);
+        }
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->foto)) {
+            return \Illuminate\Support\Facades\Storage::url($this->foto);
+        }
+        return asset('storage/' . $this->foto);
+    }
+
+    /**
      * Helper: Memeriksa apakah akun bersangkutan memiliki role Siswa.
      *
      * @return bool

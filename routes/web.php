@@ -75,6 +75,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Memperbarui kata sandi mandiri (dengan verifikasi password lama)
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    // Memperbarui foto profil pengguna
+    Route::put('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+    // Menghapus foto profil pengguna
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
 
     /*
     |----------------------------------------------------------------------

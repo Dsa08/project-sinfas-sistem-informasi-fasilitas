@@ -33,8 +33,12 @@ class UserController extends Controller
         // 1. Inisialisasi query dengan eager loading relasi kategori (mencegah N+1 problem)
         $query = Barang::with('kategori');
 
+        $search = $request->input('search');
+        $kategoriId = $request->input('kategori');
+        $viewAll = $request->input('view') === 'all';
+
         // 2. Fitur Pencarian Cerdas: mencari berdasarkan nama barang, merk/model, kode barang, atau nama kategori
-        if ($search = $request->input('search')) {
+        if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
                   ->orWhere('merk_model', 'like', "%{$search}%")
@@ -46,7 +50,7 @@ class UserController extends Controller
         }
 
         // 3. Filter berdasarkan id_kategori tertentu
-        if ($kategoriId = $request->input('kategori')) {
+        if ($kategoriId) {
             $query->where('id_kategori', $kategoriId);
         }
 
@@ -58,7 +62,16 @@ class UserController extends Controller
             return Kategori::orderBy('nama_kategori')->get();
         });
 
-        return view('user.dashboard', compact('items', 'categories'));
+        // 6. Cek status tampilan: mode pencarian / lihat semua vs katalog carousel per kategori
+        $isFiltered = !empty($search) || !empty($kategoriId) || $viewAll;
+        $activeCategory = $kategoriId ? Kategori::find($kategoriId) : null;
+
+        // 7. Ambil seluruh kategori beserta daftar barangnya untuk carousel horizontal beranda
+        $categoriesWithItems = Kategori::with(['barang' => function ($q) {
+            $q->orderBy('nama_barang', 'asc');
+        }])->orderBy('nama_kategori', 'asc')->get();
+
+        return view('user.dashboard', compact('items', 'categories', 'categoriesWithItems', 'isFiltered', 'activeCategory'));
     }
 
     /**

@@ -553,17 +553,35 @@ class AdminSaranaController extends Controller
      */
     public function approveRequest($kode)
     {
-        $peminjaman = Peminjaman::menunggu()->with(['siswa', 'barang'])->where('kode_pinjam', $kode)->firstOrFail();
-        $peminjaman->status_pengajuan = 'disetujui';
-        $peminjaman->save();
+        try {
+            $peminjaman = Peminjaman::menunggu()->with(['siswa', 'barang'])->where('kode_pinjam', $kode)->first();
 
-        $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
-        $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
+            if (!$peminjaman) {
+                return redirect()->route('admin.verifications')
+                    ->with('toast_type', 'error')
+                    ->with('toast_title', 'Persetujuan pengajuan gagal')
+                    ->with('toast_message', "Error: Data pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses.")
+                    ->with('error', 'Persetujuan pengajuan gagal');
+            }
 
-        return redirect()->route('admin.verifications')
-            ->with('toast_title', 'Persetujuan pengajuan berhasil')
-            ->with('toast_message', "Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.")
-            ->with('success', 'Persetujuan pengajuan berhasil');
+            $peminjaman->status_pengajuan = 'disetujui';
+            $peminjaman->save();
+
+            $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
+            $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
+
+            return redirect()->route('admin.verifications')
+                ->with('toast_type', 'success')
+                ->with('toast_title', 'Persetujuan pengajuan berhasil')
+                ->with('toast_message', "Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.")
+                ->with('success', 'Persetujuan pengajuan berhasil');
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.verifications')
+                ->with('toast_type', 'error')
+                ->with('toast_title', 'Persetujuan pengajuan gagal')
+                ->with('toast_message', 'Error: ' . $e->getMessage())
+                ->with('error', 'Persetujuan pengajuan gagal');
+        }
     }
 
     /**
@@ -575,21 +593,39 @@ class AdminSaranaController extends Controller
      */
     public function rejectRequest(Request $request, $kode)
     {
-        $request->validate([
-            'alasan_penolakan' => 'nullable|string|max:1000',
-        ]);
+        try {
+            $request->validate([
+                'alasan_penolakan' => 'nullable|string|max:1000',
+            ]);
 
-        $peminjaman = Peminjaman::menunggu()->with(['siswa', 'barang'])->where('kode_pinjam', $kode)->firstOrFail();
-        $peminjaman->status_pengajuan = 'ditolak';
-        $peminjaman->alasan_penolakan = $request->input('alasan_penolakan');
-        $peminjaman->save();
+            $peminjaman = Peminjaman::menunggu()->with(['siswa', 'barang'])->where('kode_pinjam', $kode)->first();
 
-        $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
+            if (!$peminjaman) {
+                return redirect()->route('admin.verifications')
+                    ->with('toast_type', 'error')
+                    ->with('toast_title', 'Penolakan pengajuan gagal')
+                    ->with('toast_message', "Error: Data pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses.")
+                    ->with('error', 'Penolakan pengajuan gagal');
+            }
 
-        return redirect()->route('admin.verifications')
-            ->with('toast_title', 'Penolakan pengajuan berhasil')
-            ->with('toast_message', "Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.")
-            ->with('success', 'Penolakan pengajuan berhasil');
+            $peminjaman->status_pengajuan = 'ditolak';
+            $peminjaman->alasan_penolakan = $request->input('alasan_penolakan');
+            $peminjaman->save();
+
+            $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
+
+            return redirect()->route('admin.verifications')
+                ->with('toast_type', 'success')
+                ->with('toast_title', 'Penolakan pengajuan berhasil')
+                ->with('toast_message', "Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.")
+                ->with('success', 'Penolakan pengajuan berhasil');
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.verifications')
+                ->with('toast_type', 'error')
+                ->with('toast_title', 'Penolakan pengajuan gagal')
+                ->with('toast_message', 'Error: ' . $e->getMessage())
+                ->with('error', 'Penolakan pengajuan gagal');
+        }
     }
 
     /**
