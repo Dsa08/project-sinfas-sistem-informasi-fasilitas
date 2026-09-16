@@ -49,8 +49,12 @@ class UserController extends Controller
             });
         }
 
-        // 3. Filter berdasarkan id_kategori tertentu
-        if ($kategoriId) {
+        // 3. Filter berdasarkan id_kategori tertentu atau kategori 'popular'
+        if ($kategoriId === 'popular') {
+            $query->has('peminjaman', '>=', 1)
+                  ->withCount('peminjaman')
+                  ->orderByDesc('peminjaman_count');
+        } elseif ($kategoriId) {
             $query->where('id_kategori', $kategoriId);
         }
 
@@ -64,14 +68,63 @@ class UserController extends Controller
 
         // 6. Cek status tampilan: mode pencarian / lihat semua vs katalog carousel per kategori
         $isFiltered = !empty($search) || !empty($kategoriId) || $viewAll;
-        $activeCategory = $kategoriId ? Kategori::find($kategoriId) : null;
+        $activeCategory = null;
+        if ($kategoriId === 'popular') {
+            $activeCategory = (object) [
+                'id_kategori' => 'popular',
+                'nama_kategori' => 'Sering Dipinjam',
+            ];
+        } elseif ($kategoriId) {
+            $activeCategory = Kategori::find($kategoriId);
+        }
 
         // 7. Ambil seluruh kategori beserta daftar barangnya untuk carousel horizontal beranda
         $categoriesWithItems = Kategori::with(['barang' => function ($q) {
             $q->orderBy('nama_barang', 'asc');
         }])->orderBy('nama_kategori', 'asc')->get();
 
-        return view('user.dashboard', compact('items', 'categories', 'categoriesWithItems', 'isFiltered', 'activeCategory'));
+        // 8. Ambil aktivitas transaksi aktif siswa yang login (Widget Ringkasan Beranda)
+        $user = auth()->user();
+        $activeLoans = collect();
+        $pendingLoans = collect();
+
+        if ($user && $user->nis) {
+            // Pinjaman yang disetujui dan belum selesai dikembalikan
+            $activeLoans = Peminjaman::where('nis', $user->nis)
+                ->disetujui()
+                ->whereDoesntHave('pengembalian', function ($q) {
+                    $q->whereNotNull('kondisi_barang');
+                })
+                ->with(['barang.kategori', 'pengembalian'])
+                ->latest('tanggal_pinjam')
+                ->get();
+
+            // Pengajuan yang masih menunggu persetujuan
+            $pendingLoans = Peminjaman::where('nis', $user->nis)
+                ->menunggu()
+                ->with('barang.kategori')
+                ->latest('created_at')
+                ->get();
+        }
+
+        // 9. Ambil daftar barang yang paling sering dipinjam untuk carousel / chip khusus "Sering Dipinjam"
+        $popularItems = Barang::with('kategori')
+            ->withCount('peminjaman')
+            ->orderByDesc('peminjaman_count')
+            ->orderBy('nama_barang', 'asc')
+            ->take(8)
+            ->get();
+
+        return view('user.dashboard', compact(
+            'items', 
+            'categories', 
+            'categoriesWithItems', 
+            'isFiltered', 
+            'activeCategory',
+            'activeLoans',
+            'pendingLoans',
+            'popularItems'
+        ));
     }
 
     /**

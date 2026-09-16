@@ -54,7 +54,8 @@
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 18%;">
+                        <th class="th-number">No.</th>
+                        <th style="width: 17%;">
                             <a href="{{ $getReqSortUrl('siswa') }}" class="th-content {{ request('req_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('siswa') }}">
                                 <span>Peminjam</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -63,7 +64,7 @@
                                 </svg>
                             </a>
                         </th>
-                        <th style="width: 22%;">
+                        <th style="width: 20%;">
                             <a href="{{ $getReqSortUrl('barang') }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('barang') }}">
                                 <span>Barang</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -81,7 +82,7 @@
                                 </svg>
                             </a>
                         </th>
-                        <th style="width: 17%;">
+                        <th style="width: 18%;">
                             <a href="{{ $getReqSortUrl('keterangan_penggunaan') }}" class="th-content {{ request('req_sort') === 'keterangan_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('keterangan_penggunaan') }}">
                                 <span>Keperluan</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -105,6 +106,7 @@
                 <tbody>
                     @forelse($pendingRequests as $req)
                     <tr>
+                        <td class="td-number">{{ $loop->iteration + ($pendingRequests->currentPage() - 1) * $pendingRequests->perPage() }}</td>
                         <td class="td-name">{{ $req->siswa->nama ?? '-' }}</td>
                         <td class="td-item">{{ $req->barang->nama_barang ?? '-' }}</td>
                         <td class="td-location">{{ $req->lokasi_penggunaan ?? '-' }}</td>
@@ -129,19 +131,52 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; color: #9ca3af; padding: 2rem;">Tidak ada permintaan peminjaman yang menunggu.</td>
+                        <td colspan="7">
+                            <div class="system-table-empty-state">
+                                <div class="system-empty-icon-box">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 14 14"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="system-empty-title">Tidak ada permintaan peminjaman</div>
+                                <div class="system-empty-desc">Saat ini tidak ada permohonan peminjaman sarana yang sedang menunggu verifikasi dari Admin.</div>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{-- Pagination --}}
-        @if($pendingRequests->hasPages())
-        <div class="system-pagination-bar">
-            {{ $pendingRequests->links('vendor.pagination.simple-default') }}
+        {{-- Table Footer (Per-Page Selector + Entries Info + Pagination) --}}
+        <div class="system-table-footer">
+            <div class="system-table-meta">
+                <div class="system-per-page-wrapper">
+                    <span>Tampilkan</span>
+                    <select class="system-per-page-select" onchange="window.location.href=this.value">
+                        @foreach([10, 25, 50, 100] as $size)
+                            <option value="{{ request()->fullUrlWithQuery(['req_per_page' => $size, 'req_page' => 1]) }}" {{ request('req_per_page', request('per_page', 10)) == $size ? 'selected' : '' }}>
+                                {{ $size }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span>data per halaman</span>
+                </div>
+                @if($pendingRequests->total() > 0)
+                    <span class="system-table-meta-dot">&bull;</span>
+                    <div class="system-table-entries-info">
+                        Menampilkan <strong>{{ $pendingRequests->firstItem() }}</strong> - <strong>{{ $pendingRequests->lastItem() }}</strong> dari <strong>{{ $pendingRequests->total() }}</strong> data
+                    </div>
+                @endif
+            </div>
+
+            @if($pendingRequests->hasPages())
+                <div class="system-pagination-bar">
+                    {{ $pendingRequests->links('vendor.pagination.simple-default') }}
+                </div>
+            @endif
         </div>
-        @endif
     </div>
 
     {{-- Tab 2: Pending Returns Section --}}
@@ -175,7 +210,8 @@
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th style="width: 18%;">
+                        <th class="th-number">No.</th>
+                        <th style="width: 17%;">
                             <a href="{{ $getRetSortUrl('siswa') }}" class="th-content {{ request('ret_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('siswa') }}">
                                 <span>Peminjam</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -184,7 +220,7 @@
                                 </svg>
                             </a>
                         </th>
-                        <th style="width: 22%;">
+                        <th style="width: 20%;">
                             <a href="{{ $getRetSortUrl('barang') }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('barang') }}">
                                 <span>Barang</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -193,7 +229,7 @@
                                 </svg>
                             </a>
                         </th>
-                        <th style="width: 14%;">
+                        <th style="width: 13%;">
                             <a href="{{ $getRetSortUrl('tanggal_pinjam') }}" class="th-content {{ request('ret_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_pinjam') }}">
                                 <span>Tanggal Pinjam</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -202,7 +238,7 @@
                                 </svg>
                             </a>
                         </th>
-                        <th style="width: 14%;">
+                        <th style="width: 13%;">
                             <a href="{{ $getRetSortUrl('tanggal_kembali') }}" class="th-content {{ request('ret_sort') === 'tanggal_kembali' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_kembali') }}">
                                 <span>Tanggal Kembali</span>
                                 <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -211,14 +247,15 @@
                                 </svg>
                             </a>
                         </th>
-                        <th style="width: 12%; text-align: center;">Bukti</th>
-                        <th style="width: 10%;">Kondisi</th>
-                        <th style="width: 10%;">Aksi</th>
+                        <th style="width: 11%; text-align: center;">Bukti</th>
+                        <th style="width: 11%;">Kondisi</th>
+                        <th style="width: 11%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($pendingReturns as $ret)
                     <tr>
+                        <td class="td-number">{{ $loop->iteration + ($pendingReturns->currentPage() - 1) * $pendingReturns->perPage() }}</td>
                         <td class="td-name">{{ $ret->siswa->nama ?? '-' }}</td>
                         <td class="td-item">
                             {{ $ret->barang->nama_barang ?? '-' }}
@@ -267,19 +304,52 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; color: #9ca3af; padding: 2rem;">Tidak ada pengembalian yang menunggu konfirmasi.</td>
+                        <td colspan="8">
+                            <div class="system-table-empty-state">
+                                <div class="system-empty-icon-box">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="system-empty-title">Tidak ada pengembalian menunggu</div>
+                                <div class="system-empty-desc">Seluruh pengembalian barang pinjaman telah selesai dikonfirmasi oleh Admin.</div>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{-- Pagination --}}
-        @if($pendingReturns->hasPages())
-        <div class="system-pagination-bar">
-            {{ $pendingReturns->links('vendor.pagination.simple-default') }}
+        {{-- Table Footer (Per-Page Selector + Entries Info + Pagination) --}}
+        <div class="system-table-footer">
+            <div class="system-table-meta">
+                <div class="system-per-page-wrapper">
+                    <span>Tampilkan</span>
+                    <select class="system-per-page-select" onchange="window.location.href=this.value">
+                        @foreach([10, 25, 50, 100] as $size)
+                            <option value="{{ request()->fullUrlWithQuery(['tab' => 'returns', 'ret_per_page' => $size, 'ret_page' => 1]) }}" {{ request('ret_per_page', request('per_page', 10)) == $size ? 'selected' : '' }}>
+                                {{ $size }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span>data per halaman</span>
+                </div>
+                @if($pendingReturns->total() > 0)
+                    <span class="system-table-meta-dot">&bull;</span>
+                    <div class="system-table-entries-info">
+                        Menampilkan <strong>{{ $pendingReturns->firstItem() }}</strong> - <strong>{{ $pendingReturns->lastItem() }}</strong> dari <strong>{{ $pendingReturns->total() }}</strong> data
+                    </div>
+                @endif
+            </div>
+
+            @if($pendingReturns->hasPages())
+                <div class="system-pagination-bar">
+                    {{ $pendingReturns->links('vendor.pagination.simple-default') }}
+                </div>
+            @endif
         </div>
-        @endif
     </div>
 </div>
 

@@ -47,6 +47,7 @@
             <table class="system-table">
                 <thead>
                     <tr>
+                        <th class="th-number">No.</th>
                         <th style="width: 25%;">Peminjam</th>
                         <th style="width: 35%;">Barang</th>
                         <th style="width: 20%;">Tanggal Pinjam</th>
@@ -56,6 +57,7 @@
                 <tbody>
                     @forelse($pendingLoans as $loan)
                     <tr>
+                        <td class="td-number">{{ $loop->iteration }}</td>
                         <td class="td-name">{{ $loan->siswa->nama ?? '-' }}</td>
                         <td class="td-item">{{ $loan->barang->nama_barang ?? '-' }}</td>
                         <td class="td-date">{{ $loan->tanggal_pinjam->format('Y-m-d') }}</td>
@@ -74,7 +76,18 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" style="text-align: center; color: #9ca3af; padding: 2rem;">Tidak ada peminjaman yang menunggu verifikasi.</td>
+                        <td colspan="5">
+                            <div class="system-table-empty-state" style="padding: 2.5rem 1rem;">
+                                <div class="system-empty-icon-box" style="width: 48px; height: 48px; margin-bottom: 0.6rem;">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 14 14"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="system-empty-title" style="font-size: 0.92rem;">Tidak ada antrean verifikasi</div>
+                                <div class="system-empty-desc" style="font-size: 0.8rem;">Saat ini tidak ada permohonan peminjaman yang menunggu verifikasi Admin.</div>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>

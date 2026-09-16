@@ -75,7 +75,8 @@
         <table class="system-table" id="accounts-table">
             <thead>
                 <tr>
-                    <th style="width: 35%;">
+                    <th class="th-number">No.</th>
+                    <th style="width: 32%;">
                         <a href="{{ $getSortUrl('nama') }}" class="th-content {{ request('sort') === 'nama' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama') }}">
                             <span>Nama</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -108,6 +109,7 @@
             <tbody>
                 @forelse($accounts as $akun)
                 <tr data-id="{{ $akun->id_akun }}">
+                    <td class="td-number">{{ $loop->iteration + ($accounts->currentPage() - 1) * $accounts->perPage() }}</td>
                     <td class="td-name">
                         {{ $akun->nama }}
                         @if(!$akun->is_active)
@@ -170,13 +172,26 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 2.5rem 1rem; color: #6b7280;">
-                        <x-heroicon-o-users class="w-10 h-10" style="margin: 0 auto 0.75rem; display: block; color: #cbd5e1;" />
-                        @if(request('search'))
-                            Tidak ada akun ditemukan untuk pencarian "<strong>{{ request('search') }}</strong>".
-                        @else
-                            Belum ada data akun.
-                        @endif
+                    <td colspan="5">
+                        <div class="system-table-empty-state">
+                            <div class="system-empty-icon-box">
+                                <x-heroicon-o-users class="w-7 h-7" />
+                            </div>
+                            <div class="system-empty-title">Tidak ada akun ditemukan</div>
+                            <div class="system-empty-desc">
+                                @if(request('search'))
+                                    Tidak ditemukan akun yang cocok dengan kata kunci "<strong>{{ request('search') }}</strong>".
+                                @else
+                                    Belum ada data akun pengguna yang terdaftar di sistem.
+                                @endif
+                            </div>
+                            @if(request('search'))
+                                <a href="{{ route('admin.sistem.accounts') }}" class="btn-empty-reset">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    <span>Reset Pencarian</span>
+                                </a>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @endforelse
@@ -184,33 +199,55 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
-    @if($accounts->hasPages())
-    <div class="system-pagination-bar">
-        {{-- Previous --}}
-        @if($accounts->onFirstPage())
-            <button class="pagination-btn pagination-btn--disabled" disabled>Sebelumnya</button>
-        @else
-            <a href="{{ $accounts->previousPageUrl() }}" class="pagination-btn">Sebelumnya</a>
-        @endif
-
-        {{-- Page Numbers --}}
-        @foreach($accounts->getUrlRange(1, $accounts->lastPage()) as $page => $url)
-            @if($page == $accounts->currentPage())
-                <span class="pagination-btn pagination-btn--active">{{ $page }}</span>
-            @else
-                <a href="{{ $url }}" class="pagination-btn">{{ $page }}</a>
+    {{-- Table Footer (Per-Page Selector + Entries Info + Pagination) --}}
+    <div class="system-table-footer">
+        <div class="system-table-meta">
+            <div class="system-per-page-wrapper">
+                <span>Tampilkan</span>
+                <select class="system-per-page-select" onchange="window.location.href=this.value">
+                    @foreach([10, 25, 50, 100] as $size)
+                        <option value="{{ request()->fullUrlWithQuery(['per_page' => $size, 'page' => 1]) }}" {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                            {{ $size }}
+                        </option>
+                    @endforeach
+                </select>
+                <span>data per halaman</span>
+            </div>
+            @if($accounts->total() > 0)
+                <span class="system-table-meta-dot">&bull;</span>
+                <div class="system-table-entries-info">
+                    Menampilkan <strong>{{ $accounts->firstItem() }}</strong> - <strong>{{ $accounts->lastItem() }}</strong> dari <strong>{{ $accounts->total() }}</strong> data
+                </div>
             @endif
-        @endforeach
+        </div>
 
-        {{-- Next --}}
-        @if($accounts->hasMorePages())
-            <a href="{{ $accounts->nextPageUrl() }}" class="pagination-btn">Berikutnya</a>
-        @else
-            <button class="pagination-btn pagination-btn--disabled" disabled>Berikutnya</button>
+        @if($accounts->hasPages())
+            <div class="system-pagination-bar">
+                {{-- Previous --}}
+                @if($accounts->onFirstPage())
+                    <button class="pagination-btn pagination-btn--disabled" disabled>Sebelumnya</button>
+                @else
+                    <a href="{{ $accounts->previousPageUrl() }}" class="pagination-btn">Sebelumnya</a>
+                @endif
+
+                {{-- Page Numbers --}}
+                @foreach($accounts->getUrlRange(1, $accounts->lastPage()) as $page => $url)
+                    @if($page == $accounts->currentPage())
+                        <span class="pagination-btn pagination-btn--active">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}" class="pagination-btn">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                {{-- Next --}}
+                @if($accounts->hasMorePages())
+                    <a href="{{ $accounts->nextPageUrl() }}" class="pagination-btn">Berikutnya</a>
+                @else
+                    <button class="pagination-btn pagination-btn--disabled" disabled>Berikutnya</button>
+                @endif
+            </div>
         @endif
     </div>
-    @endif
 </div>
 
 {{-- ============================================

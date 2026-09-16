@@ -177,7 +177,8 @@ class AdminSaranaController extends Controller
             $query->orderBy('barang.updated_at', 'desc');
         }
 
-        $items = $query->paginate(10)->withQueryString();
+        $perPage = in_array((int)$request->input('per_page'), [10, 25, 50, 100]) ? (int)$request->input('per_page') : 10;
+        $items = $query->paginate($perPage)->withQueryString();
         $categories = Cache::remember('all_categories', 3600, function () {
             return Kategori::orderBy('nama_kategori')->get();
         });
@@ -201,7 +202,7 @@ class AdminSaranaController extends Controller
             'no_seri_pabrik'     => 'nullable|string|max:255',
             'ukuran_dimensi'     => 'nullable|string|max:255',
             'bahan'              => 'nullable|string|max:255',
-            'tahun_pembelian'    => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'tahun_pembelian'    => 'nullable|integer|min:1901|max:' . (date('Y') + 1),
             'jumlah_baik'        => 'required|integer|min:0',
             'jumlah_kurang_baik' => 'required|integer|min:0',
             'jumlah_rusak_berat' => 'required|integer|min:0',
@@ -214,9 +215,13 @@ class AdminSaranaController extends Controller
             'nama_barang.required' => 'Nama barang wajib diisi.',
             'foto.image'           => 'File harus berupa gambar.',
             'foto.max'             => 'Ukuran gambar maksimal 2MB.',
+            'tahun_pembelian.min'  => 'Tahun pembelian minimal 1901.',
+            'tahun_pembelian.max'  => 'Tahun pembelian tidak boleh melebihi tahun depan.',
         ]);
 
         $data = $request->except(['foto']);
+        // Pastikan nilai tahun_pembelian yang kosong diubah menjadi NULL, bukan integer 0 atau string kosong
+        $data['tahun_pembelian'] = !empty($data['tahun_pembelian']) ? (int) $data['tahun_pembelian'] : null;
 
         // Penanganan upload berkas gambar sarana
         if ($request->hasFile('foto')) {
@@ -230,12 +235,20 @@ class AdminSaranaController extends Controller
             $data['foto'] = 'uploads/items/' . $filename;
         }
 
-        Barang::create($data);
+        try {
+            Barang::create($data);
 
-        return redirect()->route('admin.items')
-            ->with('toast_title', 'Penambahan data barang berhasil')
-            ->with('toast_message', "Data barang {$data['nama_barang']} berhasil ditambahkan.")
-            ->with('success', 'Penambahan data barang berhasil');
+            return redirect()->route('admin.items')
+                ->with('toast_title', 'Penambahan data barang berhasil')
+                ->with('toast_message', "Data barang {$data['nama_barang']} berhasil ditambahkan.")
+                ->with('success', 'Penambahan data barang berhasil');
+        } catch (\Throwable $e) {
+            return back()->withInput()
+                ->with('toast_type', 'error')
+                ->with('toast_title', 'Gagal menambahkan barang')
+                ->with('toast_message', 'Terjadi kesalahan basis data: ' . $e->getMessage())
+                ->with('error', 'Gagal menambahkan barang');
+        }
     }
 
     /**
@@ -285,7 +298,7 @@ class AdminSaranaController extends Controller
             'no_seri_pabrik'     => 'nullable|string|max:255',
             'ukuran_dimensi'     => 'nullable|string|max:255',
             'bahan'              => 'nullable|string|max:255',
-            'tahun_pembelian'    => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'tahun_pembelian'    => 'nullable|integer|min:1901|max:' . (date('Y') + 1),
             'jumlah_baik'        => 'required|integer|min:0',
             'jumlah_kurang_baik' => 'required|integer|min:0',
             'jumlah_rusak_berat' => 'required|integer|min:0',
@@ -296,9 +309,13 @@ class AdminSaranaController extends Controller
             'nama_barang.required' => 'Nama barang wajib diisi.',
             'foto.image'           => 'File harus berupa gambar.',
             'foto.max'             => 'Ukuran gambar maksimal 2MB.',
+            'tahun_pembelian.min'  => 'Tahun pembelian minimal 1901.',
+            'tahun_pembelian.max'  => 'Tahun pembelian tidak boleh melebihi tahun depan.',
         ]);
 
         $data = $request->except(['kode_barang', 'foto']);
+        // Pastikan nilai tahun_pembelian yang kosong diubah menjadi NULL, bukan integer 0 atau string kosong
+        $data['tahun_pembelian'] = !empty($data['tahun_pembelian']) ? (int) $data['tahun_pembelian'] : null;
 
         // Mengganti berkas gambar jika pengguna mengunggah berkas baru
         if ($request->hasFile('foto')) {
@@ -316,12 +333,20 @@ class AdminSaranaController extends Controller
             $data['foto'] = 'uploads/items/' . $filename;
         }
 
-        $item->update($data);
+        try {
+            $item->update($data);
 
-        return redirect()->route('admin.items')
-            ->with('toast_title', 'Perubahan data barang berhasil')
-            ->with('toast_message', "Data barang {$item->nama_barang} berhasil diperbarui.")
-            ->with('success', 'Perubahan data barang berhasil');
+            return redirect()->route('admin.items')
+                ->with('toast_title', 'Perubahan data barang berhasil')
+                ->with('toast_message', "Data barang {$item->nama_barang} berhasil diperbarui.")
+                ->with('success', 'Perubahan data barang berhasil');
+        } catch (\Throwable $e) {
+            return back()->withInput()
+                ->with('toast_type', 'error')
+                ->with('toast_title', 'Gagal memperbarui barang')
+                ->with('toast_message', 'Terjadi kesalahan basis data: ' . $e->getMessage())
+                ->with('error', 'Gagal memperbarui barang');
+        }
     }
 
     /**
@@ -391,7 +416,8 @@ class AdminSaranaController extends Controller
             $query->orderBy('updated_at', 'desc');
         }
 
-        $categories = $query->paginate(10)->withQueryString();
+        $perPage = in_array((int)$request->input('per_page'), [10, 25, 50, 100]) ? (int)$request->input('per_page') : 10;
+        $categories = $query->paginate($perPage)->withQueryString();
 
         return view('admin.categories', compact('categories'));
     }
@@ -507,7 +533,8 @@ class AdminSaranaController extends Controller
             $reqQuery->orderBy('peminjaman.updated_at', 'desc');
         }
 
-        $pendingRequests = $reqQuery->paginate(10, ['*'], 'req_page')->withQueryString();
+        $reqPerPage = in_array((int)$request->input('req_per_page', $request->input('per_page')), [10, 25, 50, 100]) ? (int)$request->input('req_per_page', $request->input('per_page')) : 10;
+        $pendingRequests = $reqQuery->paginate($reqPerPage, ['*'], 'req_page')->withQueryString();
 
         // Tab 2: Pending Returns (hanya pengembalian yang belum dikonfirmasi / kondisi_barang IS NULL)
         $retSort = $request->input('ret_sort');
@@ -537,7 +564,8 @@ class AdminSaranaController extends Controller
             $retQuery->orderBy('peminjaman.updated_at', 'desc');
         }
 
-        $pendingReturns = $retQuery->paginate(10, ['*'], 'ret_page')->withQueryString();
+        $retPerPage = in_array((int)$request->input('ret_per_page', $request->input('per_page')), [10, 25, 50, 100]) ? (int)$request->input('ret_per_page', $request->input('per_page')) : 10;
+        $pendingReturns = $retQuery->paginate($retPerPage, ['*'], 'ret_page')->withQueryString();
 
         $activeTab = $request->input('tab', 'requests');
 

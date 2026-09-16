@@ -303,5 +303,46 @@
             }
         });
     </script>
+
+    {{-- Mobile Bottom Navigation Bar (Khusus Layar HP / Mobile) --}}
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Navigasi Bawah">
+        {{-- 1. Beranda --}}
+        <a href="{{ route('dashboard') }}" class="mobile-nav-item {{ request()->routeIs('dashboard') ? 'mobile-nav-item--active' : '' }}">
+            <div class="mobile-nav-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <span class="mobile-nav-label">Beranda</span>
+        </a>
+
+        {{-- 2. Status Pinjaman --}}
+        <a href="{{ route('loan.status') }}" class="mobile-nav-item {{ request()->routeIs('loan.status') || request()->routeIs('loan.return') ? 'mobile-nav-item--active' : '' }}">
+            <div class="mobile-nav-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                    <path d="m9 14 2 2 4-4"/>
+                </svg>
+            </div>
+            <span class="mobile-nav-label">Status</span>
+        </a>
+
+        {{-- 3. Profil Saya --}}
+        <a href="{{ route('profile') }}" class="mobile-nav-item {{ request()->routeIs('profile') ? 'mobile-nav-item--active' : '' }}">
+            <div class="mobile-nav-icon-wrap">
+                @if(Auth::user() && Auth::user()->foto_url)
+                    <img src="{{ Auth::user()->foto_url }}" alt="Profil" class="mobile-nav-avatar">
+                @else
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                @endif
+            </div>
+            <span class="mobile-nav-label">Profil</span>
+        </a>
+    </nav>
 </body>
 </html>

@@ -120,7 +120,8 @@
         <table class="system-table">
             <thead>
                 <tr>
-                    <th style="width: 22%;">
+                    <th class="th-number">No.</th>
+                    <th style="width: 20%;">
                         <a href="{{ $getSortUrl('nama_barang') }}" class="th-content {{ request('sort') === 'nama_barang' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama_barang') }}">
                             <span>Nama Alat</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -129,7 +130,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="width: 14%;">
+                    <th style="width: 13%;">
                         <a href="{{ $getSortUrl('kategori') }}" class="th-content {{ request('sort') === 'kategori' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('kategori') }}">
                             <span>Kategori</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -138,7 +139,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="width: 15%;">
+                    <th style="width: 14%;">
                         <a href="{{ $getSortUrl('waktu_ditambahkan') }}" class="th-content {{ request('sort') === 'waktu_ditambahkan' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('waktu_ditambahkan') }}">
                             <span>Waktu ditambahkan</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -156,7 +157,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="width: 8%;">
+                    <th style="width: 7%;">
                         <a href="{{ $getSortUrl('jumlah_kurang_baik') }}" class="th-content {{ request('sort') === 'jumlah_kurang_baik' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('jumlah_kurang_baik') }}">
                             <span>K. Baik</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -165,7 +166,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="width: 8%;">
+                    <th style="width: 7%;">
                         <a href="{{ $getSortUrl('jumlah_rusak_berat') }}" class="th-content {{ request('sort') === 'jumlah_rusak_berat' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('jumlah_rusak_berat') }}">
                             <span>R. Berat</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -174,7 +175,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="width: 12%;">
+                    <th style="width: 11%;">
                         <a href="{{ $getSortUrl('status') }}" class="th-content {{ request('sort') === 'status' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('status') }}">
                             <span>Status</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -189,6 +190,7 @@
             <tbody>
                 @forelse($items as $item)
                 <tr>
+                    <td class="td-number">{{ $loop->iteration + ($items->currentPage() - 1) * $items->perPage() }}</td>
                     <td class="td-name">{{ $item->nama_barang }}</td>
                     <td class="td-category">{{ $item->kategori->nama_kategori ?? '-' }}</td>
                     <td class="td-date">{{ $item->created_at ? $item->created_at->format('d-m-Y') : '-' }}</td>
@@ -217,19 +219,64 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; color: #9ca3af; padding: 2rem;">Belum ada data barang.</td>
+                    <td colspan="9">
+                        <div class="system-table-empty-state">
+                            <div class="system-empty-icon-box">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                </svg>
+                            </div>
+                            <div class="system-empty-title">Tidak ada data sarana</div>
+                            <div class="system-empty-desc">
+                                @if(request('search') || request('kategori'))
+                                    Tidak ditemukan barang yang sesuai dengan kata kunci atau filter yang Anda terapkan.
+                                @else
+                                    Belum ada data barang sarana yang terdaftar di inventaris.
+                                @endif
+                            </div>
+                            @if(request('search') || request('kategori'))
+                                <a href="{{ route('admin.items') }}" class="btn-empty-reset">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    <span>Reset Filter & Pencarian</span>
+                                </a>
+                            @endif
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    {{-- Pagination --}}
-    @if($items->hasPages())
-    <div class="system-pagination-bar">
-        {{ $items->links('vendor.pagination.simple-default') }}
+    {{-- Table Footer (Per-Page Selector + Entries Info + Pagination) --}}
+    <div class="system-table-footer">
+        <div class="system-table-meta">
+            <div class="system-per-page-wrapper">
+                <span>Tampilkan</span>
+                <select class="system-per-page-select" onchange="window.location.href=this.value">
+                    @foreach([10, 25, 50, 100] as $size)
+                        <option value="{{ request()->fullUrlWithQuery(['per_page' => $size, 'page' => 1]) }}" {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                            {{ $size }}
+                        </option>
+                    @endforeach
+                </select>
+                <span>data per halaman</span>
+            </div>
+            @if($items->total() > 0)
+                <span class="system-table-meta-dot">&bull;</span>
+                <div class="system-table-entries-info">
+                    Menampilkan <strong>{{ $items->firstItem() }}</strong> - <strong>{{ $items->lastItem() }}</strong> dari <strong>{{ $items->total() }}</strong> data
+                </div>
+            @endif
+        </div>
+
+        @if($items->hasPages())
+            <div class="system-pagination-bar">
+                {{ $items->links('vendor.pagination.simple-default') }}
+            </div>
+        @endif
     </div>
-    @endif
 </div>
 
 {{-- Add / Edit Item Modal --}}
@@ -304,7 +351,7 @@
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Tahun Pembelian</label>
-                    <input type="number" name="tahun_pembelian" id="input_tahun_pembelian" placeholder="2024" min="1900" max="{{ date('Y') + 1 }}" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                    <input type="number" name="tahun_pembelian" id="input_tahun_pembelian" placeholder="2024" min="1901" max="{{ date('Y') + 1 }}" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
 

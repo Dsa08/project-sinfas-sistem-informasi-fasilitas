@@ -57,23 +57,27 @@
             <table class="system-table activity-log-table">
                 <thead>
                     <tr>
+                        <th class="th-number">No.</th>
                         <th style="width: 25%;">Pengguna</th>
-                        <th style="width: 50%;">Aktivitas / Aksi</th>
+                        <th style="width: 45%;">Aktivitas / Aksi</th>
                         <th style="width: 25%;">Waktu Kejadian</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
+                        <td class="td-number">1</td>
                         <td class="td-user">Admin Sistem</td>
                         <td class="td-action">Membuat akun baru: Dewi Lestari (Siswa)</td>
                         <td class="td-timestamp">2024-03-15, 10:23 WIB</td>
                     </tr>
                     <tr>
+                        <td class="td-number">2</td>
                         <td class="td-user">Admin Sistem</td>
                         <td class="td-action">Pencadangan sistem berhasil diselesaikan</td>
                         <td class="td-timestamp">2024-03-15, 02:00 WIB</td>
                     </tr>
                     <tr>
+                        <td class="td-number">3</td>
                         <td class="td-user">Admin Sistem</td>
                         <td class="td-action">Menonaktifkan akun: Rudi Hartono</td>
                         <td class="td-timestamp">2024-03-14, 16:45 WIB</td>

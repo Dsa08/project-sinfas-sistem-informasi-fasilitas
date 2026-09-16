@@ -62,8 +62,9 @@ class AccountController extends Controller
             $query->orderBy('updated_at', 'desc');
         }
 
-        // 4. Ambil data terpaginasi (10 akun per halaman)
-        $accounts = $query->paginate(10)->withQueryString();
+        // 4. Ambil data terpaginasi (10, 25, 50, 100 akun per halaman)
+        $perPage = in_array((int)$request->input('per_page'), [10, 25, 50, 100]) ? (int)$request->input('per_page') : 10;
+        $accounts = $query->paginate($perPage)->withQueryString();
 
         // 5. Statistik ringkas metrik akun untuk widget header
         $totalAccounts = Akun::count();

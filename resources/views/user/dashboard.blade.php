@@ -27,9 +27,26 @@
         </div>
     @endif
 
-    {{-- Hero Banner --}}
+    {{-- Hero Banner (Personalized & Modern Minimalist Blue) --}}
+    @php
+        $siswaNama = Auth::user()->siswa->nama ?? Auth::user()->nama ?? Auth::user()->username ?? 'Siswa';
+        $firstName = explode(' ', trim($siswaNama))[0];
+    @endphp
     <div class="dashboard-hero">
-        <h2 class="dashboard-hero-text">Mau Pinjam Apa Hari Ini?</h2>
+        <div class="dashboard-hero-content">
+            <div class="dashboard-hero-tag">
+                <span class="dashboard-hero-tag-dot"></span> Selamat Datang di SINFAS
+            </div>
+            <h2 class="dashboard-hero-text">Halo, {{ $firstName }}! 👋</h2>
+            <p class="dashboard-hero-subtext">Mau pinjam sarana atau peralatan apa hari ini?</p>
+        </div>
+        <div class="dashboard-hero-ornament">
+            <svg width="180" height="110" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="140" cy="20" r="70" fill="white" fill-opacity="0.08"/>
+                <circle cx="90" cy="85" r="45" fill="white" fill-opacity="0.06"/>
+                <path d="M40 70 L65 30 L90 70 Z" stroke="white" stroke-opacity="0.12" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
     </div>
 
     {{-- Search & Filter Bar --}}
@@ -70,6 +87,11 @@
                 <a href="{{ route('dashboard') }}" class="filter-dropdown-item {{ !request('kategori') && !request('search') ? 'filter-dropdown-item--active' : '' }}">
                     Semua Kategori (Beranda)
                 </a>
+                @if(isset($popularItems) && $popularItems->isNotEmpty())
+                <a href="{{ route('dashboard', ['kategori' => 'popular', 'view' => 'all']) }}" class="filter-dropdown-item {{ request('kategori') === 'popular' ? 'filter-dropdown-item--active' : '' }}">
+                    🔥 Sering Dipinjam
+                </a>
+                @endif
                 @foreach($categories as $cat)
                 <a href="{{ route('dashboard', ['kategori' => $cat->id_kategori, 'view' => 'all']) }}" class="filter-dropdown-item {{ request('kategori') == $cat->id_kategori ? 'filter-dropdown-item--active' : '' }}">
                     {{ $cat->nama_kategori }}
@@ -78,6 +100,85 @@
             </div>
         </div>
     </div>
+
+    {{-- Widget Aktivitas Pinjaman Siswa (Hanya tampil jika ada pinjaman aktif atau pengajuan menunggu) --}}
+    @if((isset($activeLoans) && $activeLoans->isNotEmpty()) || (isset($pendingLoans) && $pendingLoans->isNotEmpty()))
+    <div class="active-loans-widget" id="active-loans-widget">
+        {{-- 1. Pinjaman Sedang Berjalan (Disetujui) --}}
+        @foreach($activeLoans as $activeLoan)
+            @php
+                $tglKembali = $activeLoan->tanggal_kembali;
+                $diffDays = now()->startOfDay()->diffInDays($tglKembali->copy()->startOfDay(), false);
+                $isOverdue = $diffDays < 0;
+                $isToday = $diffDays == 0;
+            @endphp
+            <div class="active-loan-card {{ $isOverdue ? 'active-loan-card--overdue' : '' }}">
+                <div class="active-loan-icon-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                        <path d="m3.3 7 8.7 5 8.7-5"/>
+                        <path d="M12 22V12"/>
+                    </svg>
+                </div>
+                <div class="active-loan-info">
+                    <div class="active-loan-badge-row">
+                        <span class="active-loan-pill active-loan-pill--approved">Sedang Dipinjam</span>
+                        @if($isOverdue)
+                            <span class="active-loan-pill active-loan-pill--danger">Terlambat {{ abs($diffDays) }} Hari</span>
+                        @elseif($isToday)
+                            <span class="active-loan-pill active-loan-pill--warning">Batas Pengembalian Hari Ini</span>
+                        @else
+                            <span class="active-loan-pill active-loan-pill--info">Sisa {{ $diffDays }} Hari</span>
+                        @endif
+                    </div>
+                    <h4 class="active-loan-title">{{ $activeLoan->barang->nama_barang ?? 'Barang Sarana' }}</h4>
+                    <p class="active-loan-desc">
+                        Batas kembali: <strong>{{ $tglKembali->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
+                    </p>
+                </div>
+                <div class="active-loan-action">
+                    <a href="{{ route('loan.status') }}" class="btn-active-loan-cta">
+                        Kembalikan Alat
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"/>
+                            <path d="m12 5 7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        @endforeach
+
+        {{-- 2. Pengajuan Menunggu Verifikasi --}}
+        @foreach($pendingLoans as $pendingLoan)
+            <div class="active-loan-card active-loan-card--pending">
+                <div class="active-loan-icon-box active-loan-icon-box--pending">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <div class="active-loan-info">
+                    <div class="active-loan-badge-row">
+                        <span class="active-loan-pill active-loan-pill--pending">Menunggu Verifikasi Admin</span>
+                    </div>
+                    <h4 class="active-loan-title">{{ $pendingLoan->barang->nama_barang ?? 'Barang Sarana' }}</h4>
+                    <p class="active-loan-desc">
+                        Diajukan pada {{ $pendingLoan->created_at->format('d M Y, H:i') }} &bull; Kode Pinjam: <code>{{ $pendingLoan->kode_pinjam }}</code>
+                    </p>
+                </div>
+                <div class="active-loan-action">
+                    <a href="{{ route('loan.status') }}" class="btn-active-loan-cta btn-active-loan-cta--secondary">
+                        Pantau Status
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"/>
+                            <path d="m12 5 7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        @endforeach
+    </div>
+    @endif
 
     {{-- Kategori Cepat (Kapsul / Chips) --}}
     @php
@@ -103,6 +204,16 @@
                     onclick="filterCategory('all')">
                 <span>✨</span> Semua
             </button>
+            @if(isset($popularItems) && $popularItems->isNotEmpty())
+            <button type="button" 
+                    class="quick-chip-btn {{ request('kategori') === 'popular' ? 'quick-chip-btn--active' : '' }}" 
+                    id="chip-cat-popular" 
+                    data-cat-id="popular"
+                    data-cat-name="Sering Dipinjam"
+                    onclick="filterCategory('popular')">
+                <span>🔥</span> Sering Dipinjam
+            </button>
+            @endif
             @foreach($categories as $cat)
                 @php
                     $icon = $categoryIconMap[$cat->nama_kategori] ?? '🏷️';
@@ -227,6 +338,89 @@
             $hasCategoriesWithItems = false;
         @endphp
 
+        {{-- SECTION KHUSUS: SERING DIPINJAM (TERPOPULER) --}}
+        @if(isset($popularItems) && $popularItems->count() > 0)
+            @php $hasCategoriesWithItems = true; @endphp
+            <section class="category-section" id="category-popular" data-category-id="popular" data-category-name="Sering Dipinjam">
+                <div class="category-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.25rem;">🔥</span>
+                        <h3 class="category-title">Sering Dipinjam</h3>
+                    </div>
+                    <a href="{{ route('dashboard', ['kategori' => 'popular', 'view' => 'all']) }}" class="category-view-all" title="Buka seluruh alat sering dipinjam">
+                        Lihat Semua
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="carousel-container">
+                    <button
+                        type="button"
+                        class="carousel-arrow carousel-arrow--prev"
+                        onclick="scrollCarousel('track-popular', -360)"
+                        aria-label="Geser ke kiri"
+                        title="Geser ke kiri"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+
+                    <div class="carousel-track" id="track-popular">
+                        @foreach($popularItems as $item)
+                        <div class="item-card-horizontal" id="item-popular-{{ $item->kode_barang }}">
+                            <div class="card-thumb">
+                                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                                @else
+                                    <div class="card-thumb-placeholder">
+                                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>
+                                        <span style="font-size: 0.68rem; margin-top: 0.25rem;">Foto Belum Ada</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="card-details">
+                                <h4 class="card-title" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
+                                <p class="card-category">Category: {{ $item->kategori->nama_kategori ?? 'Umum' }}</p>
+
+                                @if($item->jumlah_baik > 0)
+                                    <span class="badge-stock badge-stock--available">{{ $item->jumlah_baik }} tersedia</span>
+                                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="btn-pinjam-pill btn-pinjam-pill--primary" id="btn-pinjam-popular-{{ $item->kode_barang }}">
+                                        Pinjam Alat
+                                    </a>
+                                @else
+                                    <span class="badge-stock badge-stock--empty">0 tersedia</span>
+                                    <button type="button" class="btn-pinjam-pill btn-pinjam-pill--disabled" disabled id="btn-pinjam-popular-{{ $item->kode_barang }}">
+                                        Stok Habis
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <button
+                        type="button"
+                        class="carousel-arrow carousel-arrow--next"
+                        onclick="scrollCarousel('track-popular', 360)"
+                        aria-label="Geser ke kanan"
+                        title="Geser ke kanan"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+        @endif
+
         @foreach($categoriesWithItems as $cat)
             @if($cat->barang && $cat->barang->count() > 0)
                 @php $hasCategoriesWithItems = true; @endphp
@@ -330,6 +524,71 @@
             </div>
         @endif
     @endif
+
+    {{-- ================================================================= --}}
+    {{-- SECTION: PANDUAN & SOP ALUR PEMINJAMAN SARANA                     --}}
+    {{-- ================================================================= --}}
+    <section class="sop-section">
+        <div class="sop-header">
+            <span class="sop-tag">Panduan Pengguna</span>
+            <h3 class="sop-title">3 Langkah Mudah Peminjaman Sarana di SINFAS</h3>
+            <p class="sop-subtitle">Ikuti alur resmi peminjaman fasilitas sekolah agar kegiatan belajar mengajar berjalan lancar.</p>
+        </div>
+        <div class="sop-grid">
+            <div class="sop-card">
+                <span class="sop-step-badge">01</span>
+                <div class="sop-icon-wrap">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                </div>
+                <h4 class="sop-card-title">Pilih & Ajukan</h4>
+                <p class="sop-card-desc">Cari sarana yang dibutuhkan di katalog, tentukan tanggal serta keperluan penggunaan, lalu kirim formulir peminjaman.</p>
+            </div>
+
+            <div class="sop-card">
+                <span class="sop-step-badge">02</span>
+                <div class="sop-icon-wrap">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                </div>
+                <h4 class="sop-card-title">Verifikasi Admin</h4>
+                <p class="sop-card-desc">Admin Sarana akan meninjau ketersediaan fisik alat dan menyetujui permohonan pinjam Anda secara sistematis.</p>
+            </div>
+
+            <div class="sop-card">
+                <span class="sop-step-badge">03</span>
+                <div class="sop-icon-wrap">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                        <path d="m3.3 7 8.7 5 8.7-5"/>
+                        <path d="M12 22V12"/>
+                    </svg>
+                </div>
+                <h4 class="sop-card-title">Ambil & Kembalikan</h4>
+                <p class="sop-card-desc">Ambil alat di Ruang Sarpras dengan menunjukkan status disetujui, dan kembalikan tepat waktu dalam kondisi baik.</p>
+            </div>
+        </div>
+
+        {{-- Bantuan / Kontak Cepat Sarpras --}}
+        <div class="sop-help-card">
+            <div class="sop-help-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div class="sop-help-content">
+                <h5 class="sop-help-title">Mengalami kendala pada alat atau butuh bantuan darurat?</h5>
+                <p class="sop-help-desc">Kunjungi Ruang Sarana Prasarana (Sarpras) Gedung A Lt. 1 atau hubungi petugas piket fasilitas sekolah.</p>
+            </div>
+            <a href="{{ route('profile') }}" class="sop-help-btn">Bantuan & Profil</a>
+        </div>
+    </section>
 </div>
 
 <script>

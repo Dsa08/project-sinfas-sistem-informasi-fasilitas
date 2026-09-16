@@ -65,6 +65,7 @@
         <table class="system-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
             <thead>
                 <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-weight: 600; text-align: left;">
+                    <th class="th-number" style="padding: 0.85rem 1rem; width: 50px; text-align: center;">No.</th>
                     <th style="padding: 0.85rem 1.25rem; width: 45%;">
                         <a href="{{ $getSortUrl('nama_kategori') }}" class="th-content {{ request('sort') === 'nama_kategori' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama_kategori') }}">
                             <span>Nama Kategori</span>
@@ -74,7 +75,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="padding: 0.85rem 1.25rem; width: 35%;">
+                    <th style="padding: 0.85rem 1.25rem; width: 30%;">
                         <a href="{{ $getSortUrl('barang_count') }}" class="th-content {{ request('sort') === 'barang_count' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('barang_count') }}">
                             <span>Jumlah Barang</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -89,6 +90,7 @@
             <tbody id="categoriesTableBody">
                 @forelse($categories as $cat)
                 <tr style="border-bottom: 1px solid #f3f4f6;">
+                    <td class="td-number" style="padding: 0.85rem 1rem; text-align: center;">{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</td>
                     <td style="padding: 0.85rem 1.25rem; font-weight: 500; color: #111827;">{{ $cat->nama_kategori }}</td>
                     <td style="padding: 0.85rem 1.25rem; color: #4b5563;">{{ $cat->barang_count }} barang</td>
                     <td style="padding: 0.85rem 1.25rem; text-align: center;">
@@ -100,19 +102,64 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="3" style="text-align: center; color: #9ca3af; padding: 2rem;">Belum ada kategori.</td>
+                    <td colspan="4">
+                        <div class="system-table-empty-state">
+                            <div class="system-empty-icon-box">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="system-empty-title">Tidak ada kategori ditemukan</div>
+                            <div class="system-empty-desc">
+                                @if(request('search'))
+                                    Tidak ditemukan kategori yang cocok dengan kata kunci pencarian Anda.
+                                @else
+                                    Belum ada kategori sarana yang terdaftar di sistem.
+                                @endif
+                            </div>
+                            @if(request('search'))
+                                <a href="{{ route('admin.categories') }}" class="btn-empty-reset">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    <span>Reset Pencarian</span>
+                                </a>
+                            @endif
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    {{-- Pagination --}}
-    @if($categories->hasPages())
-    <div class="system-pagination-bar" style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem; margin-top: 1.25rem;">
-        {{ $categories->links('vendor.pagination.simple-default') }}
+    {{-- Table Footer (Per-Page Selector + Entries Info + Pagination) --}}
+    <div class="system-table-footer">
+        <div class="system-table-meta">
+            <div class="system-per-page-wrapper">
+                <span>Tampilkan</span>
+                <select class="system-per-page-select" onchange="window.location.href=this.value">
+                    @foreach([10, 25, 50, 100] as $size)
+                        <option value="{{ request()->fullUrlWithQuery(['per_page' => $size, 'page' => 1]) }}" {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                            {{ $size }}
+                        </option>
+                    @endforeach
+                </select>
+                <span>data per halaman</span>
+            </div>
+            @if($categories->total() > 0)
+                <span class="system-table-meta-dot">&bull;</span>
+                <div class="system-table-entries-info">
+                    Menampilkan <strong>{{ $categories->firstItem() }}</strong> - <strong>{{ $categories->lastItem() }}</strong> dari <strong>{{ $categories->total() }}</strong> data
+                </div>
+            @endif
+        </div>
+
+        @if($categories->hasPages())
+            <div class="system-pagination-bar">
+                {{ $categories->links('vendor.pagination.simple-default') }}
+            </div>
+        @endif
     </div>
-    @endif
 </div>
 
 {{-- Add/Edit Category Modal --}}

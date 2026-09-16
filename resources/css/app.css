@@ -606,21 +606,87 @@
     width: 100%;
 }
 
-/* --- Dashboard Hero Banner --- */
+/* --- Dashboard Hero Banner (Minimalist Professional Blue) --- */
 .dashboard-hero {
-    background: linear-gradient(135deg, #1E40AF 0%, #1D67F2 100%);
-    border-radius: 12px;
-    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #1e40af 0%, #1D67F2 100%);
+    border-radius: 16px;
+    padding: 1.75rem 2.25rem;
     margin-bottom: 1.5rem;
-    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 10px 25px -5px rgba(29, 103, 242, 0.2), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+}
+
+.dashboard-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.02em;
+}
+
+.dashboard-hero-tag-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #34d399;
+    box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
 }
 
 .dashboard-hero-text {
     color: #ffffff;
-    font-size: 1.35rem;
-    font-weight: 700;
+    font-size: 1.65rem;
+    font-weight: 800;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.dashboard-hero-subtext {
+    color: #dbeafe;
+    font-size: 0.95rem;
+    font-weight: 400;
     margin: 0;
-    letter-spacing: -0.01em;
+    line-height: 1.45;
+}
+
+.dashboard-hero-ornament {
+    position: absolute;
+    right: 0;
+    bottom: -10px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@media (max-width: 640px) {
+    .dashboard-hero {
+        padding: 1.35rem 1.25rem;
+    }
+    .dashboard-hero-text {
+        font-size: 1.35rem;
+    }
+    .dashboard-hero-subtext {
+        font-size: 0.85rem;
+    }
+    .dashboard-hero-ornament {
+        opacity: 0.4;
+    }
 }
 
 /* --- Flash Messages --- */
@@ -2709,7 +2775,149 @@ a.th-content:hover {
     justify-content: flex-end;
     align-items: center;
     gap: 0.35rem;
-    margin-top: 0.5rem;
+}
+
+.system-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.15rem;
+    padding: 0.25rem 0.25rem 0.5rem;
+}
+
+.system-table-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.84rem;
+    color: #64748b;
+}
+
+.system-per-page-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.system-per-page-select {
+    padding: 0.3rem 0.55rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    background-color: #ffffff;
+    color: #1e293b;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.system-per-page-select:hover {
+    border-color: #94a3b8;
+}
+
+.system-per-page-select:focus {
+    border-color: #1D67F2;
+    box-shadow: 0 0 0 2px rgba(29, 103, 242, 0.15);
+}
+
+.system-table-entries-info {
+    color: #64748b;
+}
+
+.system-table-entries-info strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.system-table-meta-dot {
+    color: #cbd5e1;
+}
+
+/* Polished Empty State */
+.system-table-empty-state {
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.system-empty-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.85rem;
+}
+
+.system-empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.3rem;
+}
+
+.system-empty-desc {
+    font-size: 0.84rem;
+    color: #64748b;
+    max-width: 400px;
+    line-height: 1.45;
+}
+
+.btn-empty-reset {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #1D67F2;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-empty-reset:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e40af;
+}
+
+/* Number column (No.) */
+.th-number,
+.td-number {
+    width: 48px;
+    text-align: center !important;
+}
+
+.td-number {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.84rem;
+}
+
+@media (max-width: 640px) {
+    .system-table-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .system-pagination-bar {
+        justify-content: center;
+        width: 100%;
+    }
 }
 
 .pagination-btn {
@@ -3897,8 +4105,436 @@ a.th-content:hover {
         max-height: 280px;
     }
 
-    .loan-form-card {
-        padding: 1.5rem;
+}
+
+/* ==========================================================================
+   WIDGET PINJAMAN AKTIF & PENGAJUAN MENUNGGU (HOMEPAGE USER)
+   ========================================================================== */
+.active-loans-widget {
+    margin: 1.25rem 0 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.active-loan-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-left: 5px solid #1D67F2;
+    border-radius: 14px;
+    padding: 1.15rem 1.4rem;
+    box-shadow: 0 4px 16px -2px rgba(29, 103, 242, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.active-loan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(29, 103, 242, 0.12);
+}
+
+.active-loan-card--overdue {
+    border-left-color: #ef4444;
+    background: #fffdfd;
+    border-color: #fee2e2;
+}
+
+.active-loan-card--pending {
+    border-left-color: #f59e0b;
+    border-color: #fef3c7;
+}
+
+.active-loan-icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1D67F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.active-loan-card--overdue .active-loan-icon-box {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.active-loan-icon-box--pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.active-loan-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.active-loan-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+}
+
+.active-loan-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.active-loan-pill--approved {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.active-loan-pill--danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.active-loan-pill--warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.active-loan-pill--info {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.active-loan-pill--pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.active-loan-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.2rem 0;
+    line-height: 1.3;
+}
+
+.active-loan-desc {
+    font-size: 0.83rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.active-loan-desc code {
+    background: #f1f5f9;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: #334155;
+    font-size: 0.8rem;
+}
+
+.active-loan-action {
+    flex-shrink: 0;
+}
+
+.btn-active-loan-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    background-color: #1D67F2;
+    color: #ffffff;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+.btn-active-loan-cta:hover {
+    background-color: #1554cc;
+    transform: translateX(2px);
+}
+
+.btn-active-loan-cta--secondary {
+    background-color: #eff6ff;
+    color: #1D67F2;
+    border: 1px solid #bfdbfe;
+}
+
+.btn-active-loan-cta--secondary:hover {
+    background-color: #dbeafe;
+}
+
+@media (max-width: 680px) {
+    .active-loan-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.9rem;
+        padding: 1rem 1.15rem;
+    }
+    .active-loan-action {
+        width: 100%;
+    }
+    .btn-active-loan-cta {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   SECTION SOP / PANDUAN PEMINJAMAN (FOOTER BERANDA)
+   ========================================================================== */
+.sop-section {
+    margin: 3.5rem 0 1.5rem;
+    padding: 2.25rem 2rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.04);
+}
+
+.sop-header {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 2.25rem;
+}
+
+.sop-tag {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1D67F2;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 0.25rem 0.8rem;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+}
+
+.sop-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.45rem;
+    letter-spacing: -0.01em;
+}
+
+.sop-subtitle {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.sop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.35rem;
+    margin-bottom: 1.75rem;
+}
+
+.sop-card {
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 14px;
+    padding: 1.5rem 1.35rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.sop-card:hover {
+    background: #ffffff;
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 20px -4px rgba(29, 103, 242, 0.08);
+    transform: translateY(-2px);
+}
+
+.sop-step-badge {
+    position: absolute;
+    top: 1.15rem;
+    right: 1.25rem;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #cbd5e1;
+    line-height: 1;
+}
+
+.sop-icon-wrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1D67F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.sop-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.4rem;
+}
+
+.sop-card-desc {
+    font-size: 0.84rem;
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.sop-help-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 1.15rem 1.5rem;
+    flex-wrap: wrap;
+}
+
+.sop-help-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1D67F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(29, 103, 242, 0.1);
+}
+
+.sop-help-content {
+    flex: 1;
+    min-width: 240px;
+}
+
+.sop-help-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.15rem;
+}
+
+.sop-help-desc {
+    font-size: 0.82rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.sop-help-btn {
+    padding: 0.55rem 1.15rem;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1D67F2;
+    border: 1px solid #bfdbfe;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.sop-help-btn:hover {
+    background: #1D67F2;
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   MOBILE BOTTOM NAVIGATION BAR
+   ========================================================================== */
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .app-main {
+        padding-bottom: 80px !important;
+    }
+
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        z-index: 999;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .mobile-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #64748b;
+        padding: 6px 0;
+        transition: color 0.15s ease;
+        gap: 3px;
+    }
+
+    .mobile-nav-icon-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+    }
+
+    .mobile-nav-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    .mobile-nav-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1.5px solid #cbd5e1;
+    }
+
+    .mobile-nav-item--active {
+        color: #1D67F2;
+    }
+
+    .mobile-nav-item--active .mobile-nav-label {
+        font-weight: 700;
+    }
+
+    .mobile-nav-item--active .mobile-nav-avatar {
+        border-color: #1D67F2;
+    }
+
+    /* Sembunyikan ikon Status dan Profil di Top Navbar saat di mobile (karena sudah ada di Bottom Nav) */
+    .navbar-right #loan-status-btn,
+    .navbar-right #profile-btn {
+        display: none !important;
     }
 }
 
