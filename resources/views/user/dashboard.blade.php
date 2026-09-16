@@ -107,12 +107,16 @@
         {{-- 1. Pinjaman Sedang Berjalan (Disetujui) --}}
         @foreach($activeLoans as $activeLoan)
             @php
-                $tglKembali = $activeLoan->tanggal_kembali;
-                $diffDays = now()->startOfDay()->diffInDays($tglKembali->copy()->startOfDay(), false);
-                $isOverdue = $diffDays < 0;
-                $isToday = $diffDays == 0;
+                $isPendingConfirmation = $activeLoan->pengembalian !== null;
+                $tglPinjam = $activeLoan->tanggal_pinjam 
+                    ? \Carbon\Carbon::parse($activeLoan->tanggal_pinjam) 
+                    : ($activeLoan->created_at ? \Carbon\Carbon::parse($activeLoan->created_at) : now());
+                
+                $daysBorrowed = (int) $tglPinjam->startOfDay()->diffInDays(now()->startOfDay());
+                $isOverdue = $daysBorrowed > 1;
+                $isToday = $tglPinjam->isToday();
             @endphp
-            <div class="active-loan-card {{ $isOverdue ? 'active-loan-card--overdue' : '' }}">
+            <div class="active-loan-card {{ $isOverdue && !$isPendingConfirmation ? 'active-loan-card--overdue' : '' }}">
                 <div class="active-loan-icon-box">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
@@ -122,28 +126,44 @@
                 </div>
                 <div class="active-loan-info">
                     <div class="active-loan-badge-row">
-                        <span class="active-loan-pill active-loan-pill--approved">Sedang Dipinjam</span>
-                        @if($isOverdue)
-                            <span class="active-loan-pill active-loan-pill--danger">Terlambat {{ abs($diffDays) }} Hari</span>
+                        @if($isPendingConfirmation)
+                            <span class="active-loan-pill active-loan-pill--warning">Menunggu Konfirmasi Pengembalian</span>
                         @elseif($isToday)
-                            <span class="active-loan-pill active-loan-pill--warning">Batas Pengembalian Hari Ini</span>
+                            <span class="active-loan-pill active-loan-pill--approved">Sedang Dipinjam</span>
+                            <span class="active-loan-pill active-loan-pill--warning">Batas Kembali Hari Ini</span>
+                        @elseif($isOverdue)
+                            <span class="active-loan-pill active-loan-pill--danger">Dipinjam {{ $daysBorrowed }} Hari Lalu</span>
                         @else
-                            <span class="active-loan-pill active-loan-pill--info">Sisa {{ $diffDays }} Hari</span>
+                            <span class="active-loan-pill active-loan-pill--approved">Sedang Dipinjam</span>
                         @endif
                     </div>
                     <h4 class="active-loan-title">{{ $activeLoan->barang->nama_barang ?? 'Barang Sarana' }}</h4>
                     <p class="active-loan-desc">
-                        Batas kembali: <strong>{{ $tglKembali->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
+                        @if($isPendingConfirmation)
+                            Pengembalian diajukan pada <strong>{{ $activeLoan->pengembalian->tanggal_kembali ? \Carbon\Carbon::parse($activeLoan->pengembalian->tanggal_kembali)->format('d M Y') : now()->format('d M Y') }}</strong> &bull; Kode: <code>{{ $activeLoan->kode_pinjam }}</code>
+                        @else
+                            Dipinjam sejak <strong>{{ $tglPinjam->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
+                        @endif
                     </p>
                 </div>
                 <div class="active-loan-action">
-                    <a href="{{ route('loan.status') }}" class="btn-active-loan-cta">
-                        Kembalikan Alat
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M5 12h14"/>
-                            <path d="m12 5 7 7-7 7"/>
-                        </svg>
-                    </a>
+                    @if($isPendingConfirmation)
+                        <a href="{{ route('loan.status') }}" class="btn-active-loan-cta btn-active-loan-cta--secondary">
+                            Lihat Status
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"/>
+                                <path d="m12 5 7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @else
+                        <a href="{{ route('loan.return', $activeLoan->kode_pinjam) }}" class="btn-active-loan-cta">
+                            Kembalikan Alat
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"/>
+                                <path d="m12 5 7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @endif
                 </div>
             </div>
         @endforeach
