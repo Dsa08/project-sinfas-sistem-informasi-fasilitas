@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Pengecekan otomatis batas waktu peminjaman setiap hari pukul 07:00 pagi
+        $schedule->command('sinfas:cek-batas-waktu')->dailyAt('07:00');
     }
 
     /**

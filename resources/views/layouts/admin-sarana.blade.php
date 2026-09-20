@@ -79,6 +79,18 @@
                             <span>Verifikasi Peminjaman</span>
                         </a>
                     </li>
+                    <li class="system-nav-item">
+                        <a href="{{ route('admin.notifications') }}" class="system-nav-link {{ request()->routeIs('admin.notifications') ? 'system-nav-link--active' : '' }}" id="nav-notifications" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <svg class="system-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                                <span>Notifikasi</span>
+                            </div>
+                            <span id="admin-sidebar-notif-badge" style="display: none; background: #ef4444; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 9999px;">0</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="system-nav-divider"></div>
@@ -131,11 +143,12 @@
                 </div>
                 <div class="system-topbar-right">
                     {{-- Bell Notifikasi --}}
-                    <button class="system-topbar-btn" id="sarana-notif-btn" title="Notifikasi" style="color: #111827;">
+                    <a href="{{ route('admin.notifications') }}" class="system-topbar-btn" id="sarana-notif-btn" title="Pusat Notifikasi" style="color: #111827; position: relative; text-decoration: none; display: flex; align-items: center; justify-content: center;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                         </svg>
-                    </button>
+                        <span id="sarana-notif-badge" style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: #ffffff; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; border: 2px solid #ffffff; line-height: 1;">0</span>
+                    </a>
                     {{-- Help / Bantuan --}}
                     <button class="system-topbar-btn" id="sarana-help-btn" title="Bantuan & Info" style="color: #111827;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -383,6 +396,42 @@
                     }
                 });
             }
+
+            // Notification Badge Polling for Admin Sarana
+            function refreshAdminNotifications() {
+                fetch('{{ route("notifications.count") }}', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const topbarBadge = document.getElementById('sarana-notif-badge');
+                    const sidebarBadge = document.getElementById('admin-sidebar-notif-badge');
+                    const count = data.unread_count || 0;
+                    const text = count > 99 ? '99+' : count;
+
+                    if (topbarBadge) {
+                        if (count > 0) {
+                            topbarBadge.textContent = text;
+                            topbarBadge.style.display = 'flex';
+                        } else {
+                            topbarBadge.style.display = 'none';
+                        }
+                    }
+
+                    if (sidebarBadge) {
+                        if (count > 0) {
+                            sidebarBadge.textContent = text;
+                            sidebarBadge.style.display = 'inline-block';
+                        } else {
+                            sidebarBadge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(() => {});
+            }
+
+            refreshAdminNotifications();
+            setInterval(refreshAdminNotifications, 45000);
         });
     </script>
 </body>

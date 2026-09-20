@@ -102,6 +102,16 @@ class Akun extends Authenticatable
     }
 
     /**
+     * Relasi: Akun memiliki banyak riwayat notifikasi sistem (1:N).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function notifikasi()
+    {
+        return $this->hasMany(Notifikasi::class, 'id_akun', 'id_akun');
+    }
+
+    /**
      * Accessor untuk mendapatkan URL lengkap foto profil akun.
      *
      * @return string|null

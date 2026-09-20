@@ -54,13 +54,30 @@
                 </svg>
             </a>
 
-            {{-- Notification Icon --}}
-            <button class="navbar-icon-btn" id="notification-btn" title="Notifikasi">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
-            </button>
+            {{-- Notification Icon with Badge & Dropdown --}}
+            <div class="navbar-notif-wrapper" style="position: relative;">
+                <button type="button" class="navbar-icon-btn" id="notification-btn" title="Notifikasi" onclick="toggleNotifDropdown(event)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="navbar-notif-badge" id="navbar-notif-badge" style="display: none;">0</span>
+                </button>
+
+                {{-- Notification Dropdown Popover --}}
+                <div class="navbar-notif-dropdown" id="navbar-notif-dropdown">
+                    <div class="navbar-notif-dropdown-header">
+                        <span class="navbar-notif-dropdown-title">Notifikasi</span>
+                        <a href="{{ route('notifications') }}" class="navbar-notif-dropdown-link">Lihat Semua</a>
+                    </div>
+                    <div class="navbar-notif-dropdown-body" id="navbar-notif-dropdown-body">
+                        <div class="navbar-notif-loading">Memuat notifikasi...</div>
+                    </div>
+                    <div class="navbar-notif-dropdown-footer">
+                        <a href="{{ route('notifications') }}" class="btn-navbar-notif-all">Buka Pusat Notifikasi &rarr;</a>
+                    </div>
+                </div>
+            </div>
 
             {{-- User Profile Icon --}}
             <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'Pengguna' }})">
@@ -301,6 +318,66 @@
                     }
                 });
             }
+
+            // Notification Dropdown Logic
+            window.toggleNotifDropdown = function(e) {
+                if (e) e.stopPropagation();
+                const dropdown = document.getElementById('navbar-notif-dropdown');
+                if (dropdown) {
+                    dropdown.classList.toggle('navbar-notif-dropdown--active');
+                }
+            };
+
+            // Close notification dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const wrapper = document.querySelector('.navbar-notif-wrapper');
+                const dropdown = document.getElementById('navbar-notif-dropdown');
+                if (wrapper && dropdown && !wrapper.contains(e.target)) {
+                    dropdown.classList.remove('navbar-notif-dropdown--active');
+                }
+            });
+
+            // Fetch and update notification count and preview
+            function refreshNotifications() {
+                fetch('{{ route("notifications.count") }}', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('navbar-notif-badge');
+                    if (badge) {
+                        if (data.unread_count > 0) {
+                            badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+
+                    const body = document.getElementById('navbar-notif-dropdown-body');
+                    if (body && data.recent) {
+                        if (data.recent.length === 0) {
+                            body.innerHTML = '<div class="navbar-notif-empty">Tidak ada notifikasi baru</div>';
+                        } else {
+                            body.innerHTML = data.recent.map(n => `
+                                <a href="{{ route('notifications') }}" class="navbar-notif-item ${!n.status_baca ? 'navbar-notif-item--unread' : ''}">
+                                    <div class="navbar-notif-item-header">
+                                        <span class="navbar-notif-item-title">${n.judul}</span>
+                                        <span class="navbar-notif-item-time">${n.created_at_human}</span>
+                                    </div>
+                                    <p class="navbar-notif-item-desc">${n.pesan}</p>
+                                    ${n.hari_berlalu ? `<span class="badge-duration-mini badge-duration--${n.warna_durasi}">${n.hari_berlalu} hari</span>` : ''}
+                                </a>
+                            `).join('');
+                        }
+                    }
+                })
+                .catch(() => {});
+            }
+
+            refreshNotifications();
+            // Refresh every 45 seconds
+            setInterval(refreshNotifications, 45000);
         });
     </script>
 

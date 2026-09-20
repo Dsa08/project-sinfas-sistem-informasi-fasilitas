@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
@@ -244,7 +245,7 @@ class UserController extends Controller
         );
 
         // 7. Simpan permohonan baru ke database dengan status awal 'menunggu'
-        Peminjaman::create([
+        $peminjaman = Peminjaman::create([
             'kode_pinjam'           => $kodePinjam,
             'nis'                   => $user->nis,
             'kode_barang'           => $kode,
@@ -253,6 +254,13 @@ class UserController extends Controller
             'keterangan_penggunaan' => $request->keterangan_penggunaan,
             'status_pengajuan'      => 'menunggu',
         ]);
+
+        // 8. Kirim notifikasi otomatis ke Admin Sarana
+        try {
+            NotifikasiService::pengajuanBaru($peminjaman);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi pengajuan baru: " . $e->getMessage());
+        }
 
         return redirect()->route('loan.status')
             ->with('success', 'Pengajuan peminjaman berhasil dikirim! Kode: ' . $kodePinjam)
@@ -347,6 +355,13 @@ class UserController extends Controller
             'bukti_foto_video' => $buktiPath,
             'catatan'          => $request->catatan,
         ]);
+
+        // 6. Kirim notifikasi konfirmasi pengembalian diajukan ke Admin Sarana
+        try {
+            NotifikasiService::pengembalianDiajukan($loan);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi pengembalian diajukan: " . $e->getMessage());
+        }
 
         return redirect()->route('loan.status')
             ->with('success', 'Pengajuan pengembalian barang berhasil dikirim! Menunggu verifikasi admin sarana.');

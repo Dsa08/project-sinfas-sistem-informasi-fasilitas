@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminSistemController;
 use App\Http\Controllers\Admin\AdminSaranaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotifikasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +81,12 @@ Route::middleware('auth')->group(function () {
     // Menghapus foto profil pengguna
     Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
 
+    // --- Sistem Notifikasi Terpusat (In-App Notification Center) ---
+    Route::get('/notifications', [NotifikasiController::class, 'index'])->name('notifications');
+    Route::post('/notifications/read/{id}', [NotifikasiController::class, 'tandaiDibaca'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotifikasiController::class, 'tandaiSemuaDibaca'])->name('notifications.readAll');
+    Route::get('/notifications/unread-count', [NotifikasiController::class, 'hitungBelumDibaca'])->name('notifications.count');
+
     /*
     |----------------------------------------------------------------------
     | 3. Fitur Siswa (Role: 'siswa')
@@ -138,6 +145,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/verifications/{kode}/reject', [AdminSaranaController::class, 'rejectRequest'])->name('admin.verifications.reject');
         // Mengonfirmasi pengembalian barang: memeriksa fisik, mencatat kondisi, & mengembalikan stok
         Route::post('/admin/verifications/{kode}/confirm-return', [AdminSaranaController::class, 'confirmReturn'])->name('admin.verifications.confirm-return');
+
+        // --- Pusat Notifikasi Admin Sarana ---
+        Route::get('/admin/notifications', [NotifikasiController::class, 'adminIndex'])->name('admin.notifications');
     });
 
     /*

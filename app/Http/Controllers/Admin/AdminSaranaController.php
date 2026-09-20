@@ -7,6 +7,7 @@ use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -595,6 +596,13 @@ class AdminSaranaController extends Controller
             $peminjaman->status_pengajuan = 'disetujui';
             $peminjaman->save();
 
+            // Kirim notifikasi ke siswa peminjam
+            try {
+                NotifikasiService::pengajuanDisetujui($peminjaman);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi persetujuan: " . $e->getMessage());
+            }
+
             $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
             $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
 
@@ -639,6 +647,13 @@ class AdminSaranaController extends Controller
             $peminjaman->status_pengajuan = 'ditolak';
             $peminjaman->alasan_penolakan = $request->input('alasan_penolakan');
             $peminjaman->save();
+
+            // Kirim notifikasi penolakan ke siswa peminjam
+            try {
+                NotifikasiService::pengajuanDitolak($peminjaman, $request->input('alasan_penolakan'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi penolakan: " . $e->getMessage());
+            }
 
             $namaPeminjam = $peminjaman->siswa->nama ?? 'Siswa';
 
@@ -689,6 +704,13 @@ class AdminSaranaController extends Controller
         // (Stok barang pada tabel barang otomatis diperbarui oleh trigger database: trg_kembalikan_stok_barang)
         $pengembalian->kondisi_barang = $request->kondisi_barang;
         $pengembalian->save();
+
+        // Kirim notifikasi pengembalian telah diverifikasi ke siswa peminjam
+        try {
+            NotifikasiService::pengembalianDikonfirmasi($peminjaman, $request->kondisi_barang);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal mengirim notifikasi pengembalian dikonfirmasi: " . $e->getMessage());
+        }
 
         $namaBarang = $peminjaman->barang->nama_barang ?? 'Barang';
 
