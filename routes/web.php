@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminSistemController;
 use App\Http\Controllers\Admin\AdminSaranaController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotifikasiController;
 
@@ -148,6 +149,18 @@ Route::middleware('auth')->group(function () {
 
         // --- Pusat Notifikasi Admin Sarana ---
         Route::get('/admin/notifications', [NotifikasiController::class, 'adminIndex'])->name('admin.notifications');
+
+        // --- Pengaturan Akun Admin Sarana (Terpisah dari profil siswa) ---
+        // Menampilkan halaman pengaturan dengan tab aktif (default: profile)
+        Route::get('/admin/profile/{tab?}', [AdminProfileController::class, 'show'])->name('admin.profile');
+        // Update profil: nama, kontak, email
+        Route::put('/admin/profile/update', [AdminProfileController::class, 'updateProfile'])->name('admin.profile.update');
+        // Ganti kata sandi dengan verifikasi password lama
+        Route::put('/admin/profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
+        // Upload foto profil admin
+        Route::put('/admin/profile/photo', [AdminProfileController::class, 'updatePhoto'])->name('admin.profile.photo.update');
+        // Hapus foto profil admin
+        Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deletePhoto'])->name('admin.profile.photo.delete');
     });
 
     /*
