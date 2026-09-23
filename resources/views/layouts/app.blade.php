@@ -20,6 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="app-body">
@@ -319,12 +320,58 @@
                 });
             }
 
-            // Notification Dropdown Logic
+            // Helper: dapatkan icon SVG berdasarkan tipe notifikasi
+            function getNotifIcon(tipe) {
+                const baseStyle = 'flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;';
+                if (tipe === 'ditolak') {
+                    // Merah — pengajuan ditolak
+                    return `<div style="${baseStyle}background:#fee2e2;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>`;
+                } else if (tipe === 'disetujui' || tipe === 'pengembalian_dikonfirmasi') {
+                    // Hijau — disetujui / pengembalian dikonfirmasi
+                    return `<div style="${baseStyle}background:#dcfce7;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>`;
+                } else {
+                    // Kuning — menunggu / info / default
+                    return `<div style="${baseStyle}background:#fef9c3;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>`;
+                }
+            }
+
+            // Notification Dropdown Logic — buka dropdown + langsung mark-all-read
             window.toggleNotifDropdown = function(e) {
                 if (e) e.stopPropagation();
                 const dropdown = document.getElementById('navbar-notif-dropdown');
-                if (dropdown) {
-                    dropdown.classList.toggle('navbar-notif-dropdown--active');
+                if (!dropdown) return;
+
+                const isOpening = !dropdown.classList.contains('navbar-notif-dropdown--active');
+                dropdown.classList.toggle('navbar-notif-dropdown--active');
+
+                // Jika baru dibuka dan ada badge merah, langsung mark-all-read via AJAX
+                if (isOpening) {
+                    const badge = document.getElementById('navbar-notif-badge');
+                    const hasUnread = badge && badge.style.display !== 'none' && parseInt(badge.textContent || '0') > 0;
+                    if (hasUnread) {
+                        // Sembunyikan badge secara instan (UX responsif)
+                        badge.style.display = 'none';
+
+                        // Kirim request mark-all-read ke server
+                        fetch('{{ route("notifications.readAll") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') 
+                                    ? document.querySelector('meta[name="csrf-token"]').content
+                                    : '{{ csrf_token() }}'
+                            }
+                        }).catch(() => {});
+                    }
+
+                    // Refresh daftar notifikasi agar item tampil sudah-dibaca
+                    refreshNotifications(false);
                 }
             };
 
@@ -338,37 +385,47 @@
             });
 
             // Fetch and update notification count and preview
-            function refreshNotifications() {
+            // updateBadge=true untuk refresh angka badge, false untuk hanya update list item
+            function refreshNotifications(updateBadge = true) {
                 fetch('{{ route("notifications.count") }}', {
                     headers: { 'Accept': 'application/json' }
                 })
                 .then(res => res.json())
                 .then(data => {
-                    const badge = document.getElementById('navbar-notif-badge');
-                    if (badge) {
-                        if (data.unread_count > 0) {
-                            badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
-                            badge.style.display = 'flex';
-                        } else {
-                            badge.style.display = 'none';
+                    if (updateBadge) {
+                        const badge = document.getElementById('navbar-notif-badge');
+                        if (badge) {
+                            if (data.unread_count > 0) {
+                                badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
                         }
                     }
 
                     const body = document.getElementById('navbar-notif-dropdown-body');
                     if (body && data.recent) {
                         if (data.recent.length === 0) {
-                            body.innerHTML = '<div class="navbar-notif-empty">Tidak ada notifikasi baru</div>';
+                            body.innerHTML = '<div class="navbar-notif-empty">Tidak ada notifikasi</div>';
                         } else {
-                            body.innerHTML = data.recent.map(n => `
+                            body.innerHTML = data.recent.map(n => {
+                                const iconHtml = getNotifIcon(n.tipe);
+                                return `
                                 <a href="{{ route('notifications') }}" class="navbar-notif-item ${!n.status_baca ? 'navbar-notif-item--unread' : ''}">
-                                    <div class="navbar-notif-item-header">
-                                        <span class="navbar-notif-item-title">${n.judul}</span>
-                                        <span class="navbar-notif-item-time">${n.created_at_human}</span>
+                                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                                        ${iconHtml}
+                                        <div style="flex:1;min-width:0;">
+                                            <div class="navbar-notif-item-header">
+                                                <span class="navbar-notif-item-title">${n.judul}</span>
+                                                <span class="navbar-notif-item-time">${n.created_at_human}</span>
+                                            </div>
+                                            <p class="navbar-notif-item-desc">${n.pesan}</p>
+                                            ${n.hari_berlalu ? `<span class="badge-duration-mini badge-duration--${n.warna_durasi}">${n.hari_berlalu} hari</span>` : ''}
+                                        </div>
                                     </div>
-                                    <p class="navbar-notif-item-desc">${n.pesan}</p>
-                                    ${n.hari_berlalu ? `<span class="badge-duration-mini badge-duration--${n.warna_durasi}">${n.hari_berlalu} hari</span>` : ''}
-                                </a>
-                            `).join('');
+                                </a>`;
+                            }).join('');
                         }
                     }
                 })
@@ -376,7 +433,7 @@
             }
 
             refreshNotifications();
-            // Refresh every 45 seconds
+            // Refresh setiap 45 detik
             setInterval(refreshNotifications, 45000);
         });
     </script>

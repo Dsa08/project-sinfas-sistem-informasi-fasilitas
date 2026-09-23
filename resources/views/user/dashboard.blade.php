@@ -282,52 +282,52 @@
             </a>
         </div>
 
-        <div class="items-grid-container" id="filtered-items-grid">
+        <div class="shopee-grid" id="filtered-items-grid">
             @forelse($items as $item)
-            <div class="item-card-horizontal" id="item-{{ $item->kode_barang }}">
+            <div class="shopee-card" id="item-{{ $item->kode_barang }}">
                 {{-- Foto Barang --}}
-                <div class="card-thumb">
+                <div class="shopee-card-img">
                     @if(!empty($item->foto) && file_exists(public_path($item->foto)))
                         <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
                     @else
-                        <div class="card-thumb-placeholder">
-                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="shopee-card-img-placeholder">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
-                            <span style="font-size: 0.68rem; margin-top: 0.25rem;">Foto Belum Ada</span>
+                            <span>Foto Belum Ada</span>
                         </div>
                     @endif
                 </div>
 
-                {{-- Detail Informasi Barang --}}
-                <div class="card-details">
-                    <h4 class="card-title" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
-                    <p class="card-category">Category: {{ $item->kategori->nama_kategori ?? 'Equipment' }}</p>
+                {{-- Detail --}}
+                <div class="shopee-card-body">
+                    <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
+                    <p class="shopee-card-cat">{{ $item->kategori->nama_kategori ?? 'Equipment' }}</p>
 
                     @if($item->jumlah_baik > 0)
-                        <span class="badge-stock badge-stock--available">{{ $item->jumlah_baik }} tersedia</span>
-                        <a href="{{ route('loan.request', $item->kode_barang) }}" class="btn-pinjam-pill btn-pinjam-pill--primary" id="btn-pinjam-{{ $item->kode_barang }}">
-                            Pinjam Alat
+                        <span class="shopee-badge-stock shopee-badge--ok">{{ $item->jumlah_baik }} tersedia</span>
+                        <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-{{ $item->kode_barang }}">
+                            Pinjam
                         </a>
                     @else
-                        <span class="badge-stock badge-stock--empty">0 tersedia</span>
-                        <button type="button" class="btn-pinjam-pill btn-pinjam-pill--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
-                            Stok Habis
+                        <span class="shopee-badge-stock shopee-badge--habis">Stok Habis</span>
+                        <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
+                            Habis
                         </button>
                     @endif
                 </div>
             </div>
             @empty
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: 12px; border: 1px dashed #d1d5db;">
-                <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="margin-bottom: 0.75rem;">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1rem; background: #ffffff; border-radius: 12px; border: 1px dashed #d1d5db;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="margin-bottom: 0.75rem;">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.3-4.3"/>
                 </svg>
-                <h4 style="color: #374151; font-size: 1.05rem; margin: 0 0 0.4rem 0;">Tidak Ada Sarana Ditemukan</h4>
-                <p style="color: #6b7280; font-size: 0.88rem; margin: 0 0 1rem 0;">Coba kata kunci pencarian lain atau pilih kategori yang berbeda.</p>
-                <a href="{{ route('dashboard') }}" class="btn-pinjam-pill btn-pinjam-pill--primary">Lihat Beranda Katalog</a>
+                <h4 style="color: #374151; font-size: 1rem; margin: 0 0 0.4rem 0;">Tidak Ada Sarana Ditemukan</h4>
+                <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 1rem 0;">Coba kata kunci lain atau pilih kategori berbeda.</p>
+                <a href="{{ route('dashboard') }}" class="shopee-btn-pinjam">Lihat Semua</a>
             </div>
             @endforelse
         </div>
@@ -375,68 +375,40 @@
                     </a>
                 </div>
 
-                <div class="carousel-container">
-                    <button
-                        type="button"
-                        class="carousel-arrow carousel-arrow--prev"
-                        onclick="scrollCarousel('track-popular', -360)"
-                        aria-label="Geser ke kiri"
-                        title="Geser ke kiri"
-                    >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 18 9 12 15 6"/>
-                        </svg>
-                    </button>
-
-                    <div class="carousel-track" id="track-popular">
-                        @foreach($popularItems as $item)
-                        <div class="item-card-horizontal" id="item-popular-{{ $item->kode_barang }}">
-                            <div class="card-thumb">
-                                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
-                                @else
-                                    <div class="card-thumb-placeholder">
-                                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                                            <polyline points="21 15 16 10 5 21"/>
-                                        </svg>
-                                        <span style="font-size: 0.68rem; margin-top: 0.25rem;">Foto Belum Ada</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="card-details">
-                                <h4 class="card-title" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
-                                <p class="card-category">Category: {{ $item->kategori->nama_kategori ?? 'Umum' }}</p>
-
-                                @if($item->jumlah_baik > 0)
-                                    <span class="badge-stock badge-stock--available">{{ $item->jumlah_baik }} tersedia</span>
-                                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="btn-pinjam-pill btn-pinjam-pill--primary" id="btn-pinjam-popular-{{ $item->kode_barang }}">
-                                        Pinjam Alat
-                                    </a>
-                                @else
-                                    <span class="badge-stock badge-stock--empty">0 tersedia</span>
-                                    <button type="button" class="btn-pinjam-pill btn-pinjam-pill--disabled" disabled id="btn-pinjam-popular-{{ $item->kode_barang }}">
-                                        Stok Habis
-                                    </button>
-                                @endif
-                            </div>
+                <div class="shopee-grid" id="track-popular">
+                    @foreach($popularItems as $item)
+                    <div class="shopee-card" id="item-popular-{{ $item->kode_barang }}">
+                        <div class="shopee-card-img">
+                            @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                                <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                            @else
+                                <div class="shopee-card-img-placeholder">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21 15 16 10 5 21"/>
+                                    </svg>
+                                    <span>Foto Belum Ada</span>
+                                </div>
+                            @endif
                         </div>
-                        @endforeach
+                        <div class="shopee-card-body">
+                            <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
+                            <p class="shopee-card-cat">{{ $item->kategori->nama_kategori ?? 'Umum' }}</p>
+                            @if($item->jumlah_baik > 0)
+                                <span class="shopee-badge-stock shopee-badge--ok">{{ $item->jumlah_baik }} tersedia</span>
+                                <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-popular-{{ $item->kode_barang }}">
+                                    Pinjam
+                                </a>
+                            @else
+                                <span class="shopee-badge-stock shopee-badge--habis">Stok Habis</span>
+                                <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-popular-{{ $item->kode_barang }}">
+                                    Habis
+                                </button>
+                            @endif
+                        </div>
                     </div>
-
-                    <button
-                        type="button"
-                        class="carousel-arrow carousel-arrow--next"
-                        onclick="scrollCarousel('track-popular', 360)"
-                        aria-label="Geser ke kanan"
-                        title="Geser ke kanan"
-                    >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                    </button>
+                    @endforeach
                 </div>
             </section>
         @endif
@@ -456,74 +428,41 @@
                         </a>
                     </div>
 
-                    {{-- Carousel Baris Barang Horizontal --}}
-                    <div class="carousel-container">
-                        {{-- Tombol Navigasi Kiri (<) --}}
-                        <button
-                            type="button"
-                            class="carousel-arrow carousel-arrow--prev"
-                            onclick="scrollCarousel('track-{{ $cat->id_kategori }}', -360)"
-                            aria-label="Geser ke kiri"
-                            title="Geser ke kiri"
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="15 18 9 12 15 6"/>
-                            </svg>
-                        </button>
-
-                        {{-- Track Scroll Horizontal --}}
-                        <div class="carousel-track" id="track-{{ $cat->id_kategori }}">
-                            @foreach($cat->barang as $item)
-                            <div class="item-card-horizontal" id="item-{{ $item->kode_barang }}">
-                                {{-- Foto Barang --}}
-                                <div class="card-thumb">
-                                    @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                                        <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
-                                    @else
-                                        <div class="card-thumb-placeholder">
-                                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                                <polyline points="21 15 16 10 5 21"/>
-                                            </svg>
-                                            <span style="font-size: 0.68rem; margin-top: 0.25rem;">Foto Belum Ada</span>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                {{-- Detail Card --}}
-                                <div class="card-details">
-                                    <h4 class="card-title" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
-                                    <p class="card-category">Category: {{ $cat->nama_kategori }}</p>
-
-                                    @if($item->jumlah_baik > 0)
-                                        <span class="badge-stock badge-stock--available">{{ $item->jumlah_baik }} tersedia</span>
-                                        <a href="{{ route('loan.request', $item->kode_barang) }}" class="btn-pinjam-pill btn-pinjam-pill--primary" id="btn-pinjam-{{ $item->kode_barang }}">
-                                            Pinjam Alat
-                                        </a>
-                                    @else
-                                        <span class="badge-stock badge-stock--empty">0 tersedia</span>
-                                        <button type="button" class="btn-pinjam-pill btn-pinjam-pill--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
-                                            Stok Habis
-                                        </button>
-                                    @endif
-                                </div>
+                    {{-- Grid Kotak Barang (Shopee-style) --}}
+                    <div class="shopee-grid" id="track-{{ $cat->id_kategori }}">
+                        @foreach($cat->barang as $item)
+                        <div class="shopee-card" id="item-{{ $item->kode_barang }}">
+                            <div class="shopee-card-img">
+                                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                                @else
+                                    <div class="shopee-card-img-placeholder">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>
+                                        <span>Foto Belum Ada</span>
+                                    </div>
+                                @endif
                             </div>
-                            @endforeach
+                            <div class="shopee-card-body">
+                                <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
+                                <p class="shopee-card-cat">{{ $cat->nama_kategori }}</p>
+                                @if($item->jumlah_baik > 0)
+                                    <span class="shopee-badge-stock shopee-badge--ok">{{ $item->jumlah_baik }} tersedia</span>
+                                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-{{ $item->kode_barang }}">
+                                        Pinjam
+                                    </a>
+                                @else
+                                    <span class="shopee-badge-stock shopee-badge--habis">Stok Habis</span>
+                                    <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
+                                        Habis
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-
-                        {{-- Tombol Navigasi Kanan (>) --}}
-                        <button
-                            type="button"
-                            class="carousel-arrow carousel-arrow--next"
-                            onclick="scrollCarousel('track-{{ $cat->id_kategori }}', 360)"
-                            aria-label="Geser ke kanan"
-                            title="Geser ke kanan"
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="9 18 15 12 9 6"/>
-                            </svg>
-                        </button>
+                        @endforeach
                     </div>
                 </section>
             @endif
@@ -612,37 +551,11 @@
 </div>
 
 <script>
-    // Smooth scroll horizontal carousel
-    function scrollCarousel(trackId, distance) {
-        const track = document.getElementById(trackId);
-        if (track) {
-            track.scrollBy({
-                left: distance,
-                behavior: 'smooth'
-            });
-        }
-    }
-
-    // Scroll ke section kategori tertentu dari tombol Kategori Cepat
-    function scrollToCategory(categoryId) {
-        const section = document.getElementById(categoryId);
-        if (section) {
-            const navbarOffset = 80;
-            const elementPosition = section.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - navbarOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
-    }
-
-    // Filter Kategori Interaktif & Bersinar
+    // Filter Kategori Interaktif (Semua tampilan sudah grid, hanya perlu show/hide section)
     function filterCategory(catId) {
         const isFilteredMode = {{ !empty($isFiltered) ? 'true' : 'false' }};
 
-        // Jika sedang dalam mode pencarian atau filter query string lain, arahkan ke route URL
+        // Jika sedang dalam mode pencarian / view=all, arahkan ke route URL
         if (isFilteredMode) {
             if (catId === 'all') {
                 window.location.href = "{{ route('dashboard') }}";
@@ -652,7 +565,7 @@
             return;
         }
 
-        // Mode Beranda (Carousel): Filter langsung di client tanpa reload (Instant & Glowing!)
+        // Mode Beranda: Filter langsung di client tanpa reload
         const allChips = document.querySelectorAll('.quick-chip-btn');
         const sections = document.querySelectorAll('.category-section');
         const banner = document.getElementById('categoryActiveBanner');
@@ -660,40 +573,34 @@
         const emptyNotice = document.getElementById('noFilteredCategoryNotice');
         const currentActive = document.querySelector('.quick-chip-btn--active');
 
-        // Toggle: Jika mengklik kembali chip kategori yang sudah aktif, kembalikan ke "Semua"
+        // Toggle: klik chip yang sudah aktif → kembali ke "Semua"
         if (catId !== 'all' && currentActive && currentActive.id === 'chip-cat-' + catId) {
             catId = 'all';
         }
 
-        // Hapus kelas aktif bersinar dari semua chip
         allChips.forEach(chip => chip.classList.remove('quick-chip-btn--active'));
 
         if (catId === 'all') {
-            // Aktifkan chip "Semua"
             const allBtn = document.getElementById('chip-cat-all');
             if (allBtn) allBtn.classList.add('quick-chip-btn--active');
 
-            // Sembunyikan banner & notice kosong
             if (banner) banner.style.display = 'none';
             if (emptyNotice) emptyNotice.style.display = 'none';
 
-            // Tampilkan kembali seluruh section kategori dengan mode SLIDE / CAROUSEL
+            // Tampilkan semua section
             sections.forEach(sec => {
-                sec.classList.remove('category-section--grid');
                 sec.style.display = 'block';
                 sec.classList.remove('category-section--fadein');
-                void sec.offsetWidth; // Reflow trigger
+                void sec.offsetWidth;
                 sec.classList.add('category-section--fadein');
             });
 
-            // Update URL query string tanpa reload halaman
             if (window.history.pushState) {
                 const url = new URL(window.location);
                 url.searchParams.delete('kategori');
                 window.history.pushState({}, '', url.pathname);
             }
         } else {
-            // Aktifkan chip yang dipilih dengan warna biru minimalis
             const targetChip = document.getElementById('chip-cat-' + catId);
             if (targetChip) {
                 targetChip.classList.add('quick-chip-btn--active');
@@ -707,11 +614,10 @@
             let foundCount = 0;
             let firstFound = null;
 
-            // Tampilkan HANYA section kategori yang dipilih dengan tampilan GRID (bukan tombol slide)
+            // Hanya tampilkan section kategori yang dipilih
             sections.forEach(sec => {
                 const secCatId = sec.getAttribute('data-category-id');
                 if (secCatId == catId) {
-                    sec.classList.add('category-section--grid'); // Ubah ke tampilan Grid
                     sec.style.display = 'block';
                     sec.classList.remove('category-section--fadein');
                     void sec.offsetWidth;
@@ -719,7 +625,6 @@
                     foundCount++;
                     if (!firstFound) firstFound = sec;
                 } else {
-                    sec.classList.remove('category-section--grid');
                     sec.style.display = 'none';
                 }
             });
@@ -728,18 +633,13 @@
                 emptyNotice.style.display = foundCount === 0 ? 'block' : 'none';
             }
 
-            // Scroll halus ke section yang ditampilkan
             const scrollTarget = firstFound || banner;
             if (scrollTarget) {
                 const navbarOffset = 95;
                 const targetTop = scrollTarget.getBoundingClientRect().top + window.pageYOffset - navbarOffset;
-                window.scrollTo({
-                    top: Math.max(0, targetTop),
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
             }
 
-            // Update URL query string tanpa reload
             if (window.history.pushState) {
                 const url = new URL(window.location);
                 url.searchParams.set('kategori', catId);
