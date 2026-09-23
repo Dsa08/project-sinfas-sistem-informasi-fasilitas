@@ -128,9 +128,9 @@ class Akun extends Authenticatable
             return asset($this->foto);
         }
         if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->foto)) {
-            return \Illuminate\Support\Facades\Storage::url($this->foto);
+            return asset('storage/' . ltrim($this->foto, '/'));
         }
-        return asset('storage/' . $this->foto);
+        return asset('storage/' . ltrim($this->foto, '/'));
     }
 
     /**

@@ -34,7 +34,11 @@
         <div class="profile-avatar-section">
             <div class="profile-avatar" id="profile-avatar" onclick="document.getElementById('modal-photo-input').click()" style="cursor: pointer;" title="Klik untuk ubah foto">
                 @if($user->foto_url)
-                    <img src="{{ $user->foto_url }}" alt="{{ $user->nama }}" id="current-avatar-img">
+                    <img src="{{ $user->foto_url }}" alt="{{ $user->nama }}" id="current-avatar-img" onerror="this.style.display='none'; document.getElementById('current-avatar-svg-fallback').style.display='block';">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" id="current-avatar-svg-fallback" style="display: none;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
                 @else
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" id="current-avatar-svg">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

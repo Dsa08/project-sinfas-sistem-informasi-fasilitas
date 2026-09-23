@@ -83,7 +83,11 @@
             {{-- User Profile Icon --}}
             <a href="{{ route('profile') }}" class="navbar-icon-btn" id="profile-btn" title="Profil ({{ Auth::user()->nama ?? 'Pengguna' }})">
                 @if(Auth::user() && Auth::user()->foto_url)
-                    <img src="{{ Auth::user()->foto_url }}" alt="{{ Auth::user()->nama }}" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;">
+                    <img src="{{ Auth::user()->foto_url }}" alt="{{ Auth::user()->nama }}" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
                 @else
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -467,7 +471,11 @@
         <a href="{{ route('profile') }}" class="mobile-nav-item {{ request()->routeIs('profile') ? 'mobile-nav-item--active' : '' }}">
             <div class="mobile-nav-icon-wrap">
                 @if(Auth::user() && Auth::user()->foto_url)
-                    <img src="{{ Auth::user()->foto_url }}" alt="Profil" class="mobile-nav-avatar">
+                    <img src="{{ Auth::user()->foto_url }}" alt="Profil" class="mobile-nav-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
                 @else
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

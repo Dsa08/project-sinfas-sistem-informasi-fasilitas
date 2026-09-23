@@ -203,15 +203,30 @@ Route::get('/admin-sistem', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Route Fallback Penyajian File Berkas Upload
+| Route Fallback Penyajian File Berkas Storage (Khusus Web Hosting / cPanel)
 |--------------------------------------------------------------------------
-| Menyajikan file foto barang yang tersimpan di folder public/uploads/ jika
-| dipanggil melalui URL path /storage/uploads/.
+| Jika web hosting tidak mendukung symlink (php artisan storage:link),
+| route ini secara otomatis melayani file dari storage/app/public/ atau public/uploads/.
 */
-Route::get('/storage/uploads/{any}', function ($any) {
-    $path = public_path('uploads/' . $any);
-    if (file_exists($path)) {
-        return response()->file($path);
+Route::get('/storage/{any}', function ($any) {
+    // 1. Cek di storage/app/public/ (tempat upload disk 'public' default Laravel, contoh: avatars)
+    $storagePath = storage_path('app/public/' . $any);
+    if (file_exists($storagePath)) {
+        return response()->file($storagePath);
     }
+
+    // 2. Cek di public/uploads/ (jika dipanggil melalui /storage/uploads/...)
+    $uploadPath = public_path('uploads/' . $any);
+    if (file_exists($uploadPath)) {
+        return response()->file($uploadPath);
+    }
+
+    // 3. Cek di public/{any}
+    $publicPath = public_path($any);
+    if (file_exists($publicPath)) {
+        return response()->file($publicPath);
+    }
+
     abort(404);
 })->where('any', '.*');
+
