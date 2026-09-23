@@ -37,6 +37,8 @@ class UserController extends Controller
         $search = $request->input('search');
         $kategoriId = $request->input('kategori');
         $viewAll = $request->input('view') === 'all';
+        $sort = $request->input('sort', 'nama_asc');
+        $ketersediaan = $request->input('ketersediaan');
 
         // 2. Fitur Pencarian Cerdas: mencari berdasarkan nama barang, merk/model, kode barang, atau nama kategori
         if ($search) {
@@ -59,16 +61,30 @@ class UserController extends Controller
             $query->where('id_kategori', $kategoriId);
         }
 
-        // 4. Paginasi hasil (12 item per halaman) dengan mempertahankan query string pada pagination link
-        $items = $query->orderBy('nama_barang', 'asc')->paginate(12)->withQueryString();
+        // 4. Filter ketersediaan stok
+        if ($ketersediaan === 'tersedia') {
+            $query->where('jumlah_baik', '>', 0);
+        } elseif ($ketersediaan === 'tidak_tersedia') {
+            $query->where('jumlah_baik', '<=', 0);
+        }
+
+        // 5. Pengurutan nama barang (abjad A-Z atau Z-A)
+        if ($sort === 'nama_desc') {
+            $query->orderBy('nama_barang', 'desc');
+        } else {
+            $query->orderBy('nama_barang', 'asc');
+        }
+
+        // 6. Paginasi hasil (12 item per halaman) dengan mempertahankan query string pada pagination link
+        $items = $query->paginate(12)->withQueryString();
         
-        // 5. Caching daftar kategori selama 3600 detik (1 jam) untuk optimalisasi performa database
+        // 7. Caching daftar kategori selama 3600 detik (1 jam) untuk optimalisasi performa database
         $categories = Cache::remember('all_categories', 3600, function () {
             return Kategori::orderBy('nama_kategori')->get();
         });
 
-        // 6. Cek status tampilan: mode pencarian / lihat semua vs katalog carousel per kategori
-        $isFiltered = !empty($search) || !empty($kategoriId) || $viewAll;
+        // 8. Cek status tampilan: mode pencarian / filter vs katalog carousel per kategori
+        $isFiltered = !empty($search) || !empty($kategoriId) || $viewAll || !empty($ketersediaan) || ($sort === 'nama_desc');
         $activeCategory = null;
         if ($kategoriId === 'popular') {
             $activeCategory = (object) [
@@ -79,9 +95,18 @@ class UserController extends Controller
             $activeCategory = Kategori::find($kategoriId);
         }
 
-        // 7. Ambil seluruh kategori beserta daftar barangnya untuk carousel horizontal beranda
-        $categoriesWithItems = Kategori::with(['barang' => function ($q) {
-            $q->orderBy('nama_barang', 'asc');
+        // 9. Ambil seluruh kategori beserta daftar barangnya untuk katalog per kategori di beranda
+        $categoriesWithItems = Kategori::with(['barang' => function ($q) use ($sort, $ketersediaan) {
+            if ($ketersediaan === 'tersedia') {
+                $q->where('jumlah_baik', '>', 0);
+            } elseif ($ketersediaan === 'tidak_tersedia') {
+                $q->where('jumlah_baik', '<=', 0);
+            }
+            if ($sort === 'nama_desc') {
+                $q->orderBy('nama_barang', 'desc');
+            } else {
+                $q->orderBy('nama_barang', 'asc');
+            }
         }])->orderBy('nama_kategori', 'asc')->get();
 
         // 8. Ambil aktivitas transaksi aktif siswa yang login (Widget Ringkasan Beranda)
