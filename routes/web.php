@@ -230,3 +230,34 @@ Route::get('/storage/{any}', function ($any) {
     abort(404);
 })->where('any', '.*');
 
+/*
+|--------------------------------------------------------------------------
+| Route Fallback Penyajian Asset Build Vite (Khusus Web Hosting / cPanel)
+|--------------------------------------------------------------------------
+| Menjamin file CSS & JS hasil build Vite selalu disajikan dengan Content-Type
+| yang benar meskipun folder public_html belum tersinkronisasi manual.
+*/
+Route::get('/build/{any}', function ($any) {
+    $candidates = [
+        public_path('build/' . $any),
+        base_path('public/build/' . $any),
+    ];
+
+    foreach ($candidates as $filePath) {
+        if (file_exists($filePath)) {
+            $headers = [];
+            if (str_ends_with($any, '.css')) {
+                $headers['Content-Type'] = 'text/css';
+            } elseif (str_ends_with($any, '.js')) {
+                $headers['Content-Type'] = 'application/javascript';
+            } elseif (str_ends_with($any, '.json')) {
+                $headers['Content-Type'] = 'application/json';
+            }
+            return response()->file($filePath, $headers);
+        }
+    }
+
+    abort(404);
+})->where('any', '.*');
+
+
