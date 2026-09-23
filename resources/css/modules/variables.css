@@ -1,0 +1,34 @@
+/* ==========================================================================
+   SINFAS - Design Tokens & Global Reset
+   ========================================================================== */
+
+/* --- CSS Custom Properties --- */
+:root {
+    --sinfas-primary: #1E40AF;
+    --sinfas-primary-hover: #1E3A8A;
+    --sinfas-primary-active: #172554;
+    --sinfas-primary-light: rgba(30, 64, 175, 0.08);
+    --sinfas-dark: #1a1a2e;
+    --sinfas-dark-lighter: #16213e;
+    --sinfas-card-bg: #ffffff;
+    --sinfas-text: #1f2937;
+    --sinfas-text-muted: #6b7280;
+    --sinfas-border: #d1d5db;
+    --sinfas-border-focus: #1E40AF;
+    --sinfas-input-bg: #ffffff;
+    --sinfas-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --sinfas-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    --sinfas-radius: 12px;
+    --sinfas-radius-sm: 8px;
+    --sinfas-radius-input: 6px;
+    --sinfas-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --sinfas-font: 'Inter', system-ui, -apple-system, sans-serif;
+    --sinfas-font-brand: 'Poppins', 'Inter', system-ui, sans-serif;
+}
+
+/* --- Global Reset & Base --- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}

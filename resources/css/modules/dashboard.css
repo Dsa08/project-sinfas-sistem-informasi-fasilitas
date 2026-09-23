@@ -1,0 +1,1181 @@
+/* --- Search Section --- */
+.search-section {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.search-bar {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 0 0.85rem;
+    height: 44px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+}
+
+.search-bar:focus-within {
+    border-color: #1D67F2;
+    box-shadow: 0 0 0 3px rgba(29, 103, 242, 0.12);
+}
+
+.search-icon {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    font-family: var(--sinfas-font);
+    color: var(--sinfas-text);
+    background: transparent;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 0.95rem;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.86rem;
+    font-family: var(--sinfas-font);
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.filter-btn:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.filter-btn--has-filter {
+    border-color: #93c5fd;
+    background: #eff6ff;
+    color: #1d67f2;
+}
+
+/* --- Kategori Cepat (Quick Category Chips) --- */
+.quick-categories-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-bottom: 1.5rem;
+}
+
+.quick-categories-label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.01em;
+}
+
+.quick-chips-list {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+
+.quick-chips-list::-webkit-scrollbar {
+    display: none;
+}
+
+.quick-chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 0.38rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: var(--sinfas-font);
+    color: #475569;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.quick-chip-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* Active State - Biru Minimalis & Profesional */
+.quick-chip-btn--active {
+    background-color: #1D67F2 !important;
+    border-color: #1D67F2 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(29, 103, 242, 0.24) !important;
+}
+
+.quick-chip-btn--active:hover {
+    background-color: #1958d6 !important;
+    border-color: #1958d6 !important;
+    color: #ffffff !important;
+}
+
+/* Category Active Filter Banner */
+.category-active-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 0.65rem 1.1rem;
+    margin-bottom: 1.5rem;
+    color: #1e40af;
+    font-size: 0.88rem;
+    animation: fadeInSlideDown 0.25s ease-out;
+}
+
+.category-active-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #1D67F2;
+    display: inline-block;
+}
+
+.btn-reset-category-filter {
+    background: transparent;
+    border: 1px solid #93c5fd;
+    color: #1D67F2;
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-reset-category-filter:hover {
+    background: #dbeafe;
+    border-color: #60a5fa;
+}
+
+@keyframes fadeInSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInCategory {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.category-section--fadein {
+    animation: fadeInCategory 0.35s ease-out;
+}
+
+/* --- Category Section --- */
+.category-section {
+    margin-bottom: 2.25rem;
+}
+
+.category-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    width: 100%;
+}
+
+.category-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.01em;
+    min-width: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.category-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #1d67f2;
+    background: #f0f7ff;
+    border: 1px solid #bfdbfe;
+    padding: 0.32rem 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 2px rgba(29, 103, 242, 0.05);
+}
+
+.category-view-all:hover {
+    background: #1d67f2;
+    color: #ffffff;
+    border-color: #1d67f2;
+    box-shadow: 0 2px 6px rgba(29, 103, 242, 0.25);
+    transform: translateY(-1px);
+}
+
+/* --- Carousel Container & Controls --- */
+.carousel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.carousel-arrow {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    z-index: 10;
+    color: #374151;
+    transition: all 0.18s ease;
+}
+
+.carousel-arrow:hover {
+    background: #f8fafc;
+    color: #111827;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+    transform: scale(1.08);
+}
+
+.carousel-arrow:active {
+    transform: scale(0.96);
+}
+
+.carousel-arrow--prev {
+    margin-right: 0.6rem;
+}
+
+.carousel-arrow--next {
+    margin-left: 0.6rem;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    flex: 1;
+    padding: 0.4rem 0.2rem 0.75rem 0.2rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- Tampilan Grid saat Kategori Spesifik Dipilih (Tanpa Tombol Slide) --- */
+.category-section--grid .carousel-container {
+    display: block;
+}
+
+.category-section--grid .carousel-arrow {
+    display: none !important;
+}
+
+.category-section--grid .carousel-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    overflow-x: visible;
+    padding: 0.5rem 0 1rem 0;
+}
+
+.category-section--grid .item-card-horizontal {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+/* --- Horizontal Item Card (Sesuai Figma) --- */
+.item-card-horizontal {
+    flex: 0 0 350px;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.85rem;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.item-card-horizontal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+.card-thumb {
+    width: 145px;
+    height: 125px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+}
+
+.item-card-horizontal:hover .card-thumb img {
+    transform: scale(1.04);
+}
+
+.card-thumb-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #94a3b8;
+    text-align: center;
+    padding: 0.5rem;
+    background: #f8fafc;
+}
+
+.card-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.card-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.card-category {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Stock Badges --- */
+.badge-stock {
+    display: inline-block;
+    width: fit-content;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0.15rem 0;
+}
+
+.badge-stock--available {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.badge-stock--empty {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* --- Pinjam Action Button (Pill) --- */
+.btn-pinjam-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 1.35rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    text-decoration: none;
+    border: none;
+    width: fit-content;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.btn-pinjam-pill--primary {
+    background-color: #1e40af;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(30, 64, 175, 0.2);
+}
+
+.btn-pinjam-pill--primary:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-pinjam-pill--primary:active {
+    background-color: #172554;
+    transform: translateY(0);
+}
+
+.btn-pinjam-pill--disabled {
+    background-color: #9ca3af;
+    color: #ffffff;
+    cursor: not-allowed;
+    border: none;
+}
+
+/* --- Filtered / Full Grid Mode --- */
+.filtered-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.btn-back-katalog {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #1e40af;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.btn-back-katalog:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.items-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.items-grid-container .item-card-horizontal {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+/* --- Dashboard Responsive --- */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .app-main {
+        padding: 1rem;
+    }
+
+    .quick-categories-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+
+    .item-card-horizontal {
+        flex: 0 0 290px;
+    }
+
+    .card-thumb {
+        width: 110px;
+        height: 105px;
+    }
+
+    .carousel-arrow {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-section {
+        gap: 0.4rem;
+    }
+
+    .search-bar {
+        height: 42px;
+        padding: 0 0.65rem;
+    }
+
+    .search-input {
+        font-size: 0.84rem;
+    }
+
+    .filter-btn {
+        height: 42px;
+        padding: 0 0.75rem;
+        font-size: 0.82rem;
+    }
+
+    .quick-categories-label {
+        font-size: 0.88rem;
+    }
+
+    .quick-chip-btn {
+        padding: 0.32rem 0.75rem;
+        font-size: 0.78rem;
+    }
+
+    .item-card {
+        flex-direction: column;
+    }
+
+    .item-image {
+        width: 100%;
+        min-height: 160px;
+    }
+
+    .item-info {
+        padding: 0.85rem 1rem;
+    }
+}
+
+
+/* ==========================================================================
+   WIDGET PINJAMAN AKTIF & PENGAJUAN MENUNGGU (HOMEPAGE USER)
+   ========================================================================== */
+.active-loans-widget {
+    margin: 1.25rem 0 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.active-loan-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-left: 5px solid #1D67F2;
+    border-radius: 14px;
+    padding: 1.15rem 1.4rem;
+    box-shadow: 0 4px 16px -2px rgba(29, 103, 242, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.active-loan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(29, 103, 242, 0.12);
+}
+
+.active-loan-card--overdue {
+    border-left-color: #ef4444;
+    background: #fffdfd;
+    border-color: #fee2e2;
+}
+
+.active-loan-card--pending {
+    border-left-color: #f59e0b;
+    border-color: #fef3c7;
+}
+
+.active-loan-icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1D67F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.active-loan-card--overdue .active-loan-icon-box {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.active-loan-icon-box--pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.active-loan-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.active-loan-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+}
+
+.active-loan-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.active-loan-pill--approved {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.active-loan-pill--danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.active-loan-pill--warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.active-loan-pill--info {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.active-loan-pill--pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.active-loan-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.2rem 0;
+    line-height: 1.3;
+}
+
+.active-loan-desc {
+    font-size: 0.83rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.active-loan-desc code {
+    background: #f1f5f9;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: #334155;
+    font-size: 0.8rem;
+}
+
+.active-loan-action {
+    flex-shrink: 0;
+}
+
+.btn-active-loan-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    background-color: #1D67F2;
+    color: #ffffff;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+.btn-active-loan-cta:hover {
+    background-color: #1554cc;
+    transform: translateX(2px);
+}
+
+.btn-active-loan-cta--secondary {
+    background-color: #eff6ff;
+    color: #1D67F2;
+    border: 1px solid #bfdbfe;
+}
+
+.btn-active-loan-cta--secondary:hover {
+    background-color: #dbeafe;
+}
+
+@media (max-width: 680px) {
+    .active-loan-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.9rem;
+        padding: 1rem 1.15rem;
+    }
+    .active-loan-action {
+        width: 100%;
+    }
+    .btn-active-loan-cta {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   SECTION SOP / PANDUAN PEMINJAMAN (FOOTER BERANDA)
+   ========================================================================== */
+.sop-section {
+    margin: 3.5rem 0 1.5rem;
+    padding: 2.25rem 2rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.04);
+}
+
+.sop-header {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 2.25rem;
+}
+
+.sop-tag {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1D67F2;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 0.25rem 0.8rem;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+}
+
+.sop-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.45rem;
+    letter-spacing: -0.01em;
+}
+
+.sop-subtitle {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.sop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.35rem;
+    margin-bottom: 1.75rem;
+}
+
+.sop-card {
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 14px;
+    padding: 1.5rem 1.35rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.sop-card:hover {
+    background: #ffffff;
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 20px -4px rgba(29, 103, 242, 0.08);
+    transform: translateY(-2px);
+}
+
+.sop-step-badge {
+    position: absolute;
+    top: 1.15rem;
+    right: 1.25rem;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #cbd5e1;
+    line-height: 1;
+}
+
+.sop-icon-wrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1D67F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.sop-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.4rem;
+}
+
+.sop-card-desc {
+    font-size: 0.84rem;
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.sop-help-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 1.15rem 1.5rem;
+    flex-wrap: wrap;
+}
+
+.sop-help-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1D67F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(29, 103, 242, 0.1);
+}
+
+.sop-help-content {
+    flex: 1;
+    min-width: 240px;
+}
+
+.sop-help-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.15rem;
+}
+
+.sop-help-desc {
+    font-size: 0.82rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.sop-help-btn {
+    padding: 0.55rem 1.15rem;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1D67F2;
+    border: 1px solid #bfdbfe;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.sop-help-btn:hover {
+    background: #1D67F2;
+    color: #ffffff;
+}
+
+
+/* =====================================================================
+   Dashboard User (Katalog Barang)
+   Grid 2 kolom di mobile, 3-4 kolom di desktop, kotak kecil & ringkas
+   ===================================================================== */
+
+/* --- Grid Container --- */
+.shopee-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.25rem 0 0.5rem 0;
+}
+
+@media (min-width: 540px) {
+    .shopee-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.9rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .shopee-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .shopee-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* --- Shopee Card --- */
+.shopee-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.shopee-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #bfdbfe;
+}
+
+/* --- Gambar Produk --- */
+.shopee-card-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f8fafc;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.shopee-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+    display: block;
+}
+
+.shopee-card:hover .shopee-card-img img {
+    transform: scale(1.05);
+}
+
+.shopee-card-img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 0.35rem;
+    color: #94a3b8;
+    font-size: 0.65rem;
+    text-align: center;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* --- Body Info --- */
+.shopee-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.6rem 0.65rem 0.75rem;
+    flex: 1;
+}
+
+.shopee-card-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.shopee-card-cat {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Badge Stok --- */
+.shopee-badge-stock {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    width: fit-content;
+    margin-top: 0.1rem;
+}
+
+.shopee-badge--ok {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.shopee-badge--habis {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* --- Tombol Pinjam --- */
+.shopee-btn-pinjam {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.42rem 0.5rem;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font, 'Inter', sans-serif);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    background: #1e40af;
+    color: #ffffff;
+    margin-top: auto;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    box-sizing: border-box;
+    line-height: 1.4;
+}
+
+.shopee-btn-pinjam:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+
+.shopee-btn-pinjam:active {
+    background: #172554;
+    transform: translateY(0);
+}
+
+.shopee-btn-pinjam--disabled {
+    background: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* --- Notifikasi Dropdown: item dengan icon warna --- */
+.navbar-notif-item {
+    display: block;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.13s ease;
+}
+
+.navbar-notif-item:last-child {
+    border-bottom: none;
+}
+
+.navbar-notif-item:hover {
+    background: #f8fafc;
+}
+
+.navbar-notif-item--unread {
+    background: #eff6ff;
+    border-left: 3px solid #1D67F2;
+}
+
+.navbar-notif-item--unread:hover {
+    background: #dbeafe;
+}
+
+
+
+
