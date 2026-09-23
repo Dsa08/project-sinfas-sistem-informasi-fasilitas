@@ -1,0 +1,612 @@
+/* ==========================================================================
+   SINFAS - Layout Utama (App Body, Navbar, Modals, Hero, Filter Dropdown)
+   ========================================================================== */
+
+/* --- App Body --- */
+.app-body {
+    font-family: var(--sinfas-font);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    color: var(--sinfas-text);
+}
+
+/* --- Navbar --- */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 56px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.navbar-logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.navbar-logo-img {
+    height: 32px;
+    width: auto;
+}
+
+.navbar-brand {
+    font-family: var(--sinfas-font-brand);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1E40AF;
+    letter-spacing: 0.03em;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.navbar-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navbar-icon-btn:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.modal-overlay--active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem 2.25rem;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay--active .modal-card {
+    transform: scale(1);
+}
+
+.modal-icon {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem;
+}
+
+.modal-message {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 0.55rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.modal-btn--cancel {
+    background: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.modal-btn--cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.modal-btn--confirm {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+.modal-btn--confirm:hover {
+    background: #dc2626;
+}
+
+/* --- App Main --- */
+.app-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* --- Dashboard Container --- */
+.dashboard-container {
+    width: 100%;
+}
+
+/* --- Dashboard Hero Banner (Minimalist Professional Blue) --- */
+.dashboard-hero {
+    background: linear-gradient(135deg, #1e40af 0%, #1D67F2 100%);
+    border-radius: 16px;
+    padding: 1.75rem 2.25rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 10px 25px -5px rgba(29, 103, 242, 0.2), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+}
+
+.dashboard-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.02em;
+}
+
+.dashboard-hero-tag-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #34d399;
+    box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+}
+
+.dashboard-hero-text {
+    color: #ffffff;
+    font-size: 1.65rem;
+    font-weight: 800;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.dashboard-hero-subtext {
+    color: #dbeafe;
+    font-size: 0.95rem;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.dashboard-hero-ornament {
+    position: absolute;
+    right: 0;
+    bottom: -10px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@media (max-width: 640px) {
+    .dashboard-hero {
+        padding: 1.35rem 1.25rem;
+    }
+    .dashboard-hero-text {
+        font-size: 1.35rem;
+    }
+    .dashboard-hero-subtext {
+        font-size: 0.85rem;
+    }
+    .dashboard-hero-ornament {
+        opacity: 0.4;
+    }
+}
+
+/* --- Flash Messages --- */
+.flash-msg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 1rem;
+    animation: slideDown 0.3s ease;
+}
+
+.flash-msg--success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.flash-msg--error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Filter Tag --- */
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* --- Filter Dropdown & Modal --- */
+.filter-dropdown-wrapper {
+    position: relative;
+}
+
+.filter-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 998;
+}
+
+.filter-backdrop--active {
+    display: block !important;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.16), 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+    width: 320px;
+    max-width: 92vw;
+    z-index: 999;
+    display: none;
+    overflow: hidden;
+    animation: filterPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.filter-dropdown--active {
+    display: block !important;
+}
+
+@keyframes filterPopIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.filter-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fafbfc;
+}
+
+.filter-modal-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.filter-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.35rem;
+    color: #64748b;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+}
+
+.filter-modal-close:hover {
+    color: #0f172a;
+}
+
+.filter-modal-body {
+    padding: 0.9rem 1.1rem;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.filter-group {
+    margin-bottom: 1rem;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.filter-options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.filter-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.82rem;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.filter-option-btn input[type="radio"] {
+    margin: 0;
+    accent-color: #1d67f2;
+}
+
+.filter-option-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.filter-option-btn--active {
+    background: #eff6ff !important;
+    border-color: #93c5fd !important;
+    color: #1d67f2 !important;
+    font-weight: 600;
+}
+
+.filter-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.1rem;
+    border-top: 1px solid #f1f5f9;
+    background: #fafbfc;
+}
+
+.btn-filter-reset {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.btn-filter-reset:hover {
+    color: #dc2626;
+    background: #fef2f2;
+}
+
+.btn-filter-apply {
+    padding: 0.45rem 1.25rem;
+    background: #1d67f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-filter-apply:hover {
+    background: #1958d6;
+}
+
+.filter-active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1d67f2;
+    display: inline-block;
+    margin-left: 2px;
+}
+
+/* --- Navbar Responsive --- */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .app-main {
+        padding: 1rem;
+    }
+}
+
+/* --- Filter Dropdown Mobile --- */
+@media (max-width: 576px) {
+    .filter-dropdown {
+        position: fixed !important;
+        top: 50% !important;
+        left: 12px !important;
+        right: 12px !important;
+        transform: translateY(-50%) !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: 80vh !important;
+        border-radius: 16px;
+    }
+}
+
+/* ==========================================================================
+   MOBILE BOTTOM NAVIGATION BAR
+   ========================================================================== */
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .app-main {
+        padding-bottom: 80px !important;
+    }
+
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        z-index: 999;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .mobile-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #64748b;
+        padding: 6px 0;
+        transition: color 0.15s ease;
+        gap: 3px;
+    }
+
+    .mobile-nav-icon-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+    }
+
+    .mobile-nav-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    .mobile-nav-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1.5px solid #cbd5e1;
+    }
+
+    .mobile-nav-item--active {
+        color: #1D67F2;
+    }
+
+    .mobile-nav-item--active .mobile-nav-label {
+        font-weight: 700;
+    }
+
+    .mobile-nav-item--active .mobile-nav-avatar {
+        border-color: #1D67F2;
+    }
+
+    /* Sembunyikan ikon Status dan Profil di Top Navbar saat di mobile (karena sudah ada di Bottom Nav) */
+    .navbar-right #loan-status-btn,
+    .navbar-right #profile-btn {
+        display: none !important;
+    }
+}

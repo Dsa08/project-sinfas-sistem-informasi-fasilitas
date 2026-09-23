@@ -290,57 +290,6 @@
     </div>
     @endif
 
-    {{-- Kategori Cepat (Kapsul / Chips) --}}
-    @php
-        $categoryIconMap = [
-            'Audio & Sound System'       => '🎤',
-            'Proyektor & Presentasi'     => '💡',
-            'Kamera & Dokumentasi'       => '📷',
-            'Kabel & Adapter'            => '🔌',
-            'Peralatan Lab & Multimedia' => '💻',
-            'Multimedia & Elektronik'    => '💡',
-            'Sarana & Peralatan Kelas'   => '📦',
-            'Audio & Video'              => '🎤',
-            'Olahraga & Seni'            => '⚽',
-        ];
-    @endphp
-
-    <div class="quick-categories-bar" id="quick-categories-bar">
-        <span class="quick-categories-label">Kategori Cepat</span>
-        <div class="quick-chips-list" id="quick-chips-list">
-            <button type="button" 
-                    class="quick-chip-btn {{ empty(request('kategori')) ? 'quick-chip-btn--active' : '' }}" 
-                    id="chip-cat-all" 
-                    onclick="filterCategory('all')">
-                <span>✨</span> Semua
-            </button>
-            @if(isset($popularItems) && $popularItems->isNotEmpty())
-            <button type="button" 
-                    class="quick-chip-btn {{ request('kategori') === 'popular' ? 'quick-chip-btn--active' : '' }}" 
-                    id="chip-cat-popular" 
-                    data-cat-id="popular"
-                    data-cat-name="Sering Dipinjam"
-                    onclick="filterCategory('popular')">
-                <span>🔥</span> Sering Dipinjam
-            </button>
-            @endif
-            @foreach($categories as $cat)
-                @php
-                    $icon = $categoryIconMap[$cat->nama_kategori] ?? '🏷️';
-                    $isActive = request('kategori') == $cat->id_kategori;
-                @endphp
-                <button type="button" 
-                        class="quick-chip-btn {{ $isActive ? 'quick-chip-btn--active' : '' }}" 
-                        id="chip-cat-{{ $cat->id_kategori }}" 
-                        data-cat-id="{{ $cat->id_kategori }}"
-                        data-cat-name="{{ $cat->nama_kategori }}"
-                        onclick="filterCategory('{{ $cat->id_kategori }}')">
-                    <span>{{ $icon }}</span> {{ $cat->nama_kategori }}
-                </button>
-            @endforeach
-        </div>
-    </div>
-
     {{-- ================================================================= --}}
     {{-- MODE 1: TAMPILAN FILTERED (Pencarian atau "Lihat Semua" Kategori) --}}
     {{-- ================================================================= --}}
@@ -658,24 +607,12 @@
         }
 
         // Mode Beranda: Filter langsung di client tanpa reload
-        const allChips = document.querySelectorAll('.quick-chip-btn');
         const sections = document.querySelectorAll('.category-section');
         const banner = document.getElementById('categoryActiveBanner');
         const bannerName = document.getElementById('categoryActiveBannerName');
         const emptyNotice = document.getElementById('noFilteredCategoryNotice');
-        const currentActive = document.querySelector('.quick-chip-btn--active');
-
-        // Toggle: klik chip yang sudah aktif → kembali ke "Semua"
-        if (catId !== 'all' && currentActive && currentActive.id === 'chip-cat-' + catId) {
-            catId = 'all';
-        }
-
-        allChips.forEach(chip => chip.classList.remove('quick-chip-btn--active'));
 
         if (catId === 'all') {
-            const allBtn = document.getElementById('chip-cat-all');
-            if (allBtn) allBtn.classList.add('quick-chip-btn--active');
-
             if (banner) banner.style.display = 'none';
             if (emptyNotice) emptyNotice.style.display = 'none';
 
@@ -693,14 +630,14 @@
                 window.history.pushState({}, '', url.pathname);
             }
         } else {
-            const targetChip = document.getElementById('chip-cat-' + catId);
-            if (targetChip) {
-                targetChip.classList.add('quick-chip-btn--active');
-                const catName = targetChip.getAttribute('data-cat-name') || targetChip.textContent.trim();
-                if (banner && bannerName) {
-                    bannerName.textContent = catName;
-                    banner.style.display = 'flex';
-                }
+            let catName = 'Kategori';
+            const targetSec = document.querySelector(`.category-section[data-category-id="${catId}"]`);
+            if (targetSec) {
+                catName = targetSec.getAttribute('data-category-name') || 'Kategori';
+            }
+            if (banner && bannerName) {
+                bannerName.textContent = catName;
+                banner.style.display = 'flex';
             }
 
             let foundCount = 0;

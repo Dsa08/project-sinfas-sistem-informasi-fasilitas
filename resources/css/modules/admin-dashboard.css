@@ -1,0 +1,233 @@
+/* ============================================
+   SINFAS - Admin Dashboard Styles
+   ============================================ */
+
+.admin-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    width: 100%;
+}
+
+/* --- Admin Stats Cards --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.1;
+}
+
+.stat-label {
+    font-size: 0.825rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* --- Admin Sections --- */
+.admin-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.admin-section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+/* --- Admin Table --- */
+.table-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.admin-table thead th {
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.825rem;
+}
+
+.admin-table tbody td {
+    padding: 0.95rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.cell-borrower {
+    font-weight: 500;
+    color: #111827;
+}
+
+.cell-item {
+    color: #374151;
+}
+
+.cell-date {
+    color: #4b5563;
+    font-variant-numeric: tabular-nums;
+}
+
+.cell-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* --- Action Buttons --- */
+.btn-action {
+    font-size: 0.775rem;
+    font-weight: 600;
+    font-family: var(--sinfas-font);
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.btn-approve {
+    background-color: #059669;
+    color: #ffffff;
+    border-color: #059669;
+}
+
+.btn-approve:hover {
+    background-color: #047857;
+}
+
+.btn-approve:active {
+    background-color: #065f46;
+}
+
+.btn-reject {
+    background-color: #ffffff;
+    color: #dc2626;
+    border-color: #f87171;
+}
+
+.btn-reject:hover {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+}
+
+.btn-reject:active {
+    background-color: #fee2e2;
+}
+
+/* --- Bottom Admin Action Cards --- */
+.admin-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.admin-action-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.admin-action-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.action-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.icon-bg-red {
+    background-color: #fee2e2;
+}
+
+.icon-bg-green {
+    background-color: #dcfce7;
+}
+
+.icon-bg-slate {
+    background-color: #f1f5f9;
+}
+
+.action-card-text {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* --- Admin Responsive --- */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 520px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
