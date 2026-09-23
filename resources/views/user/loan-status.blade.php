@@ -12,17 +12,14 @@
 
 @section('title', 'Status Pengajuan - SINFAS')
 
-@section('navbar_title')
-    <a href="{{ route('dashboard') }}" style="color: #4b5563; text-decoration: none; font-size: 0.88rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+@section('content')
+<div class="loan-status-container">
+    <a href="{{ route('dashboard') }}" class="page-top-action loan-status-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m15 18-6-6 6-6"/>
         </svg>
         Kembali ke Beranda
     </a>
-@endsection
-
-@section('content')
-<div class="loan-status-container">
     {{-- Flash Messages --}}
     @if(session('success'))
         <div class="flash-msg flash-msg--success" id="flash-success">
@@ -113,6 +110,11 @@
                 <div class="loan-action-group">
                     @if($loan->status_pengajuan === 'menunggu')
                         <span class="loan-status-badge loan-badge--pending" onclick="openWaitingApprovalModal()" style="cursor: pointer;" title="Klik untuk melihat informasi antrean">Menunggu</span>
+                        <form action="{{ route('loan.cancel', $loan->kode_pinjam) }}" method="POST" onsubmit="return confirm('Batalkan pengajuan peminjaman ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-loan-cancel">Batalkan</button>
+                        </form>
                     @elseif($loan->status_pengajuan === 'ditolak')
                         <span class="loan-status-badge loan-badge--rejected">Ditolak</span>
                     @elseif($loan->status_pengajuan === 'disetujui')

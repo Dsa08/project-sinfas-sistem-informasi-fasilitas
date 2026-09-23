@@ -7,6 +7,12 @@
     margin: 0 auto;
 }
 
+.loan-status-back {
+    width: fit-content;
+    min-width: 0;
+    margin-bottom: 1.25rem;
+}
+
 .loan-status-title {
     font-size: 1.25rem;
     font-weight: 700;
@@ -153,6 +159,24 @@
     background-color: #1554cc;
     transform: translateY(-1px);
     box-shadow: 0 2px 5px rgba(29, 103, 242, 0.3);
+}
+
+.btn-loan-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fff;
+    color: #b91c1c;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-loan-cancel:hover {
+    background: #fef2f2;
 }
 
 /* Modal Popup Styles */

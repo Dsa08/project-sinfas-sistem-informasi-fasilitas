@@ -172,6 +172,20 @@ class UserController extends Controller
         return view('user.loan-status', compact('loans'));
     }
 
+    /** Batalkan pengajuan yang masih menunggu verifikasi dan milik siswa yang login. */
+    public function cancelLoanRequest($kode)
+    {
+        $loan = Peminjaman::where('nis', auth()->user()->nis)
+            ->where('kode_pinjam', $kode)
+            ->where('status_pengajuan', 'menunggu')
+            ->firstOrFail();
+
+        $loan->delete();
+
+        return redirect()->route('loan.status')
+            ->with('success', 'Pengajuan peminjaman berhasil dibatalkan.');
+    }
+
     /**
      * Menampilkan halaman detail sarana dan formulir pengajuan peminjaman.
      * Memeriksa kuota pinjam siswa dan status pengajuan yang sedang berjalan.

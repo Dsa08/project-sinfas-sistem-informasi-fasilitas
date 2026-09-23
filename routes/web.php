@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
         
         // Status Pengajuan: Melihat riwayat peminjaman, tracking status (menunggu, disetujui, ditolak, selesai)
         Route::get('/loan-status', [UserController::class, 'loanStatus'])->name('loan.status');
+        Route::delete('/loan-status/{kode}/cancel', [UserController::class, 'cancelLoanRequest'])->name('loan.cancel');
         
         // Form Pengajuan Pinjam: Menampilkan rincian barang dan form input peminjaman
         Route::get('/loan-request/{kode}', [UserController::class, 'loanRequest'])->name('loan.request');
@@ -259,5 +260,4 @@ Route::get('/build/{any}', function ($any) {
 
     abort(404);
 })->where('any', '.*');
-
 
