@@ -16,7 +16,7 @@ use App\Http\Controllers\NotifikasiController;
 |--------------------------------------------------------------------------
 | File ini memetakan seluruh routing antarmuka web aplikasi SINFAS.
 | Routing dikelompokkan berdasarkan hak akses pengguna:
-|  1. Guest Routes (Belum Login): Login, Registrasi, Forgot & Reset Password
+|  1. Guest Routes (Belum Login): Login, Forgot & Reset Password
 |  2. Authenticated Routes (Sudah Login): Logout, Manajemen Profil
 |  3. Role: Siswa (User Biasa): Katalog Barang, Peminjaman, Pengembalian, Status
 |  4. Role: Admin Sarana: Dashboard Analitik, Master Barang, Kategori, Verifikasi
@@ -24,10 +24,8 @@ use App\Http\Controllers\NotifikasiController;
 |--------------------------------------------------------------------------
 */
 
-// Redirect root URL langsung ke halaman login aplikasi
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Landing page publik sebelum pengguna masuk
+Route::view('/', 'landing')->name('home');
 
 /*
 |--------------------------------------------------------------------------
@@ -41,12 +39,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     // Memproses data login (mendukung Username, Email, NIS, atau NIP + Rate Limiting)
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-
-    // --- Pendaftaran Akun Siswa Baru (Registrasi) ---
-    // Menampilkan formulir pendaftaran khusus siswa
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    // Memproses pendaftaran siswa baru ke tabel 'siswa' dan 'akun'
-    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
     // --- Pemulihan Kata Sandi (Forgot & Reset Password) ---
     // Menampilkan form permohonan tautan reset password

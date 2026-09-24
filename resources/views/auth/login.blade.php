@@ -5,7 +5,7 @@
   - Form otentikasi login multi-identifier (Username, Email, NIS Siswa, atau NIP Pegawai).
   - Tampilan alert kesalahan validasi dan notifikasi rate-limiting brute force.
   - Opsi checkbox "Ingat Saya" (Remember Me).
-  - Tautan navigasi menuju pendaftaran akun (register) dan pemulihan kata sandi (forgot password).
+  - Tautan pemulihan kata sandi.
 --}}
 @extends('layouts.auth')
 
@@ -97,11 +97,6 @@
         <button type="submit" class="btn-auth" id="login-btn">
             Masuk
         </button>
-
-        <p class="auth-link-text">
-            Belum punya akun?
-            <a href="{{ route('register') }}" class="auth-link">Daftar Sekarang</a>
-        </p>
     </form>
 </div>
 

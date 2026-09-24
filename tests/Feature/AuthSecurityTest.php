@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\Akun;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 
 class AuthSecurityTest extends TestCase
@@ -15,10 +13,10 @@ class AuthSecurityTest extends TestCase
         RateLimiter::clear('testuser|127.0.0.1');
     }
 
-    public function test_register_screen_can_be_rendered(): void
+    public function test_registration_routes_are_not_available(): void
     {
-        $response = $this->get('/register');
-        $response->assertStatus(200);
+        $this->get('/register')->assertNotFound();
+        $this->post('/register')->assertNotFound();
     }
 
     public function test_unauthenticated_user_cannot_access_dashboard(): void
@@ -47,18 +45,5 @@ class AuthSecurityTest extends TestCase
         $this->assertStringContainsString('Terlalu banyak percobaan login', $errors[0]);
     }
 
-    public function test_registration_rejects_weak_password(): void
-    {
-        $response = $this->post('/register', [
-            'full_name' => 'John Doe',
-            'nis_nip' => '12345',
-            'email' => 'johndoe@test.com',
-            'username' => 'johndoe',
-            'contact_number' => '08123456789',
-            'password' => '12345', // kurang dari 8 karakter
-            'password_confirmation' => '12345',
-        ]);
 
-        $response->assertSessionHasErrors('password');
-    }
 }

@@ -16,6 +16,7 @@
 
 /* 4. Dashboard Siswa (Katalog, Filter, Grid, Banner, SOP) */
 @import "./modules/dashboard.css";
+@import "./modules/landing.css";
 
 /* 5. Status Peminjaman Siswa */
 @import "./modules/loan-status.css";
