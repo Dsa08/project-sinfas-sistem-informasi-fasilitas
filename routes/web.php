@@ -153,6 +153,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/profile/photo', [AdminProfileController::class, 'updatePhoto'])->name('admin.profile.photo.update');
         // Hapus foto profil admin
         Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deletePhoto'])->name('admin.profile.photo.delete');
+
+        // --- Laporan operasional sarana dan prasarana ---
+        Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports');
     });
 
     /*
@@ -251,5 +254,4 @@ Route::get('/build/{any}', function ($any) {
 
     abort(404);
 })->where('any', '.*');
-
 
