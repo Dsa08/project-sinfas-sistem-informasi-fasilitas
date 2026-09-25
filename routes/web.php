@@ -138,6 +138,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/verifications/{kode}/reject', [AdminSaranaController::class, 'rejectRequest'])->name('admin.verifications.reject');
         // Mengonfirmasi pengembalian barang: memeriksa fisik, mencatat kondisi, & mengembalikan stok
         Route::post('/admin/verifications/{kode}/confirm-return', [AdminSaranaController::class, 'confirmReturn'])->name('admin.verifications.confirm-return');
+
+        // --- Laporan operasional sarana dan prasarana ---
+        Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports');
     });
 
     /*
