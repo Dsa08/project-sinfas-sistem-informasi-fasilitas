@@ -143,14 +143,11 @@ class ReportController extends Controller
             $summary = ['Peminjaman terlambat' => $loans->count(), 'Total hari keterlambatan' => (int) $rows->sum(fn ($row) => $row[8])];
         } else {
             $items = Barang::with('kategori')
-                ->withCount(['peminjaman as sedang_dipinjam_count' => fn ($query) => $query
-                    ->where('status_pengajuan', 'disetujui')
-                    ->whereDoesntHave('pengembalian', fn ($return) => $return->whereNotNull('kondisi_barang'))])
                 ->when($categoryId, fn ($q) => $q->where('id_kategori', $categoryId))
                 ->orderBy('nama_barang')
                 ->get();
 
-            $columns = ['Kode barang', 'Nama barang', 'Kategori', 'Baik / tersedia', 'Kurang baik', 'Rusak berat', 'Sedang dipinjam', 'Total aset'];
+            $columns = ['Kode barang', 'Nama barang', 'Kategori', 'Baik / tersedia', 'Kurang baik', 'Rusak berat', 'Total aset'];
             $rows = $items->map(fn ($item) => [
                 $item->kode_barang,
                 $item->nama_barang,
@@ -158,15 +155,13 @@ class ReportController extends Controller
                 (int) $item->jumlah_baik,
                 (int) $item->jumlah_kurang_baik,
                 (int) $item->jumlah_rusak_berat,
-                (int) $item->sedang_dipinjam_count,
-                (int) ($item->total_stok + $item->sedang_dipinjam_count),
+                (int) $item->total_stok,
             ]);
             $summary = [
                 'Baik / tersedia' => (int) $items->sum('jumlah_baik'),
                 'Kurang baik' => (int) $items->sum('jumlah_kurang_baik'),
                 'Rusak berat' => (int) $items->sum('jumlah_rusak_berat'),
-                'Sedang dipinjam' => (int) $items->sum('sedang_dipinjam_count'),
-                'Total aset' => (int) $rows->sum(fn ($row) => $row[7]),
+                'Total aset' => (int) $rows->sum(fn ($row) => $row[6]),
             ];
         }
 
