@@ -15,13 +15,14 @@
 @section('content')
 <div class="sarana-items-container">
     <div class="system-section-header">
-        <h2 class="system-section-heading" style="font-size: 1.35rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Kelola data alat</h2>
+        <h2 class="system-section-heading">Kelola data alat</h2>
+        <p class="system-section-subtitle">Kelola alat dan kondisi inventaris</p>
     </div>
 
     {{-- Filter & Add Item Bar --}}
     <div class="system-filter-bar">
         <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-            <form action="{{ route('admin.items') }}" method="GET" class="system-search-box" id="search-items-form" style="margin: 0;">
+            <form action="{{ route('admin.items') }}" method="GET" class="system-search-box" id="search-items-form">
                 @if(request('kategori'))
                     <input type="hidden" name="kategori" value="{{ request('kategori') }}">
                 @endif

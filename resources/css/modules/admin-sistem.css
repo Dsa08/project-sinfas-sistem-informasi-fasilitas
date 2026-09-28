@@ -655,6 +655,11 @@ a.th-content:hover {
     vertical-align: top;
 }
 
+.system-table-empty-cell {
+    padding: 2rem !important;
+    color: #64748b !important;
+    text-align: center;
+}
 .system-table tbody tr:nth-child(even) {
     background-color: #f8fafc;
 }

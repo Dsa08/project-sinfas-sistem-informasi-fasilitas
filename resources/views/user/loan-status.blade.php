@@ -68,23 +68,29 @@
                     </p>
                     
                     @if($loan->lokasi_penggunaan)
-                    <p class="loan-status-meta" style="color: #6b7280; font-size: 0.78rem;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        {{ $loan->lokasi_penggunaan }}
+                    <p class="loan-status-meta loan-status-detail" style="color: #6b7280; font-size: 0.78rem;">
+                        <span class="loan-status-detail-icon" aria-hidden="true">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </span>
+                        <span>{{ $loan->lokasi_penggunaan }}</span>
                     </p>
                     @endif
 
                     {{-- Return Status Details --}}
                     @if($loan->status_pengajuan === 'disetujui' && $loan->pengembalian)
                         @if(is_null($loan->pengembalian->kondisi_barang))
-                            <p class="loan-status-meta" style="color: #d97706; font-size: 0.78rem; margin-top: 0.2rem; font-weight: 500;">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                Pengembalian diajukan pada {{ $loan->pengembalian->tanggal_kembali->format('d M Y') }} (Menunggu verifikasi admin)
+                            <p class="loan-status-meta loan-status-detail" style="color: #d97706; font-size: 0.78rem; margin-top: 0.2rem; font-weight: 500;">
+                                <span class="loan-status-detail-icon" aria-hidden="true">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </span>
+                                <span>Pengembalian diajukan pada {{ $loan->pengembalian->tanggal_kembali->format('d M Y') }} (Menunggu verifikasi admin)</span>
                             </p>
                         @else
-                            <p class="loan-status-meta" style="color: #059669; font-size: 0.78rem; margin-top: 0.2rem; font-weight: 500;">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;"><path d="M20 6 9 17l-5-5"/></svg>
-                                Telah dikembalikan pada {{ $loan->pengembalian->tanggal_kembali->format('d M Y') }} &bull; Kondisi: <strong>{{ $loan->pengembalian->kondisi_barang }}</strong>
+                            <p class="loan-status-meta loan-status-detail" style="color: #059669; font-size: 0.78rem; margin-top: 0.2rem; font-weight: 500;">
+                                <span class="loan-status-detail-icon" aria-hidden="true">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                                </span>
+                                <span>Telah dikembalikan pada {{ $loan->pengembalian->tanggal_kembali->format('d M Y') }} &bull; Kondisi: <strong>{{ $loan->pengembalian->kondisi_barang }}</strong></span>
                             </p>
                         @endif
                     @endif

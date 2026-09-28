@@ -3,8 +3,8 @@
   File: resources/views/admin/dashboard.blade.php
   Fitur:
   - 4 Kartu Metrik Utama: Pending Verification, Total Items (Barang), Currently Borrowed, dan Damaged Items (Rusak Berat).
-  - Visualisasi Grafik Chart.js: Diagram tren peminjaman alat sarana terbanyak selama 6 bulan terakhir.
-  - Tabel Daftar Antrean Cepat: 5 transaksi peminjaman terbaru yang membutuhkan verifikasi admin.
+  - Visualisasi Grafik Chart.js yang berubah sesuai jenis dan filter laporan.
+  - Tabel peringkat 5 barang yang paling sering dipinjam pada periode dan kategori laporan.
 --}}
 @extends('layouts.admin-sarana')
 
@@ -40,74 +40,63 @@
         </div>
     </div>
 
-    {{-- Pending Loan Requests Section --}}
     <div class="sarana-section">
-        <h2 class="sarana-section-heading">Permintaan Peminjaman Menunggu</h2>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem;">
+            <div>
+                <h2 class="sarana-section-heading" style="margin: 0 0 0.25rem;">Barang Paling Sering Dipinjam</h2>
+                <p style="margin: 0; color: #64748b; font-size: 0.85rem;">Peringkat 5 barang berdasarkan periode {{ $startDate->locale('id')->translatedFormat('d F Y') }} sampai {{ $endDate->locale('id')->translatedFormat('d F Y') }} dan kategori {{ $categoryName }}.</p>
+            </div>
+            <a href="{{ route('admin.reports') }}" style="color: #1e40af; font-size: 0.85rem; font-weight: 600; text-decoration: none;">Atur laporan</a>
+        </div>
         <div class="system-table-card">
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th class="th-number">No.</th>
-                        <th style="width: 25%;">Peminjam</th>
-                        <th style="width: 35%;">Barang</th>
-                        <th style="width: 20%;">Tanggal Pinjam</th>
-                        <th style="width: 20%;">Aksi</th>
+                        <th class="th-number">Peringkat</th>
+                        <th>Kode barang</th>
+                        <th>Nama barang</th>
+                        <th>Kategori</th>
+                        <th>Frekuensi dipinjam</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($pendingLoans as $loan)
-                    <tr>
-                        <td class="td-number">{{ $loop->iteration }}</td>
-                        <td class="td-name">{{ $loan->siswa->nama ?? '-' }}</td>
-                        <td class="td-item">{{ $loan->barang->nama_barang ?? '-' }}</td>
-                        <td class="td-date">{{ $loan->tanggal_pinjam->format('Y-m-d') }}</td>
-                        <td>
-                            <div class="action-btn-group">
-                                <form action="{{ route('admin.verifications.approve', $loan->kode_pinjam) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-action btn-approve" onclick="return confirm('Setujui peminjaman ini?')">Setujui</button>
-                                </form>
-                                <form action="{{ route('admin.verifications.reject', $loan->kode_pinjam) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-action btn-reject" onclick="return confirm('Tolak peminjaman ini?')">Tolak</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                    @forelse($topLoanItems as $item)
+                        <tr>
+                            <td class="td-number">{{ $loop->iteration }}</td>
+                            <td>{{ $item->kode_barang }}</td>
+                            <td class="td-name">{{ $item->nama_barang }}</td>
+                            <td>{{ $item->nama_kategori ?? 'Tanpa kategori' }}</td>
+                            <td>{{ number_format($item->total_peminjaman, 0, ',', '.') }}</td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="5">
-                            <div class="system-table-empty-state" style="padding: 2.5rem 1rem;">
-                                <div class="system-empty-icon-box" style="width: 48px; height: 48px; margin-bottom: 0.6rem;">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 14 14"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="system-empty-title" style="font-size: 0.92rem;">Tidak ada antrean verifikasi</div>
-                                <div class="system-empty-desc" style="font-size: 0.8rem;">Saat ini tidak ada permohonan peminjaman yang menunggu verifikasi Admin.</div>
-                            </div>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="5" class="system-table-empty-cell">Belum ada data peminjaman pada periode laporan ini.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 
-    {{-- Diagram Peminjaman Barang Terbanyak --}}
     <div class="sarana-section" style="margin-top: 2rem;">
-        <div style="margin-bottom: 0.75rem;">
-            <h2 class="sarana-section-heading" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0 0 0.25rem;">Peminjaman Barang Terbanyak di Beberapa Waktu Terakhir</h2>
-            <p style="font-size: 0.85rem; color: #6b7280; margin: 0;">Statistik frekuensi peminjaman alat dan fasilitas terpopuler</p>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem;">
+            <div>
+                <h2 class="sarana-section-heading" style="margin: 0 0 0.25rem;">{{ $chartTitle }}</h2>
+                <p style="margin: 0; color: #64748b; font-size: 0.85rem;">
+                    {{ $chartDescription }}
+                    @if($reportType !== 'stock-summary')
+                        ({{ $startDate->locale('id')->translatedFormat('d F Y') }} sampai {{ $endDate->locale('id')->translatedFormat('d F Y') }})
+                    @endif
+                </p>
+            </div>
+            <a href="{{ route('admin.reports') }}" style="color: #1e40af; font-size: 0.85rem; font-weight: 600; text-decoration: none;">Ubah pengaturan grafik</a>
         </div>
-        <div class="chart-container-card" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-            <div style="position: relative; height: 340px; width: 100%;">
-                <canvas id="adminLoanChart"></canvas>
+        <div class="chart-container-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem 1.75rem; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);">
+            <div style="position: relative; height: {{ $chartIndexAxis === 'y' ? '420px' : '380px' }}; width: 100%;">
+                <canvas id="adminLoanChart" aria-label="{{ $chartTitle }}"></canvas>
             </div>
         </div>
     </div>
-
     {{-- 3 Action Cards --}}
     <div class="sarana-actions-grid" style="margin-top: 2rem;">
         {{-- Card 1: Manage Items --}}
@@ -163,11 +152,15 @@
                 return;
             }
 
-            const chartLabels = {!! json_encode($chartLabels ?? []) !!};
-            const chartDatasets = {!! json_encode($chartDatasets ?? []) !!};
+            const chartLabels = @json($chartLabels);
+            const chartDatasets = @json($chartDatasets);
+            const chartType = @json($chartType);
+            const chartIndexAxis = @json($chartIndexAxis);
+            const chartStacked = @json($reportType === 'damage-history');
 
             new Chart(ctx.getContext('2d'), {
-                type: 'bar',
+                type: chartType,
+                indexAxis: chartIndexAxis,
                 data: {
                     labels: chartLabels,
                     datasets: chartDatasets
@@ -177,15 +170,13 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
+                            display: chartType === 'doughnut' || chartDatasets.length > 1,
                             position: 'bottom',
                             labels: {
                                 boxWidth: 12,
                                 boxHeight: 12,
                                 padding: 16,
-                                font: {
-                                    family: 'Inter, system-ui, sans-serif',
-                                    size: 11
-                                },
+                                font: { family: 'Inter, system-ui, sans-serif', size: 11 },
                                 color: '#4b5563'
                             }
                         },
@@ -197,28 +188,18 @@
                             cornerRadius: 8
                         }
                     },
-                    scales: {
+                    scales: chartType === 'doughnut' ? {} : {
+                        x: {
+                            beginAtZero: true,
+                            stacked: chartStacked,
+                            ticks: { precision: chartIndexAxis === 'y' ? 0 : undefined, color: '#6b7280', font: { family: 'Inter, system-ui, sans-serif', size: 12 } },
+                            grid: { display: chartIndexAxis === 'y', color: '#f1f5f9', borderDash: [4, 4] }
+                        },
                         y: {
                             beginAtZero: true,
-                            ticks: {
-                                color: '#6b7280',
-                                font: { family: 'Inter, system-ui, sans-serif', size: 11 }
-                            },
-                            grid: {
-                                color: '#f1f5f9'
-                            },
-                            border: {
-                                dash: [4, 4]
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#6b7280',
-                                font: { family: 'Inter, system-ui, sans-serif', size: 12, weight: '500' }
-                            },
-                            grid: {
-                                display: false
-                            }
+                            stacked: chartStacked,
+                            ticks: { precision: chartIndexAxis === 'x' ? 0 : undefined, color: '#6b7280', font: { family: 'Inter, system-ui, sans-serif', size: 11 } },
+                            grid: { display: chartIndexAxis === 'x', color: '#f1f5f9', borderDash: [4, 4] }
                         }
                     }
                 }

@@ -15,9 +15,9 @@
 @section('content')
 <div class="sarana-categories-container">
     {{-- Header & Subtitle --}}
-    <div class="system-section-header" style="margin-bottom: 1.25rem;">
-        <h2 class="system-section-heading" style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 0.25rem;">Kelola Kategori</h2>
-        <p style="font-size: 0.88rem; color: #6b7280; margin: 0;">Kelola kategori aset dan jumlah barang</p>
+    <div class="system-section-header">
+        <h2 class="system-section-heading">Kelola Kategori</h2>
+        <p class="system-section-subtitle">Kelola kategori aset dan jumlah barang</p>
     </div>
 
     {{-- Filter & Add Category Bar --}}
@@ -61,12 +61,12 @@
             return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
         };
     @endphp
-    <div class="system-table-card" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <table class="system-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+    <div class="system-table-card">
+        <table class="system-table">
             <thead>
-                <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #4b5563; font-weight: 600; text-align: left;">
-                    <th class="th-number" style="padding: 0.85rem 1rem; width: 50px; text-align: center;">No.</th>
-                    <th style="padding: 0.85rem 1.25rem; width: 45%;">
+                <tr>
+                    <th class="th-number" style="width: 50px; text-align: center;">No.</th>
+                    <th style="width: 45%;">
                         <a href="{{ $getSortUrl('nama_kategori') }}" class="th-content {{ request('sort') === 'nama_kategori' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('nama_kategori') }}">
                             <span>Nama Kategori</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -75,7 +75,7 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="padding: 0.85rem 1.25rem; width: 30%;">
+                    <th style="width: 30%;">
                         <a href="{{ $getSortUrl('barang_count') }}" class="th-content {{ request('sort') === 'barang_count' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('barang_count') }}">
                             <span>Jumlah Barang</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
@@ -84,16 +84,16 @@
                             </svg>
                         </a>
                     </th>
-                    <th style="padding: 0.85rem 1.25rem; width: 20%; text-align: center;">Aksi</th>
+                    <th style="width: 20%; text-align: center;">Aksi</th>
                 </tr>
             </thead>
             <tbody id="categoriesTableBody">
                 @forelse($categories as $cat)
-                <tr style="border-bottom: 1px solid #f3f4f6;">
-                    <td class="td-number" style="padding: 0.85rem 1rem; text-align: center;">{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</td>
-                    <td style="padding: 0.85rem 1.25rem; font-weight: 500; color: #111827;">{{ $cat->nama_kategori }}</td>
-                    <td style="padding: 0.85rem 1.25rem; color: #4b5563;">{{ $cat->barang_count }} barang</td>
-                    <td style="padding: 0.85rem 1.25rem; text-align: center;">
+                <tr>
+                    <td class="td-number">{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</td>
+                    <td class="td-name">{{ $cat->nama_kategori }}</td>
+                    <td>{{ $cat->barang_count }} barang</td>
+                    <td class="td-actions">
                         <div style="display: flex; gap: 0.5rem; justify-content: center;">
                             <button type="button" class="btn-table-outline-blue" onclick="openEditCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Ubah</button>
                             <button type="button" class="btn-table-outline-red" onclick="openDeleteCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Hapus</button>

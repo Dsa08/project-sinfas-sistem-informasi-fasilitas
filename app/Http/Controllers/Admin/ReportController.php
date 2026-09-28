@@ -25,13 +25,31 @@ class ReportController extends Controller
             'return_status' => 'nullable|in:returned,unreturned',
         ]);
 
-        $type = $validated['type'] ?? 'loan-trends';
-        $startDate = Carbon::parse($validated['start_date'] ?? now()->startOfMonth()->toDateString())->startOfDay();
-        $endDate = Carbon::parse($validated['end_date'] ?? now()->toDateString())->endOfDay();
-        $categoryId = $validated['category_id'] ?? null;
+        $previousSettings = $request->session()->get('admin_report_settings', []);
+        $type = $validated['type'] ?? $previousSettings['type'] ?? 'loan-trends';
+        $startDate = Carbon::parse($validated['start_date'] ?? $previousSettings['start_date'] ?? now()->startOfMonth()->toDateString())->startOfDay();
+        $endDate = Carbon::parse($validated['end_date'] ?? $previousSettings['end_date'] ?? now()->toDateString())->endOfDay();
+        $categoryId = array_key_exists('category_id', $validated)
+            ? $validated['category_id']
+            : ($previousSettings['category_id'] ?? null);
+        $condition = array_key_exists('condition', $validated)
+            ? $validated['condition']
+            : ($previousSettings['condition'] ?? null);
+        $returnStatus = array_key_exists('return_status', $validated)
+            ? $validated['return_status']
+            : ($previousSettings['return_status'] ?? null);
         $categoryName = $categoryId
             ? Kategori::whereKey($categoryId)->value('nama_kategori')
             : 'Semua kategori';
+
+        $request->session()->put('admin_report_settings', [
+            'type' => $type,
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+            'category_id' => $categoryId,
+            'condition' => $condition,
+            'return_status' => $returnStatus,
+        ]);
 
         $types = [
             'loan-trends' => 'Frekuensi & Tren Peminjaman Barang',
@@ -44,7 +62,11 @@ class ReportController extends Controller
         $rows = collect();
         $summary = [];
         $chartLabels = [];
-        $chartValues = [];
+        $chartDatasets = [];
+        $chartType = 'bar';
+        $chartIndexAxis = 'x';
+        $chartTitle = '';
+        $chartDescription = '';
 
         if ($type === 'loan-trends') {
             $query = DB::table('peminjaman')
@@ -68,28 +90,28 @@ class ReportController extends Controller
             ]);
             $columns = ['Kode barang', 'Nama barang', 'Kategori', 'Frekuensi dipinjam'];
             $summary = ['Total transaksi' => (int) $itemCounts->sum('total_peminjaman'), 'Barang dipinjam' => $itemCounts->count()];
-
-            $monthlyCounts = (clone $query)
-                ->select(DB::raw('YEAR(peminjaman.tanggal_pinjam) as tahun'), DB::raw('MONTH(peminjaman.tanggal_pinjam) as bulan'), DB::raw('COUNT(*) as total'))
-                ->groupBy('tahun', 'bulan')
-                ->orderBy('tahun')
-                ->orderBy('bulan')
-                ->get()
-                ->keyBy(fn ($row) => sprintf('%04d-%02d', $row->tahun, $row->bulan));
-
-            $cursor = $startDate->copy()->startOfMonth();
-            while ($cursor <= $endDate) {
-                $key = $cursor->format('Y-m');
-                $chartLabels[] = $cursor->locale('id')->translatedFormat('M Y');
-                $chartValues[] = (int) ($monthlyCounts->get($key)->total ?? 0);
-                $cursor->addMonth();
-            }
+            $chartIndexAxis = 'y';
+            $chartItems = $itemCounts->take(10);
+            $chartTitle = '10 Barang Paling Sering Dipinjam';
+            $chartDescription = 'Peringkat frekuensi peminjaman pada rentang dan kategori yang dipilih.';
+            $chartLabels = $chartItems->pluck('nama_barang')->all();
+            $chartDatasets[] = [
+                'label' => 'Frekuensi dipinjam',
+                'data' => $chartItems->pluck('total_peminjaman')->map(fn ($count) => (int) $count)->all(),
+                'backgroundColor' => array_slice(['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6', '#eab308', '#6366f1', '#84cc16', '#06b6d4'], 0, $chartItems->count()),
+                'borderColor' => array_slice(['#c2410c', '#1d4ed8', '#047857', '#6d28d9', '#be185d', '#0f766e', '#a16207', '#4338ca', '#4d7c0f', '#0e7490'], 0, $chartItems->count()),
+                'borderWidth' => 1,
+                'borderRadius' => 5,
+                'barThickness' => 34,
+                'categoryPercentage' => 0.9,
+                'barPercentage' => 0.9,
+            ];
         } elseif ($type === 'damage-history') {
             $loans = Peminjaman::with(['siswa', 'barang.kategori', 'pengembalian'])
-                ->whereHas('pengembalian', function ($query) use ($startDate, $endDate, $validated) {
+                ->whereHas('pengembalian', function ($query) use ($startDate, $endDate, $condition) {
                     $query->whereBetween('tanggal_kembali', [$startDate->toDateString(), $endDate->toDateString()])
                         ->whereIn('kondisi_barang', ['Kurang Baik', 'Rusak Berat'])
-                        ->when($validated['condition'] ?? null, fn ($q, $condition) => $q->where('kondisi_barang', $condition));
+                        ->when($condition, fn ($q, $condition) => $q->where('kondisi_barang', $condition));
                 })
                 ->when($categoryId, fn ($q) => $q->whereHas('barang', fn ($barang) => $barang->where('id_kategori', $categoryId)))
                 ->orderByDesc('tanggal_pinjam')
@@ -107,6 +129,20 @@ class ReportController extends Controller
                 $loan->pengembalian->catatan ?: '-',
             ]);
             $summary = ['Barang bermasalah dikembalikan' => $loans->count()];
+            $chartTitle = 'Barang Dikembalikan Berdasarkan Kondisi';
+            $chartDescription = 'Jumlah pengembalian bermasalah sesuai kategori dan periode yang dipilih.';
+            $chartLabels = ['Kurang Baik', 'Rusak Berat'];
+            $chartDatasets[] = [
+                'label' => 'Jumlah pengembalian',
+                'data' => [
+                    $loans->filter(fn ($loan) => $loan->pengembalian->kondisi_barang === 'Kurang Baik')->count(),
+                    $loans->filter(fn ($loan) => $loan->pengembalian->kondisi_barang === 'Rusak Berat')->count(),
+                ],
+                'backgroundColor' => ['#f59e0b', '#ef4444'],
+                'borderColor' => '#ffffff',
+                'borderWidth' => 2,
+            ];
+            $chartType = 'doughnut';
         } elseif ($type === 'late-returns') {
             $query = Peminjaman::query()
                 ->select('peminjaman.*')
@@ -115,8 +151,8 @@ class ReportController extends Controller
                 ->where('peminjaman.status_pengajuan', 'disetujui')
                 ->whereBetween('peminjaman.tanggal_pinjam', [$startDate->toDateString(), $endDate->toDateString()])
                 ->whereRaw('DATEDIFF(COALESCE(pengembalian.tanggal_kembali, CURDATE()), DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL ' . self::LOAN_DAYS . ' DAY)) > 0')
-                ->when(($validated['return_status'] ?? null) === 'returned', fn ($q) => $q->whereNotNull('pengembalian.kode_kembali'))
-                ->when(($validated['return_status'] ?? null) === 'unreturned', fn ($q) => $q->whereNull('pengembalian.kode_kembali'))
+                ->when($returnStatus === 'returned', fn ($q) => $q->whereNotNull('pengembalian.kode_kembali'))
+                ->when($returnStatus === 'unreturned', fn ($q) => $q->whereNull('pengembalian.kode_kembali'))
                 ->when($categoryId, fn ($q) => $q->whereHas('barang', fn ($barang) => $barang->where('id_kategori', $categoryId)))
                 ->orderBy('peminjaman.tanggal_pinjam');
 
@@ -141,6 +177,22 @@ class ReportController extends Controller
                 ];
             });
             $summary = ['Peminjaman terlambat' => $loans->count(), 'Total hari keterlambatan' => (int) $rows->sum(fn ($row) => $row[8])];
+            $chartTitle = 'Kelompok Hari Keterlambatan';
+            $chartDescription = 'Jumlah peminjaman berdasarkan lama keterlambatan pada data yang ditampilkan.';
+            $chartLabels = ['1-3 hari', '4-7 hari', 'Lebih dari 7 hari'];
+            $chartDatasets[] = [
+                'label' => 'Jumlah peminjaman',
+                'data' => [
+                    $rows->filter(fn ($row) => $row[8] >= 1 && $row[8] <= 3)->count(),
+                    $rows->filter(fn ($row) => $row[8] >= 4 && $row[8] <= 7)->count(),
+                    $rows->filter(fn ($row) => $row[8] > 7)->count(),
+                ],
+                'backgroundColor' => ['#facc15', '#f97316', '#ef4444'],
+                'borderColor' => ['#ca8a04', '#c2410c', '#b91c1c'],
+                'borderWidth' => 1,
+                'borderRadius' => 5,
+                'barThickness' => 52,
+            ];
         } else {
             $items = Barang::with('kategori')
                 ->when($categoryId, fn ($q) => $q->where('id_kategori', $categoryId))
@@ -163,6 +215,17 @@ class ReportController extends Controller
                 'Rusak berat' => (int) $items->sum('jumlah_rusak_berat'),
                 'Total aset' => (int) $rows->sum(fn ($row) => $row[6]),
             ];
+            $chartTitle = 'Komposisi Stok Inventaris';
+            $chartDescription = 'Jumlah stok menurut kondisi barang untuk kategori yang dipilih.';
+            $chartLabels = ['Baik / tersedia', 'Kurang baik', 'Rusak berat'];
+            $chartDatasets[] = [
+                'label' => 'Jumlah stok',
+                'data' => [$summary['Baik / tersedia'], $summary['Kurang baik'], $summary['Rusak berat']],
+                'backgroundColor' => ['#22c55e', '#f59e0b', '#ef4444'],
+                'borderColor' => '#ffffff',
+                'borderWidth' => 2,
+            ];
+            $chartType = 'doughnut';
         }
 
         return view('admin.reports.index', [
@@ -177,10 +240,14 @@ class ReportController extends Controller
             'categoryName' => $categoryName,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'condition' => $validated['condition'] ?? '',
-            'returnStatus' => $validated['return_status'] ?? '',
+            'condition' => $condition ?? '',
+            'returnStatus' => $returnStatus ?? '',
+            'chartType' => $chartType,
+            'chartIndexAxis' => $chartIndexAxis,
+            'chartTitle' => $chartTitle,
+            'chartDescription' => $chartDescription,
             'chartLabels' => $chartLabels,
-            'chartValues' => $chartValues,
+            'chartDatasets' => $chartDatasets,
         ]);
     }
 }

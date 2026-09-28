@@ -96,28 +96,17 @@
             </div>
         </div>
 
-        @if($summary)
-            <div class="report-summary-grid">
-                @foreach($summary as $label => $value)
-                    <div class="report-summary-card">
-                        <span>{{ $label }}</span>
-                        <strong>{{ number_format($value, 0, ',', '.') }}</strong>
-                    </div>
-                @endforeach
-            </div>
-        @endif
-
-        @if($type === 'loan-trends')
-            <section class="report-chart-card" aria-label="Grafik tren peminjaman bulanan">
-                <div class="report-section-heading">
-                    <div>
-                        <h3>Tren Peminjaman</h3>
-                        <p>Jumlah transaksi per bulan dalam rentang yang dipilih.</p>
-                    </div>
+        <section class="report-chart-card" aria-label="Grafik {{ $chartTitle }}">
+            <div class="report-section-heading">
+                <div>
+                    <h3>{{ $chartTitle }}</h3>
+                    <p>{{ $chartDescription }}</p>
                 </div>
-                <div class="report-chart-wrap"><canvas id="loan-trend-chart"></canvas></div>
-            </section>
-        @endif
+            </div>
+            <div class="report-chart-wrap" style="height: {{ $chartIndexAxis === 'y' ? max(300, min(560, count($chartLabels) * 48)) : 340 }}px">
+                <canvas id="report-chart" aria-label="{{ $chartTitle }}"></canvas>
+            </div>
+        </section>
 
         <section class="report-table-card">
             <div class="report-section-heading report-table-heading">
@@ -132,7 +121,12 @@
                         <tr>
                             <th class="report-number-cell">No</th>
                             @foreach($columns as $column)
-                                <th>{{ $column }}</th>
+                                <th>
+                                    <button class="report-sort-button" type="button" data-sort-index="{{ $loop->index + 1 }}" data-sort-state="none" aria-label="Urutkan {{ $column }}" aria-sort="none">
+                                        <span>{{ $column }}</span>
+                                        <span class="report-sort-indicator" aria-hidden="true"></span>
+                                    </button>
+                                </th>
                             @endforeach
                         </tr>
                     </thead>
@@ -152,6 +146,17 @@
                             </tr>
                         @endforelse
                     </tbody>
+                    @if($type === 'stock-summary')
+                        <tfoot>
+                            <tr>
+                                <th colspan="4">Total</th>
+                                <th>{{ number_format($summary['Baik / tersedia'], 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Kurang baik'], 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Rusak berat'], 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Total aset'], 0, ',', '.') }}</th>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
         </section>
@@ -159,17 +164,17 @@
         <footer class="report-signatures">
             <div class="report-signature-block">
                 <p>Mengetahui,</p>
-                <strong>Wakil Kepala Sekolah<br>Bidang Sarana dan Prasarana</strong>
+                <strong>Wakasek Bidang Sarpras /<br>Kepala Sarana</strong>
                 <div class="report-signature-space"></div>
                 <span>(........................................)</span>
-                <small>NIP. ........................................</small>
+                <small>NIP.</small>
             </div>
             <div class="report-signature-block report-signature-block--right">
-                <p>Staff Sarana dan Prasarana, {{ now()->locale('id')->translatedFormat('d F Y') }}</p>
-                <strong>{{ Auth::user()->nama ?? 'Admin Sarana' }}</strong>
+                <p>Bandung, {{ now()->locale('id')->translatedFormat('d F Y') }}</p>
+                <strong>Admin / Pengelola Data</strong>
                 <div class="report-signature-space"></div>
                 <span>(........................................)</span>
-                <small>NIP. {{ Auth::user()->nip ?? '........................................' }}</small>
+                <small>NIP.</small>
             </div>
         </footer>
         <p class="report-document-footer">Dokumen dicetak dari SINFAS · {{ now()->format('d-m-Y H:i') }}</p>
@@ -198,30 +203,34 @@
     .report-filter-field select, .report-filter-field input { box-sizing: border-box; width: 100%; min-height: 42px; padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: 7px; background: #fff; color: #1e293b; font: inherit; font-size: .88rem; }
     .report-date-inputs { display: flex; align-items: center; gap: .45rem; }
     .report-date-inputs span { color: #64748b; font-size: .8rem; }
-    .report-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: .75rem; margin-bottom: 1.1rem; }
-    .report-summary-card { display: flex; flex-direction: column; gap: .45rem; padding: .9rem 1rem; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
-    .report-summary-card span { color: #64748b; font-size: .8rem; }
-    .report-summary-card strong { color: #0f172a; font-size: 1.35rem; }
     .report-chart-card, .report-table-card { margin-bottom: 1.1rem; overflow: hidden; }
     .report-section-heading { padding: 1rem 1.1rem; }
     .report-section-heading h3 { margin: 0; color: #1e293b; font-size: 1rem; }
-    .report-chart-wrap { position: relative; height: 280px; padding: 0 1rem 1rem; }
+    .report-chart-wrap { position: relative; padding: 0 1rem 1rem; }
     .report-table-wrap { width: 100%; overflow-x: auto; }
     .report-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
     .report-table th { padding: .75rem .8rem; border: 1px solid #d8dee8; background: #1e3a8a; color: #fff; font-weight: 700; text-align: left; white-space: nowrap; }
+    .report-sort-button { display: inline-flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: inherit; text-align: left; cursor: pointer; }
+    .report-sort-button:hover { color: #dbeafe; }
+    .report-sort-indicator { flex: 0 0 auto; opacity: .7; font-size: .9em; }
+    .report-sort-button[data-sort-state="ascending"] .report-sort-indicator, .report-sort-button[data-sort-state="descending"] .report-sort-indicator { opacity: 1; }
+    .report-sort-indicator::before { content: "\2195"; }
+    .report-sort-button[data-sort-state="ascending"] .report-sort-indicator::before { content: "\2191"; }
+    .report-sort-button[data-sort-state="descending"] .report-sort-indicator::before { content: "\2193"; }
     .report-table td { padding: .7rem .8rem; border: 1px solid #d8dee8; color: #263449; vertical-align: top; }
     .report-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .report-table tbody tr:hover { background: #eff6ff; }
     .report-number-cell { width: 1%; text-align: center !important; }
     .report-empty-cell { padding: 2rem !important; color: #64748b !important; text-align: center; }
     .report-print-header, .report-document-heading, .report-signatures, .report-document-footer { display: none; }
     @media (max-width: 900px) { .sarana-report-container { padding: 1rem; } .report-filter-card { align-items: stretch; } .report-button--show { flex: 1 1 100%; } .report-date-inputs input { min-width: 0; } }
     @media (max-width: 560px) { .report-screen-heading { align-items: flex-start; flex-direction: column; } .report-button--pdf { width: 100%; } .report-date-inputs { align-items: stretch; flex-direction: column; } .report-date-inputs span { display: none; } }
     @media print {
-        @page { size: A4 landscape; margin: 12mm; }
+        @page { size: A4 landscape; margin: 0; }
         html, body.admin-system-body { width: auto !important; height: auto !important; overflow: visible !important; background: #fff !important; }
         .system-sidebar, .system-topbar, .report-screen-heading, .report-filter-card, .report-chart-card { display: none !important; }
         .admin-system-layout, .system-main-wrapper, .system-content { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; background: #fff !important; }
-        .sarana-report-container { max-width: none; padding: 0; color: #111827; }
+        .sarana-report-container { max-width: none; padding: 12mm; color: #111827; }
         .report-print-header { display: flex; align-items: center; gap: 14px; padding-bottom: 10px; border-bottom: 3px double #1f2937; }
         .report-lettermark { display: grid; width: 48px; height: 48px; place-items: center; border: 2px solid #1f2937; border-radius: 50%; font-size: 25px; font-weight: 800; }
         .report-letterhead-copy h1 { margin: 0; font-size: 16px; letter-spacing: .06em; }
@@ -232,12 +241,9 @@
         .report-document-heading h2 { margin: 4px 0; font-size: 14px; }
         .report-period { margin: 3px 0 7px; font-size: 10px; }
         .report-print-meta { display: flex; justify-content: space-between; font-size: 9px; }
-        .report-summary-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 8px; }
-        .report-summary-card { gap: 3px; padding: 5px 7px; border-color: #94a3b8; border-radius: 0; box-shadow: none; }
-        .report-summary-card span { font-size: 8px; }
-        .report-summary-card strong { font-size: 12px; }
         .report-table-card { margin: 0; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
-        .report-table-heading { padding: 6px 0; }
+        .report-table-heading, .report-print-meta { display: none !important; }
+        .report-sort-indicator { display: none !important; }
         .report-table-heading h3 { font-size: 10px; }
         .report-table-heading p { font-size: 8px; }
         .report-table-wrap { overflow: visible; }
@@ -246,6 +252,7 @@
         .report-table td { padding: 4px 5px; border: 1px solid #94a3b8; color: #111827; }
         .report-table tbody tr:nth-child(even) { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .report-table tr { break-inside: avoid; }
+        .report-table tfoot th { padding: 6px 5px; border: 1px solid #64748b; background: #e2e8f0 !important; color: #111827 !important; font-weight: 800; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .report-signatures { display: flex; justify-content: space-between; gap: 30px; margin: 22px 15px 0; font-size: 9px; }
         .report-signature-block { width: 42%; text-align: center; }
         .report-signature-block p { margin: 0 0 3px; }
@@ -277,30 +284,103 @@
         typeSelect.addEventListener('change', syncReportFilters);
         syncReportFilters();
 
+        const reportTable = document.querySelector('.report-table');
+        if (reportTable) {
+            const tbody = reportTable.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(function (row) {
+                return !row.querySelector('.report-empty-cell');
+            });
+            const originalOrder = new Map(rows.map(function (row, index) { return [row, index]; }));
+            const sortButtons = reportTable.querySelectorAll('.report-sort-button');
+            let activeButton = null;
+
+            function sortValue(value) {
+                const trimmed = value.trim();
+                const dateMatch = trimmed.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                if (dateMatch) return Date.UTC(Number(dateMatch[3]), Number(dateMatch[2]) - 1, Number(dateMatch[1]));
+                const isoDateMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (isoDateMatch) return Date.UTC(Number(isoDateMatch[1]), Number(isoDateMatch[2]) - 1, Number(isoDateMatch[3]));
+                if (trimmed !== '' && Number.isFinite(Number(trimmed))) return Number(trimmed);
+                return trimmed;
+            }
+
+            sortButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const currentState = button.dataset.sortState;
+                    const nextState = activeButton !== button || currentState === 'none'
+                        ? 'ascending'
+                        : currentState === 'ascending' ? 'descending' : 'none';
+                    activeButton = nextState === 'none' ? null : button;
+
+                    sortButtons.forEach(function (otherButton) {
+                        const isActive = otherButton === activeButton;
+                        otherButton.dataset.sortState = isActive ? nextState : 'none';
+                        otherButton.setAttribute('aria-sort', isActive ? nextState : 'none');
+
+                    });
+
+                    const sortIndex = Number(button.dataset.sortIndex);
+                    const sortedRows = rows.slice().sort(function (left, right) {
+                        if (nextState === 'none') return originalOrder.get(left) - originalOrder.get(right);
+                        const leftValue = sortValue(left.cells[sortIndex].textContent);
+                        const rightValue = sortValue(right.cells[sortIndex].textContent);
+                        const comparison = typeof leftValue === 'number' && typeof rightValue === 'number'
+                            ? leftValue - rightValue
+                            : String(leftValue).localeCompare(String(rightValue), 'id', { numeric: true, sensitivity: 'base' });
+                        return nextState === 'ascending' ? comparison : -comparison;
+                    });
+
+                    sortedRows.forEach(function (row, index) {
+                        tbody.appendChild(row);
+                        row.cells[0].textContent = String(index + 1);
+                    });
+                });
+            });
+        }
+
         document.getElementById('report-print-button').addEventListener('click', function () {
+            const originalTitle = document.title;
+            const reportName = typeSelect.options[typeSelect.selectedIndex].textContent
+                .replace(/^\s*\d+\.\s*/, '')
+                .trim();
+
+            document.title = 'Laporan Sarana - ' + reportName + ' - Admin SINFAS';
+            window.addEventListener('afterprint', function restoreTitle() {
+                document.title = originalTitle;
+                window.removeEventListener('afterprint', restoreTitle);
+            });
             window.print();
         });
 
-        const chartCanvas = document.getElementById('loan-trend-chart');
+        const chartCanvas = document.getElementById('report-chart');
         if (chartCanvas && window.Chart) {
+            const chartType = @json($chartType);
+            const chartIndexAxis = @json($chartIndexAxis);
             new window.Chart(chartCanvas, {
-                type: 'bar',
+                type: chartType,
                 data: {
                     labels: @json($chartLabels),
-                    datasets: [{
-                        label: 'Transaksi peminjaman',
-                        data: @json($chartValues),
-                        backgroundColor: '#60a5fa',
-                        borderColor: '#2563eb',
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }]
+                    datasets: @json($chartDatasets)
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    indexAxis: chartIndexAxis,
+                    plugins: {
+                        legend: { display: chartType === 'doughnut', position: 'bottom' }
+                    },
+                    scales: chartType === 'doughnut' ? {} : {
+                        x: {
+                            beginAtZero: chartIndexAxis === 'y',
+                            ticks: { precision: chartIndexAxis === 'y' ? 0 : undefined, color: '#64748b' },
+                            grid: { display: chartIndexAxis === 'y', color: '#eaf0f8' }
+                        },
+                        y: {
+                            beginAtZero: chartIndexAxis === 'x',
+                            ticks: { precision: chartIndexAxis === 'x' ? 0 : undefined, color: '#64748b' },
+                            grid: { display: chartIndexAxis === 'x', color: '#eaf0f8' }
+                        }
+                    }
                 }
             });
         }

@@ -18,7 +18,7 @@ use Carbon\Carbon;
  * Controller AdminSaranaController
  * 
  * Mengelola seluruh operasional inventaris sarana dan prasarana sekolah:
- * 1. Dashboard Analitik: Metrik sarana, antrean verifikasi, dan visualisasi agregasi Chart.js 6 bulan terakhir.
+ * 1. Dashboard Analitik: Metrik sarana, peringkat peminjaman, dan grafik yang mengikuti filter laporan terakhir.
  * 2. Manajemen Master Barang: CRUD inventaris sarana, pengelolaan kondisi fisik (baik, kurang baik, rusak berat),
  *    serta upload berkas foto sarana ke public/uploads/items.
  * 3. Manajemen Master Kategori: CRUD kategori sarana dan invalidasi cache otomatis.
@@ -38,9 +38,8 @@ class AdminSaranaController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        // 1. Ringkasan Kartu Statistik (Metric Cards)
         $pendingCount = Peminjaman::menunggu()->count();
         $totalItems = Barang::count();
         $borrowedCount = Peminjaman::disetujui()
@@ -48,88 +47,162 @@ class AdminSaranaController extends Controller
             ->count();
         $damagedCount = Barang::sum('jumlah_rusak_berat');
 
-        // 2. Daftar 5 permohonan pinjam terbaru yang masih berstatus menunggu verifikasi (berdasarkan pembaruan/penambahan)
-        $pendingLoans = Peminjaman::menunggu()
-            ->with(['siswa', 'barang'])
-            ->orderBy('updated_at', 'desc')
-            ->take(5)
-            ->get();
+        $reportSettings = $request->session()->get('admin_report_settings', []);
+        $reportTypes = ['loan-trends', 'damage-history', 'late-returns', 'stock-summary'];
+        $reportType = in_array($reportSettings['type'] ?? null, $reportTypes, true)
+            ? $reportSettings['type']
+            : 'loan-trends';
+        $startDate = Carbon::parse($reportSettings['start_date'] ?? now()->startOfMonth()->toDateString())->startOfDay();
+        $endDate = Carbon::parse($reportSettings['end_date'] ?? now()->toDateString())->endOfDay();
+        $categoryId = $reportSettings['category_id'] ?? null;
+        $condition = $reportSettings['condition'] ?? null;
+        $returnStatus = $reportSettings['return_status'] ?? null;
+        $categoryName = $categoryId
+            ? (Kategori::whereKey($categoryId)->value('nama_kategori') ?? 'Kategori tidak ditemukan')
+            : 'Semua kategori';
 
-        // 3. Mengambil Top 6 barang yang paling sering dipinjam sepanjang masa
-        $topLoanItems = Barang::withCount('peminjaman')
-            ->orderByDesc('peminjaman_count')
-            ->take(6)
-            ->get();
-
-        // 4. Membangun data time-series dinamis untuk 6 bulan terakhir
-        $namaBulan = [
+        $monthNames = [
             1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
             5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
-            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des',
         ];
-
         $months = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $d = Carbon::now()->subMonths($i);
+        $cursor = $startDate->copy()->startOfMonth();
+        while ($cursor <= $endDate) {
             $months[] = [
-                'year'  => $d->year,
-                'month' => $d->month,
-                'label' => $namaBulan[$d->month] ?? $d->format('M'),
+                'key' => $cursor->format('Y-m'),
+                'label' => ($monthNames[$cursor->month] ?? $cursor->format('M')) . ' ' . $cursor->year,
             ];
+            $cursor->addMonth();
         }
-
-        $startDate = Carbon::now()->subMonths(5)->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
-
-        // 5. Agregasi data peminjaman per item per bulan dari database
-        $loanCounts = Peminjaman::select(
-                'kode_barang',
-                DB::raw('YEAR(tanggal_pinjam) as yr'),
-                DB::raw('MONTH(tanggal_pinjam) as mo'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereIn('kode_barang', $topLoanItems->pluck('kode_barang'))
-            ->whereBetween('tanggal_pinjam', [$startDate, $endDate])
-            ->groupBy('kode_barang', 'yr', 'mo')
-            ->get()
-            ->groupBy('kode_barang');
-
-        // 6. Palet warna kurva batang chart
-        $colors = ['#fb7185', '#38bdf8', '#fbbf24', '#60a5fa', '#4ade80', '#a855f7'];
+        $chartLabels = array_column($months, 'label');
+        $chartType = 'line';
+        $chartIndexAxis = 'x';
+        $chartTitle = 'Tren Frekuensi Peminjaman';
+        $chartDescription = 'Jumlah peminjaman per bulan untuk ' . $categoryName . '.';
         $chartDatasets = [];
 
-        foreach ($topLoanItems as $index => $item) {
-            $itemLoans = $loanCounts->get($item->kode_barang, collect());
-            $monthlyCounts = [];
-            foreach ($months as $m) {
-                $matched = $itemLoans->first(fn($row) => $row->yr == $m['year'] && $row->mo == $m['month']);
-                $monthlyCounts[] = $matched ? (int) $matched->total : 0;
+        $loanQuery = DB::table('peminjaman')
+            ->join('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+            ->leftJoin('kategori', 'barang.id_kategori', '=', 'kategori.id_kategori')
+            ->whereBetween('peminjaman.tanggal_pinjam', [$startDate->toDateString(), $endDate->toDateString()])
+            ->when($categoryId, fn ($query) => $query->where('barang.id_kategori', $categoryId));
+
+        $topLoanItems = (clone $loanQuery)
+            ->select('barang.kode_barang', 'barang.nama_barang', 'kategori.nama_kategori', DB::raw('COUNT(*) as total_peminjaman'))
+            ->groupBy('barang.kode_barang', 'barang.nama_barang', 'kategori.nama_kategori')
+            ->orderByDesc('total_peminjaman')
+            ->orderBy('barang.nama_barang')
+            ->limit(5)
+            ->get();
+
+        if ($reportType === 'loan-trends') {
+            $chartType = 'bar';
+            $chartIndexAxis = 'y';
+            $chartTitle = 'Frekuensi Peminjaman Barang Teratas';
+            $chartDescription = 'Jumlah peminjaman per barang, sesuai tabel peringkat.';
+            $chartLabels = $topLoanItems->pluck('nama_barang')->all();
+            $itemColors = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899'];
+            $chartDatasets[] = [
+                'label' => 'Frekuensi dipinjam',
+                'data' => $topLoanItems->pluck('total_peminjaman')->map(fn ($count) => (int) $count)->all(),
+                'backgroundColor' => array_slice($itemColors, 0, $topLoanItems->count()),
+                'borderColor' => array_slice(['#c2410c', '#1d4ed8', '#047857', '#6d28d9', '#be185d'], 0, $topLoanItems->count()),
+                'borderWidth' => 1,
+                'borderRadius' => 4,
+                'barThickness' => 40,
+                'categoryPercentage' => 0.9,
+                'barPercentage' => 0.9,
+            ];
+        } elseif ($reportType === 'damage-history') {
+            $chartType = 'bar';
+            $chartTitle = 'Tren Kerusakan Barang';
+            $chartDescription = 'Barang yang dikembalikan dalam kondisi bermasalah selama periode laporan.';
+            $damageRows = DB::table('pengembalian')
+                ->join('peminjaman', 'pengembalian.kode_pinjam', '=', 'peminjaman.kode_pinjam')
+                ->join('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                ->whereBetween('pengembalian.tanggal_kembali', [$startDate->toDateString(), $endDate->toDateString()])
+                ->whereIn('pengembalian.kondisi_barang', ['Kurang Baik', 'Rusak Berat'])
+                ->when($categoryId, fn ($query) => $query->where('barang.id_kategori', $categoryId))
+                ->when($condition, fn ($query) => $query->where('pengembalian.kondisi_barang', $condition))
+                ->selectRaw('YEAR(pengembalian.tanggal_kembali) as tahun, MONTH(pengembalian.tanggal_kembali) as bulan, pengembalian.kondisi_barang, COUNT(*) as total')
+                ->groupBy('tahun', 'bulan', 'pengembalian.kondisi_barang')
+                ->get();
+
+            foreach ([
+                'Kurang Baik' => '#f59e0b',
+                'Rusak Berat' => '#ef4444',
+            ] as $damageCondition => $color) {
+                $conditionRows = $damageRows->where('kondisi_barang', $damageCondition)
+                    ->keyBy(fn ($row) => sprintf('%04d-%02d', $row->tahun, $row->bulan));
+                $chartDatasets[] = [
+                    'label' => $damageCondition,
+                    'data' => array_map(fn ($month) => (int) ($conditionRows->get($month['key'])?->total ?? 0), $months),
+                    'backgroundColor' => $color,
+                    'borderRadius' => 4,
+                ];
             }
+        } elseif ($reportType === 'late-returns') {
+            $chartType = 'bar';
+            $chartTitle = 'Tren Keterlambatan Pengembalian';
+            $chartDescription = 'Jumlah peminjaman terlambat per bulan sesuai filter laporan.';
+            $lateQuery = DB::table('peminjaman')
+                ->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
+                ->join('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                ->where('peminjaman.status_pengajuan', 'disetujui')
+                ->whereBetween('peminjaman.tanggal_pinjam', [$startDate->toDateString(), $endDate->toDateString()])
+                ->whereRaw('DATEDIFF(COALESCE(pengembalian.tanggal_kembali, CURDATE()), DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL 3 DAY)) > 0')
+                ->when($categoryId, fn ($query) => $query->where('barang.id_kategori', $categoryId))
+                ->when($returnStatus === 'returned', fn ($query) => $query->whereNotNull('pengembalian.kode_kembali'))
+                ->when($returnStatus === 'unreturned', fn ($query) => $query->whereNull('pengembalian.kode_kembali'));
+            $lateCounts = $lateQuery
+                ->selectRaw('YEAR(peminjaman.tanggal_pinjam) as tahun, MONTH(peminjaman.tanggal_pinjam) as bulan, COUNT(*) as total')
+                ->groupBy('tahun', 'bulan')
+                ->get()
+                ->keyBy(fn ($row) => sprintf('%04d-%02d', $row->tahun, $row->bulan));
 
             $chartDatasets[] = [
-                'label'              => $item->nama_barang,
-                'data'               => $monthlyCounts,
-                'backgroundColor'    => $colors[$index % count($colors)],
-                'borderRadius'       => 4,
-                'barPercentage'      => 0.82,
-                'categoryPercentage' => 0.8,
+                'label' => 'Peminjaman terlambat',
+                'data' => array_map(fn ($month) => (int) ($lateCounts->get($month['key'])?->total ?? 0), $months),
+                'backgroundColor' => '#f97316',
+                'borderRadius' => 4,
+            ];
+        } else {
+            $chartType = 'doughnut';
+            $chartTitle = 'Komposisi Stok Inventaris';
+            $chartDescription = 'Jumlah stok menurut kondisi barang untuk ' . $categoryName . '.';
+            $stockTotals = Barang::query()
+                ->when($categoryId, fn ($query) => $query->where('id_kategori', $categoryId))
+                ->selectRaw('COALESCE(SUM(jumlah_baik), 0) as baik, COALESCE(SUM(jumlah_kurang_baik), 0) as kurang_baik, COALESCE(SUM(jumlah_rusak_berat), 0) as rusak_berat')
+                ->first();
+            $chartLabels = ['Baik / tersedia', 'Kurang baik', 'Rusak berat'];
+            $chartDatasets[] = [
+                'label' => 'Jumlah stok',
+                'data' => [(int) $stockTotals->baik, (int) $stockTotals->kurang_baik, (int) $stockTotals->rusak_berat],
+                'backgroundColor' => ['#22c55e', '#f59e0b', '#ef4444'],
+                'borderColor' => '#ffffff',
+                'borderWidth' => 2,
             ];
         }
-
-        $chartLabels = array_column($months, 'label');
 
         return view('admin.dashboard', compact(
             'pendingCount',
             'totalItems',
             'borrowedCount',
             'damagedCount',
-            'pendingLoans',
             'topLoanItems',
+            'chartType',
+            'chartIndexAxis',
+            'chartTitle',
+            'chartDescription',
             'chartLabels',
-            'chartDatasets'
+            'chartDatasets',
+            'reportType',
+            'startDate',
+            'endDate',
+            'categoryName'
         ));
     }
-
     // =========================================================================
     //  2. KELOLA DATA MASTER BARANG (SARANA PRASARANA)
     // =========================================================================
