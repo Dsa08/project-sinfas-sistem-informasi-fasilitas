@@ -294,89 +294,113 @@
     {{-- MODE 1: TAMPILAN FILTERED (Pencarian atau "Lihat Semua" Kategori) --}}
     {{-- ================================================================= --}}
     @if(!empty($isFiltered))
-        <div class="filtered-header">
-            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
-                <a href="{{ route('dashboard') }}" class="btn-back-katalog">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"/>
-                        <polyline points="12 19 5 12 12 5"/>
-                    </svg>
-                    Kembali ke Beranda Katalog
+        <section class="category-section filtered-results-section">
+            <div class="filtered-header">
+                <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+                    <a href="{{ route('dashboard') }}" class="btn-back-katalog">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        Kembali ke Beranda Katalog
+                    </a>
+                    <span style="color: #cbd5e1;">|</span>
+                    <span style="font-size: 0.92rem; color: #4b5563;">
+                        @if(request('search'))
+                            Hasil pencarian untuk: <strong>"{{ request('search') }}"</strong>
+                        @elseif($activeCategory)
+                            Daftar Lengkap: <strong>{{ $activeCategory->nama_kategori }}</strong>
+                        @else
+                            Seluruh Inventaris
+                        @endif
+                        ({{ $items->total() }} barang ditemukan)
+                    </span>
+                </div>
+
+                <a href="{{ route('dashboard') }}" style="font-size: 0.85rem; color: #1D67F2; text-decoration: none; font-weight: 600;">
+                    Reset Filter
                 </a>
-                <span style="color: #9ca3af;">|</span>
-                <span style="font-size: 0.92rem; color: #4b5563;">
-                    @if(request('search'))
-                        Hasil pencarian untuk: <strong>"{{ request('search') }}"</strong>
-                    @elseif($activeCategory)
-                        Daftar Lengkap: <strong>{{ $activeCategory->nama_kategori }}</strong>
-                    @else
-                        Seluruh Inventaris
-                    @endif
-                    ({{ $items->total() }} barang ditemukan)
-                </span>
             </div>
 
-            <a href="{{ route('dashboard') }}" style="font-size: 0.85rem; color: #1D67F2; text-decoration: none; font-weight: 600;">
-                Reset Filter
-            </a>
-        </div>
+            <div class="shopee-grid" id="filtered-items-grid">
+                @forelse($items as $item)
+                <div class="shopee-card" id="item-{{ $item->kode_barang }}">
+                    {{-- Foto Barang --}}
+                    <div class="shopee-card-img">
+                        <span class="shopee-img-badge {{ $item->jumlah_baik > 0 ? 'shopee-img-badge--available' : 'shopee-img-badge--empty' }}">
+                            <span class="shopee-img-badge-dot"></span>
+                            {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
+                        </span>
+                        @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                            <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                        @else
+                            <div class="shopee-card-img-placeholder">
+                                <div class="placeholder-icon-wrap">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21 15 16 10 5 21"/>
+                                    </svg>
+                                </div>
+                                <span class="placeholder-text">Foto Belum Ada</span>
+                            </div>
+                        @endif
+                    </div>
 
-        <div class="shopee-grid" id="filtered-items-grid">
-            @forelse($items as $item)
-            <div class="shopee-card" id="item-{{ $item->kode_barang }}">
-                {{-- Foto Barang --}}
-                <div class="shopee-card-img">
-                    @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                        <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
-                    @else
-                        <div class="shopee-card-img-placeholder">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
-                            </svg>
-                            <span>Foto Belum Ada</span>
+                    {{-- Detail --}}
+                    <div class="shopee-card-body">
+                        <span class="shopee-card-cat">{{ $item->kategori->nama_kategori ?? 'Sarana' }}</span>
+                        <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
+
+                        <div class="shopee-card-footer">
+                            <div class="shopee-stock-badge-wrap">
+                                @if($item->jumlah_baik > 0)
+                                    <span class="shopee-badge-stock shopee-badge--ok">
+                                        <span class="badge-dot"></span> {{ $item->jumlah_baik }} tersedia
+                                    </span>
+                                @else
+                                    <span class="shopee-badge-stock shopee-badge--habis">
+                                        <span class="badge-dot"></span> Stok Habis
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if($item->jumlah_baik > 0)
+                                <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-{{ $item->kode_barang }}">
+                                    <span>Pinjam</span>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            @else
+                                <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
+                                    <span>Habis</span>
+                                </button>
+                            @endif
                         </div>
-                    @endif
+                    </div>
                 </div>
-
-                {{-- Detail --}}
-                <div class="shopee-card-body">
-                    <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
-                    <p class="shopee-card-cat">{{ $item->kategori->nama_kategori ?? 'Equipment' }}</p>
-
-                    @if($item->jumlah_baik > 0)
-                        <span class="shopee-badge-stock shopee-badge--ok">{{ $item->jumlah_baik }} tersedia</span>
-                        <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-{{ $item->kode_barang }}">
-                            Pinjam
-                        </a>
-                    @else
-                        <span class="shopee-badge-stock shopee-badge--habis">Stok Habis</span>
-                        <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
-                            Habis
-                        </button>
-                    @endif
+                @empty
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1rem; background: #ffffff; border-radius: 12px; border: 1px dashed #d1d5db;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="margin-bottom: 0.75rem;">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <h4 style="color: #374151; font-size: 1rem; margin: 0 0 0.4rem 0;">Tidak Ada Sarana Ditemukan</h4>
+                    <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 1rem 0;">Coba kata kunci lain atau pilih kategori berbeda.</p>
+                    <a href="{{ route('dashboard') }}" class="shopee-btn-pinjam">Lihat Semua</a>
                 </div>
+                @endforelse
             </div>
-            @empty
-            <div style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1rem; background: #ffffff; border-radius: 12px; border: 1px dashed #d1d5db;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="margin-bottom: 0.75rem;">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.3-4.3"/>
-                </svg>
-                <h4 style="color: #374151; font-size: 1rem; margin: 0 0 0.4rem 0;">Tidak Ada Sarana Ditemukan</h4>
-                <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 1rem 0;">Coba kata kunci lain atau pilih kategori berbeda.</p>
-                <a href="{{ route('dashboard') }}" class="shopee-btn-pinjam">Lihat Semua</a>
-            </div>
-            @endforelse
-        </div>
 
-        {{-- Pagination untuk Mode Filter / View All --}}
-        @if($items->hasPages())
-        <div style="display: flex; justify-content: center; margin-top: 2rem;">
-            {{ $items->links('vendor.pagination.simple-default') }}
-        </div>
-        @endif
+            {{-- Pagination untuk Mode Filter / View All --}}
+            @if($items->hasPages())
+            <div style="display: flex; justify-content: center; margin-top: 2rem;">
+                {{ $items->links('vendor.pagination.simple-default') }}
+            </div>
+            @endif
+        </section>
 
     {{-- ================================================================= --}}
     {{-- MODE 2: TAMPILAN BERANDA (CAROUSEL HORIZONTAL PER KATEGORI)       --}}
@@ -418,33 +442,56 @@
                     @foreach($popularItems as $item)
                     <div class="shopee-card" id="item-popular-{{ $item->kode_barang }}">
                         <div class="shopee-card-img">
+                            <span class="shopee-img-badge {{ $item->jumlah_baik > 0 ? 'shopee-img-badge--available' : 'shopee-img-badge--empty' }}">
+                                <span class="shopee-img-badge-dot"></span>
+                                {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
+                            </span>
                             @if(!empty($item->foto) && file_exists(public_path($item->foto)))
                                 <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
                             @else
                                 <div class="shopee-card-img-placeholder">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                                        <polyline points="21 15 16 10 5 21"/>
-                                    </svg>
-                                    <span>Foto Belum Ada</span>
+                                    <div class="placeholder-icon-wrap">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>
+                                    </div>
+                                    <span class="placeholder-text">Foto Belum Ada</span>
                                 </div>
                             @endif
                         </div>
                         <div class="shopee-card-body">
+                            <span class="shopee-card-cat">{{ $item->kategori->nama_kategori ?? 'Umum' }}</span>
                             <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
-                            <p class="shopee-card-cat">{{ $item->kategori->nama_kategori ?? 'Umum' }}</p>
-                            @if($item->jumlah_baik > 0)
-                                <span class="shopee-badge-stock shopee-badge--ok">{{ $item->jumlah_baik }} tersedia</span>
-                                <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-popular-{{ $item->kode_barang }}">
-                                    Pinjam
-                                </a>
-                            @else
-                                <span class="shopee-badge-stock shopee-badge--habis">Stok Habis</span>
-                                <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-popular-{{ $item->kode_barang }}">
-                                    Habis
-                                </button>
-                            @endif
+
+                            <div class="shopee-card-footer">
+                                <div class="shopee-stock-badge-wrap">
+                                    @if($item->jumlah_baik > 0)
+                                        <span class="shopee-badge-stock shopee-badge--ok">
+                                            <span class="badge-dot"></span> {{ $item->jumlah_baik }} tersedia
+                                        </span>
+                                    @else
+                                        <span class="shopee-badge-stock shopee-badge--habis">
+                                            <span class="badge-dot"></span> Stok Habis
+                                        </span>
+                                    @endif
+                                </div>
+
+                                @if($item->jumlah_baik > 0)
+                                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-popular-{{ $item->kode_barang }}">
+                                        <span>Pinjam</span>
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="12 5 19 12 12 19"></polyline>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-popular-{{ $item->kode_barang }}">
+                                        <span>Habis</span>
+                                    </button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     @endforeach
@@ -474,33 +521,56 @@
                         @foreach($cat->barang as $item)
                         <div class="shopee-card" id="item-{{ $item->kode_barang }}">
                             <div class="shopee-card-img">
+                                <span class="shopee-img-badge {{ $item->jumlah_baik > 0 ? 'shopee-img-badge--available' : 'shopee-img-badge--empty' }}">
+                                    <span class="shopee-img-badge-dot"></span>
+                                    {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
+                                </span>
                                 @if(!empty($item->foto) && file_exists(public_path($item->foto)))
                                     <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
                                 @else
                                     <div class="shopee-card-img-placeholder">
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                                            <polyline points="21 15 16 10 5 21"/>
-                                        </svg>
-                                        <span>Foto Belum Ada</span>
+                                        <div class="placeholder-icon-wrap">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                                <polyline points="21 15 16 10 5 21"/>
+                                            </svg>
+                                        </div>
+                                        <span class="placeholder-text">Foto Belum Ada</span>
                                     </div>
                                 @endif
                             </div>
                             <div class="shopee-card-body">
+                                <span class="shopee-card-cat">{{ $cat->nama_kategori }}</span>
                                 <h4 class="shopee-card-name" title="{{ $item->nama_barang }}">{{ $item->nama_barang }}</h4>
-                                <p class="shopee-card-cat">{{ $cat->nama_kategori }}</p>
-                                @if($item->jumlah_baik > 0)
-                                    <span class="shopee-badge-stock shopee-badge--ok">{{ $item->jumlah_baik }} tersedia</span>
-                                    <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-{{ $item->kode_barang }}">
-                                        Pinjam
-                                    </a>
-                                @else
-                                    <span class="shopee-badge-stock shopee-badge--habis">Stok Habis</span>
-                                    <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
-                                        Habis
-                                    </button>
-                                @endif
+
+                                <div class="shopee-card-footer">
+                                    <div class="shopee-stock-badge-wrap">
+                                        @if($item->jumlah_baik > 0)
+                                            <span class="shopee-badge-stock shopee-badge--ok">
+                                                <span class="badge-dot"></span> {{ $item->jumlah_baik }} tersedia
+                                            </span>
+                                        @else
+                                            <span class="shopee-badge-stock shopee-badge--habis">
+                                                <span class="badge-dot"></span> Stok Habis
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    @if($item->jumlah_baik > 0)
+                                        <a href="{{ route('loan.request', $item->kode_barang) }}" class="shopee-btn-pinjam" id="btn-pinjam-{{ $item->kode_barang }}">
+                                            <span>Pinjam</span>
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                            </svg>
+                                        </a>
+                                    @else
+                                        <button type="button" class="shopee-btn-pinjam shopee-btn-pinjam--disabled" disabled id="btn-pinjam-{{ $item->kode_barang }}">
+                                            <span>Habis</span>
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         @endforeach

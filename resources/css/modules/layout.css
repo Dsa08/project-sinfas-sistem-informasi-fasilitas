@@ -42,6 +42,22 @@
 .navbar-logo-img {
     height: 32px;
     width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.sidebar-logo-img {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.auth-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 0.25rem;
 }
 
 .navbar-brand {

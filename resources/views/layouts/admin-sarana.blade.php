@@ -28,15 +28,7 @@
         <aside class="system-sidebar" id="sarana-sidebar">
             <div class="system-sidebar-header">
                 <div class="system-brand-link">
-                    <div class="system-brand-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D67F2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <path d="M9 3v18"/>
-                            <path d="M15 3v18"/>
-                            <path d="M3 9h18"/>
-                            <path d="M3 15h18"/>
-                        </svg>
-                    </div>
+                    <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="sidebar-logo-img">
                     <span class="system-brand-name">SINFAS Admin</span>
                 </div>
             </div>
