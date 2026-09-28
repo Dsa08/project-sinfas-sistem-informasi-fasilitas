@@ -525,70 +525,7 @@
         @endif
     @endif
 
-    {{-- ================================================================= --}}
-    {{-- SECTION: PANDUAN & SOP ALUR PEMINJAMAN SARANA                     --}}
-    {{-- ================================================================= --}}
-    <section class="sop-section">
-        <div class="sop-header">
-            <span class="sop-tag">Panduan Pengguna</span>
-            <h3 class="sop-title">3 Langkah Mudah Peminjaman Sarana di SINFAS</h3>
-            <p class="sop-subtitle">Ikuti alur resmi peminjaman fasilitas sekolah agar kegiatan belajar mengajar berjalan lancar.</p>
-        </div>
-        <div class="sop-grid">
-            <div class="sop-card">
-                <span class="sop-step-badge">01</span>
-                <div class="sop-icon-wrap">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.3-4.3"/>
-                    </svg>
-                </div>
-                <h4 class="sop-card-title">Pilih & Ajukan</h4>
-                <p class="sop-card-desc">Cari sarana yang dibutuhkan di katalog, tentukan tanggal serta keperluan penggunaan, lalu kirim formulir peminjaman.</p>
-            </div>
 
-            <div class="sop-card">
-                <span class="sop-step-badge">02</span>
-                <div class="sop-icon-wrap">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
-                        <path d="m9 12 2 2 4-4"/>
-                    </svg>
-                </div>
-                <h4 class="sop-card-title">Verifikasi Admin</h4>
-                <p class="sop-card-desc">Admin Sarana akan meninjau ketersediaan fisik alat dan menyetujui permohonan pinjam Anda secara sistematis.</p>
-            </div>
-
-            <div class="sop-card">
-                <span class="sop-step-badge">03</span>
-                <div class="sop-icon-wrap">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-                        <path d="m3.3 7 8.7 5 8.7-5"/>
-                        <path d="M12 22V12"/>
-                    </svg>
-                </div>
-                <h4 class="sop-card-title">Ambil & Kembalikan</h4>
-                <p class="sop-card-desc">Ambil alat di Ruang Sarpras dengan menunjukkan status disetujui, dan kembalikan tepat waktu dalam kondisi baik.</p>
-            </div>
-        </div>
-
-        {{-- Bantuan / Kontak Cepat Sarpras --}}
-        <div class="sop-help-card">
-            <div class="sop-help-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-            </div>
-            <div class="sop-help-content">
-                <h5 class="sop-help-title">Mengalami kendala pada alat atau butuh bantuan darurat?</h5>
-                <p class="sop-help-desc">Kunjungi Ruang Sarana Prasarana (Sarpras) Gedung A Lt. 1 atau hubungi petugas piket fasilitas sekolah.</p>
-            </div>
-            <a href="{{ route('profile') }}" class="sop-help-btn">Bantuan & Profil</a>
-        </div>
-    </section>
 </div>
 
 <script>

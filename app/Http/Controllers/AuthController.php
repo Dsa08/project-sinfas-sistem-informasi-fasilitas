@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use App\Models\Akun;
-use App\Models\Siswa;
-use App\Models\Pegawai;
 use Carbon\Carbon;
 
 /**
@@ -21,7 +19,6 @@ use Carbon\Carbon;
  * 
  * Mengelola seluruh alur otentikasi dan keamanan akun pengguna:
  * 1. Login multi-identitas (Username / NIS / NIP) dengan proteksi Brute Force (Rate Limiting).
- * 2. Registrasi mandiri akun siswa terverifikasi dengan referensi data master siswa.
  * 3. Pemulihan kata sandi (Forgot Password) via token kriptografis dan tautan email.
  * 4. Pembaruan kata sandi baru (Reset Password) dengan verifikasi masa aktif token (60 menit).
  * 5. Logout aman dengan invalidasi session dan regenerasi token CSRF.
@@ -105,98 +102,6 @@ class AuthController extends Controller
         return back()->withErrors([
             'email' => 'Akun atau password yang Anda masukkan salah.',
         ])->onlyInput('email');
-    }
-
-    /**
-     * Menampilkan formulir pendaftaran akun baru bagi siswa.
-     *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
-     */
-    public function showRegisterForm()
-    {
-        if (Auth::check()) {
-            return $this->redirectBasedOnRole(Auth::user());
-        }
-
-        return view('auth.register');
-    }
-
-    /**
-     * Memproses pendaftaran akun siswa baru dengan validasi data master sekolah.
-     * Siswa hanya bisa mendaftar jika NIS telah terdaftar di database sekolah dan belum memiliki akun.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function register(Request $request)
-    {
-        // 1. Validasi input formulir pendaftaran dengan aturan kata sandi kuat
-        $request->validate([
-            'full_name'      => 'required|string|max:255',
-            'nis_nip'        => 'required|string|max:20',
-            'email'          => 'required|string|email|max:255',
-            'username'       => 'required|string|max:255|unique:akun,username',
-            'contact_number' => 'nullable|string|max:20',
-            'password'       => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
-        ], [
-            'full_name.required'      => 'Nama lengkap wajib diisi.',
-            'nis_nip.required'        => 'NIS atau NIP wajib diisi.',
-            'email.required'          => 'Email wajib diisi.',
-            'email.email'             => 'Format email tidak valid.',
-            'username.required'       => 'Username wajib diisi.',
-            'username.unique'         => 'Username ini sudah digunakan oleh akun lain.',
-            'password.required'       => 'Password wajib diisi.',
-            'password.confirmed'      => 'Konfirmasi password tidak cocok.',
-        ]);
-
-        $nis_nip = trim($request->nis_nip);
-        $role = null;
-        $nis = null;
-        $nip = null;
-
-        // 2. Verifikasi keberadaan identitas di tabel data master (Siswa atau Pegawai)
-        $siswa = Siswa::where('nis', $nis_nip)->first();
-        $pegawai = Pegawai::where('nip', $nis_nip)->first();
-
-        if ($siswa) {
-            // Cegah duplikasi pembuatan akun untuk NIS yang sama
-            if (Akun::where('nis', $nis_nip)->exists()) {
-                return back()->withErrors(['nis_nip' => 'NIS ini sudah terdaftar memiliki akun.'])->withInput();
-            }
-            $role = 'siswa';
-            $nis = $nis_nip;
-        } elseif ($pegawai) {
-            // Cegah duplikasi pembuatan akun untuk NIP yang sama
-            if (Akun::where('nip', $nis_nip)->exists()) {
-                return back()->withErrors(['nis_nip' => 'NIP ini sudah terdaftar memiliki akun.'])->withInput();
-            }
-            $role = 'admin_sarana';
-            $nip = $nis_nip;
-        } else {
-            // Tolak jika NIS/NIP tidak diakui oleh data sekolah
-            return back()->withErrors([
-                'nis_nip' => 'NIS atau NIP tidak terdaftar dalam data sekolah/instansi.',
-            ])->withInput();
-        }
-
-        // 3. Simpan data akun baru dengan password terenkripsi Bcrypt
-        $akun = Akun::create([
-            'nis'          => $nis,
-            'nip'          => $nip,
-            'nama'         => $request->full_name,
-            'email'        => $request->email,
-            'nomor_kontak' => $request->contact_number,
-            'role'         => $role,
-            'username'     => $request->username,
-            'password'     => Hash::make($request->password),
-            'is_active'    => true,
-        ]);
-
-        // 4. Otomatis login dan regenerasi session
-        Auth::login($akun);
-        $request->session()->regenerate();
-
-        return $this->redirectBasedOnRole($akun)->with('success', 'Registrasi berhasil! Selamat datang di SINFAS.');
     }
 
     /**

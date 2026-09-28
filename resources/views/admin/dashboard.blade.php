@@ -124,7 +124,7 @@
         </a>
 
         {{-- Card 2: History & Print Report --}}
-        <div class="sarana-action-card" id="action-print-report">
+        <a href="{{ route('admin.reports') }}" class="sarana-action-card" id="action-print-report">
             <div class="sarana-action-icon-box icon-bg-green">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -135,7 +135,7 @@
                 </svg>
             </div>
             <div class="sarana-action-text">Riwayat & Cetak Laporan</div>
-        </div>
+        </a>
 
         {{-- Card 3: Verify Returns --}}
         <a href="{{ route('admin.verifications') }}" class="sarana-action-card" id="action-verify-returns">

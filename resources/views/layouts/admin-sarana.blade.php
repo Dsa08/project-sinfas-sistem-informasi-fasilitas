@@ -91,6 +91,16 @@
                             <span id="admin-sidebar-notif-badge" style="display: none; background: #ef4444; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 9999px;">0</span>
                         </a>
                     </li>
+                    <li class="system-nav-item">
+                        <a href="{{ route('admin.reports') }}" class="system-nav-link {{ request()->routeIs('admin.reports') ? 'system-nav-link--active' : '' }}" id="nav-reports">
+                            <svg class="system-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"/>
+                                <path d="M8 3v5h5"/>
+                                <path d="M8 13h8M8 17h8"/>
+                            </svg>
+                            <span>Laporan</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="system-nav-divider"></div>
