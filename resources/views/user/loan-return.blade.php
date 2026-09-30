@@ -249,13 +249,16 @@
     }
 
     // Confirmation Popup on Submit
-    document.getElementById('loanReturnForm')?.addEventListener('submit', function(e) {
-        const confirmed = confirm('Apakah Anda yakin ingin mengajukan pengembalian untuk alat "{{ addslashes($loan->barang->nama_barang ?? 'Barang') }}"?');
-        if (!confirmed) {
+    document.getElementById('loanReturnForm')?.addEventListener('submit', async function(e) {
+        if (this.dataset.appConfirmed !== 'true') {
             e.preventDefault();
-            return false;
+            const confirmed = await window.showAppConfirm('Apakah Anda yakin ingin mengajukan pengembalian untuk alat "{{ addslashes($loan->barang->nama_barang ?? 'Barang') }}"?', {title: 'Ajukan Pengembalian', confirmText: 'Ajukan'});
+            if (!confirmed) return;
+            this.dataset.appConfirmed = 'true';
+            this.requestSubmit();
+            delete this.dataset.appConfirmed;
+            return;
         }
-
         const btn = document.getElementById('btnSubmitReturn');
         if (btn) {
             btn.disabled = true;

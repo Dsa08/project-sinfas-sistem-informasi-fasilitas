@@ -440,5 +440,6 @@
             setInterval(refreshAdminNotifications, 45000);
         });
     </script>
+    @include('components.app-dialogs')
 </body>
 </html>

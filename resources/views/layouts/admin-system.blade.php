@@ -178,5 +178,6 @@
             }
         });
     </script>
+    @include('components.app-dialogs')
 </body>
 </html>

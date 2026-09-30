@@ -148,19 +148,19 @@
                                 </button>
                                 <div class="action-dropdown-menu">
                                     {{-- Reset Password --}}
-                                    <form method="POST" action="{{ route('admin.sistem.accounts.reset', $akun->id_akun) }}" class="inline-form">
+                                    <form method="POST" action="{{ route('admin.sistem.accounts.reset', $akun->id_akun) }}" class="inline-form" onsubmit="return confirmAppForm(this, @js('Reset password ' . $akun->nama . ' ke default?'), {title: 'Reset Password', confirmText: 'Reset Password', danger: true}, event)">
                                         @csrf
-                                        <button type="submit" class="action-dropdown-item btn-action-reset" onclick="return confirm('Reset password {{ $akun->nama }} ke default?')">
+                                        <button type="submit" class="action-dropdown-item btn-action-reset">
                                             <x-heroicon-o-key class="w-4 h-4" />
                                             <span>Reset Password</span>
                                         </button>
                                     </form>
                                     {{-- Deactivate/Activate Account --}}
-                                    <form method="POST" action="{{ route('admin.sistem.accounts.destroy', $akun->id_akun) }}" class="inline-form">
+                                    <form method="POST" action="{{ route('admin.sistem.accounts.destroy', $akun->id_akun) }}" class="inline-form" onsubmit="return confirmAppForm(this, @js(($akun->is_active ? 'Nonaktifkan' : 'Aktifkan kembali') . ' akun ' . $akun->nama . '?'), {title: 'Konfirmasi Status Akun', confirmText: '{{ $akun->is_active ? 'Nonaktifkan' : 'Aktifkan' }}', danger: {{ $akun->is_active ? 'true' : 'false' }}}, event)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="action-dropdown-item action-dropdown-item--danger btn-action-deactivate"
-                                            onclick="return confirm('{{ $akun->is_active ? 'Nonaktifkan' : 'Aktifkan kembali' }} akun {{ $akun->nama }}?')">
+                                            >
                                             <x-heroicon-o-user-minus class="w-4 h-4" />
                                             <span>{{ $akun->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}</span>
                                         </button>
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 detailModal.classList.add('modal-overlay--active');
             })
-            .catch(() => alert('Gagal memuat data akun.'));
+            .catch(() => window.showAppToast('Gagal memuat data akun.', {title: 'Data Akun Tidak Dapat Dimuat'}));
         });
     });
 

@@ -60,6 +60,9 @@ class NotifikasiController extends Controller
     {
         $user = Auth::user();
 
+        // Membuka pusat notifikasi dianggap sebagai tanda bahwa admin sudah melihatnya.
+        Notifikasi::tandaiSemuaDibaca($user->id_akun);
+
         $query = Notifikasi::where('id_akun', $user->id_akun)
             ->with(['peminjaman.siswa', 'peminjaman.barang', 'peminjaman.pengembalian'])
             ->terbaru();
@@ -71,10 +74,9 @@ class NotifikasiController extends Controller
             $query->dibaca();
         }
 
-        $notifikasi = $query->paginate(15)->withQueryString();
-        $unreadCount = Notifikasi::where('id_akun', $user->id_akun)->belumDibaca()->count();
+        $notifikasi = $query->paginate(10)->withQueryString();
 
-        return view('admin.notifications', compact('notifikasi', 'unreadCount', 'filter'));
+        return view('admin.notifications', compact('notifikasi', 'filter'));
     }
 
     /**

@@ -129,7 +129,7 @@
 
                             @if($user->foto)
                             <form action="{{ route('admin.profile.photo.delete') }}" method="POST" id="delete-photo-form"
-                                  onsubmit="return confirm('Hapus foto profil?')">
+                                  onsubmit="return confirmAppForm(this, 'Hapus foto profil?', {title: 'Hapus Foto Profil', confirmText: 'Hapus Foto', danger: true}, event)">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-admin-profile-danger-outline" id="btn-delete-photo">

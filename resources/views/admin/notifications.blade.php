@@ -6,8 +6,8 @@
   - Menerima permohonan peminjaman baru dari siswa secara real-time.
   - Menerima pengajuan konfirmasi fisik barang kembali.
   - Tombol aksi cepat langsung menuju tab verifikasi terkait (Verifikasi Pinjam / Konfirmasi Kembali).
-  - Filter: Semua, Belum Dibaca, Sudah Dibaca.
-  - Tandai semua notifikasi sudah dibaca.
+  - Notifikasi otomatis ditandai dibaca saat halaman pusat notifikasi dibuka.
+  - Pagination 10 notifikasi per halaman.
 --}}
 @extends('layouts.admin-sarana')
 
@@ -23,29 +23,12 @@
             <p style="font-size: 0.88rem; color: #64748b; margin: 0;">Pantau antrean pengajuan peminjaman dan pengembalian sarana dari siswa.</p>
         </div>
 
-        @if($unreadCount > 0)
-            <form action="{{ route('notifications.readAll') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn-mark-all-read" style="background: #ffffff; border: 1px solid #cbd5e1; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.84rem; font-weight: 600; color: #334155; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Tandai Semua Dibaca ({{ $unreadCount }})
-                </button>
-            </form>
-        @endif
     </div>
 
     {{-- Filter Tabs --}}
     <div class="notif-filter-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem;">
         <a href="{{ route('admin.notifications') }}" class="notif-tab-item {{ empty($filter) ? 'notif-tab-item--active' : '' }}">
             Semua
-        </a>
-        <a href="{{ route('admin.notifications', ['filter' => 'unread']) }}" class="notif-tab-item {{ $filter === 'unread' ? 'notif-tab-item--active' : '' }}">
-            Belum Dibaca
-            @if($unreadCount > 0)
-                <span class="notif-tab-badge">{{ $unreadCount }}</span>
-            @endif
         </a>
         <a href="{{ route('admin.notifications', ['filter' => 'read']) }}" class="notif-tab-item {{ $filter === 'read' ? 'notif-tab-item--active' : '' }}">
             Sudah Dibaca

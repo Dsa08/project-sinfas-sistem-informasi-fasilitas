@@ -126,13 +126,16 @@
 </div>
 
 <script>
-    document.getElementById('loanRequestForm')?.addEventListener('submit', function(e) {
-        const confirmed = confirm('Apakah Anda yakin ingin mengajukan permohonan peminjaman untuk alat "{{ addslashes($item->nama_barang) }}"?');
-        if (!confirmed) {
+    document.getElementById('loanRequestForm')?.addEventListener('submit', async function(e) {
+        if (this.dataset.appConfirmed !== 'true') {
             e.preventDefault();
-            return false;
+            const confirmed = await window.showAppConfirm('Apakah Anda yakin ingin mengajukan permohonan peminjaman untuk alat "{{ addslashes($item->nama_barang) }}"?', {title: 'Ajukan Peminjaman', confirmText: 'Ajukan'});
+            if (!confirmed) return;
+            this.dataset.appConfirmed = 'true';
+            this.requestSubmit();
+            delete this.dataset.appConfirmed;
+            return;
         }
-
         const btn = document.getElementById('btnSubmitLoan');
         if (btn) {
             btn.disabled = true;

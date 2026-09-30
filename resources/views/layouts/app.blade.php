@@ -482,5 +482,6 @@
             <span class="mobile-nav-label">Profil</span>
         </a>
     </nav>
+    @include('components.app-dialogs')
 </body>
 </html>

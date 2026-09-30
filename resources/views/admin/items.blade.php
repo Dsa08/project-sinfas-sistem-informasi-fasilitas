@@ -210,7 +210,7 @@
                     <td>
                         <div class="action-btn-group">
                             <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('{{ $item->kode_barang }}')">Ubah</button>
-                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data barang {{ addslashes($item->nama_barang) }}? Tindakan ini tidak dapat dibatalkan.')">
+                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirmAppForm(this, @js('Apakah Anda yakin ingin menghapus data barang ' . $item->nama_barang . '? Tindakan ini tidak dapat dibatalkan.'), {title: 'Hapus Barang', confirmText: 'Hapus', danger: true}, event)">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-table-outline-red">Hapus</button>
@@ -299,7 +299,7 @@
             </div>
         @endif
 
-        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}" enctype="multipart/form-data" onsubmit="return confirmItemFormSubmit()">
+        <form id="itemForm" method="POST" action="{{ route('admin.items.store') }}" enctype="multipart/form-data" onsubmit="return confirmItemFormSubmit(event)">
             @csrf
             <input type="hidden" name="_method" id="itemFormMethod" value="POST">
 
@@ -442,14 +442,15 @@
         }
     }
 
-    function confirmItemFormSubmit() {
+    function confirmItemFormSubmit(event) {
         const isEdit = document.getElementById('itemFormMethod').value === 'PUT';
         const nameInput = document.getElementById('input_nama_barang');
         const itemName = nameInput ? nameInput.value.trim() : '';
         const msg = isEdit 
             ? (itemName ? `Apakah Anda yakin ingin menyimpan perubahan data barang "${itemName}"?` : 'Apakah Anda yakin ingin menyimpan perubahan data barang ini?')
             : (itemName ? `Apakah Anda yakin ingin menambahkan data barang baru "${itemName}"?` : 'Apakah Anda yakin ingin menambahkan data barang baru ini?');
-        return confirm(msg);
+        const form = document.getElementById('itemForm');
+        return confirmAppForm(form, msg, {title: isEdit ? 'Ubah Data Barang' : 'Tambah Barang', confirmText: isEdit ? 'Simpan Perubahan' : 'Tambah Barang'}, event);
     }
 
     function openAddItemModal() {
@@ -490,7 +491,7 @@
                 resetItemImagePreview(data.foto);
                 document.getElementById('itemModal').classList.add('modal-overlay--active');
             })
-            .catch(err => alert('Gagal memuat data barang.'));
+            .catch(err => window.showAppToast('Gagal memuat data barang.', {title: 'Data Barang Tidak Dapat Dimuat'}));
     }
 
     function closeItemModal() {

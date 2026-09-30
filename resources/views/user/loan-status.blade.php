@@ -116,7 +116,7 @@
                 <div class="loan-action-group">
                     @if($loan->status_pengajuan === 'menunggu')
                         <span class="loan-status-badge loan-badge--pending" onclick="openWaitingApprovalModal()" style="cursor: pointer;" title="Klik untuk melihat informasi antrean">Menunggu</span>
-                        <form action="{{ route('loan.cancel', $loan->kode_pinjam) }}" method="POST" onsubmit="return confirm('Batalkan pengajuan peminjaman ini?')">
+                        <form action="{{ route('loan.cancel', $loan->kode_pinjam) }}" method="POST" onsubmit="return confirmAppForm(this, 'Batalkan pengajuan peminjaman ini?', {title: 'Batalkan Pengajuan', confirmText: 'Ya, batalkan', danger: true}, event)">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-loan-cancel">Batalkan</button>
@@ -425,13 +425,16 @@
     }
 
     // Modal submit confirmation
-    modalReturnForm.addEventListener('submit', function(e) {
-        const confirmed = confirm(`Apakah Anda yakin ingin mengajukan pengembalian untuk alat "${currentItemTitle}"?`);
-        if (!confirmed) {
+    modalReturnForm.addEventListener('submit', async function(e) {
+        if (this.dataset.appConfirmed !== 'true') {
             e.preventDefault();
-            return false;
+            const confirmed = await window.showAppConfirm(`Apakah Anda yakin ingin mengajukan pengembalian untuk alat "${currentItemTitle}"?`, {title: 'Ajukan Pengembalian', confirmText: 'Ajukan'});
+            if (!confirmed) return;
+            this.dataset.appConfirmed = 'true';
+            this.requestSubmit();
+            delete this.dataset.appConfirmed;
+            return;
         }
-
         const btn = document.getElementById('btnSubmitModalReturn');
         if (btn) {
             btn.disabled = true;
