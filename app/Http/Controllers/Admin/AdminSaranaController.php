@@ -585,7 +585,7 @@ class AdminSaranaController extends Controller
         // Tab 1: Pending Requests (status = menunggu)
         $reqSort = $request->input('req_sort');
         $reqDir = strtolower($request->input('req_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $reqQuery = Peminjaman::menunggu()->with(['siswa', 'barang']);
+        $reqQuery = Peminjaman::menunggu()->with(['siswa', 'barang', 'akun']);
 
         if ($reqSort === 'siswa') {
             $reqQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
@@ -612,7 +612,7 @@ class AdminSaranaController extends Controller
             ->whereHas('pengembalian', function ($q) {
                 $q->whereNull('kondisi_barang');
             })
-            ->with(['siswa', 'barang', 'pengembalian']);
+            ->with(['siswa', 'barang', 'pengembalian', 'akun']);
 
         if ($retSort === 'siswa') {
             $retQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')

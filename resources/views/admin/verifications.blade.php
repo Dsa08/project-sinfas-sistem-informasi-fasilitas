@@ -12,6 +12,10 @@
 @section('page_title', 'Verifikasi Peminjaman & Pengembalian')
 
 @section('content')
+<style>
+    .borrower-type-badge { display:inline-flex; align-items:center; padding:.25rem .6rem; border-radius:999px; font-size:.75rem; font-weight:700; line-height:1.2; white-space:nowrap; }
+    .borrower-type-badge--student { color:#1d4ed8; background:#eff6ff; }
+</style>
 <div class="sarana-verifications-container">
     {{-- Tab Navigation Bar --}}
     <div class="sarana-tab-bar" id="verification-tabs">
@@ -64,6 +68,7 @@
                                 </svg>
                             </a>
                         </th>
+                        <th style="width: 10%;">Status Peminjam</th>
                         <th style="width: 20%;">
                             <a href="{{ $getReqSortUrl('barang') }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('barang') }}">
                                 <span>Barang</span>
@@ -107,7 +112,8 @@
                     @forelse($pendingRequests as $req)
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingRequests->currentPage() - 1) * $pendingRequests->perPage() }}</td>
-                        <td class="td-name">{{ $req->siswa->nama ?? '-' }}</td>
+                        <td class="td-name">{{ $req->peminjam_nama }}</td>
+                        <td><span class="borrower-type-badge borrower-type-badge--student">{{ $req->peminjam_status }}</span></td>
                         <td class="td-item">{{ $req->barang->nama_barang ?? '-' }}</td>
                         <td class="td-location">{{ $req->lokasi_penggunaan ?? '-' }}</td>
                         <td class="td-category" style="font-size: 0.82rem;">{{ Str::limit($req->keterangan_penggunaan, 30) ?? '-' }}</td>
@@ -117,7 +123,7 @@
                                 <button 
                                     type="button" 
                                     class="btn-action btn-approve"
-                                    onclick="openApproveModal('{{ $req->kode_pinjam }}', '{{ addslashes($req->siswa->nama ?? 'Siswa') }}', '{{ addslashes($req->barang->nama_barang ?? 'Barang') }}')">
+                                    onclick="openApproveModal('{{ $req->kode_pinjam }}', '{{ addslashes($req->peminjam_nama) }}', '{{ addslashes($req->barang->nama_barang ?? 'Barang') }}')">
                                     Setujui
                                 </button>
                                 <button 
@@ -131,7 +137,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="system-table-empty-state">
                                 <div class="system-empty-icon-box">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -220,6 +226,7 @@
                                 </svg>
                             </a>
                         </th>
+                        <th style="width: 10%;">Status Peminjam</th>
                         <th style="width: 20%;">
                             <a href="{{ $getRetSortUrl('barang') }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('barang') }}">
                                 <span>Barang</span>
@@ -256,7 +263,8 @@
                     @forelse($pendingReturns as $ret)
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingReturns->currentPage() - 1) * $pendingReturns->perPage() }}</td>
-                        <td class="td-name">{{ $ret->siswa->nama ?? '-' }}</td>
+                        <td class="td-name">{{ $ret->peminjam_nama }}</td>
+                        <td><span class="borrower-type-badge borrower-type-badge--student">{{ $ret->peminjam_status }}</span></td>
                         <td class="td-item">
                             {{ $ret->barang->nama_barang ?? '-' }}
                             @if(!empty($ret->pengembalian->catatan))
@@ -299,12 +307,12 @@
                             </select>
                         </td>
                         <td>
-                            <button type="button" class="btn-confirm-return" onclick="openConfirmReturnModal('{{ $ret->kode_pinjam }}', '{{ addslashes($ret->siswa->nama ?? 'Siswa') }}', '{{ addslashes($ret->barang->nama_barang ?? 'Barang') }}', 'kondisi-select-{{ $ret->kode_pinjam }}')">Konfirmasi</button>
+                            <button type="button" class="btn-confirm-return" onclick="openConfirmReturnModal('{{ $ret->kode_pinjam }}', '{{ addslashes($ret->peminjam_nama) }}', '{{ addslashes($ret->barang->nama_barang ?? 'Barang') }}', 'kondisi-select-{{ $ret->kode_pinjam }}')">Konfirmasi</button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8">
+                        <td colspan="9">
                             <div class="system-table-empty-state">
                                 <div class="system-empty-icon-box">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

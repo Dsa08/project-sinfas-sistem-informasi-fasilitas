@@ -80,6 +80,32 @@ class Peminjaman extends Model
         return $this->belongsTo(Siswa::class, 'nis', 'nis');
     }
 
+    /** Akun peminjam yang terhubung melalui NIS. */
+    public function akun()
+    {
+        return $this->belongsTo(Akun::class, 'nis', 'nis');
+    }
+
+    /** Label status diambil dari role akun agar konsisten dengan tabel akun Admin Sistem. */
+    public function getPeminjamStatusAttribute(): string
+    {
+        if ($this->akun) {
+            return $this->akun->role_label;
+        }
+
+        if (filled($this->getAttribute('nis'))) {
+            return 'Siswa';
+        }
+
+        return '-';
+    }
+
+    /** Nama peminjam mengikuti data siswa yang memiliki NIS transaksi. */
+    public function getPeminjamNamaAttribute(): string
+    {
+        return $this->siswa?->nama ?? '-';
+    }
+
     /**
      * Relasi: Transaksi peminjaman terkait dengan satu barang fisik (N:1).
      *
