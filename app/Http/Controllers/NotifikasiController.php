@@ -108,7 +108,7 @@ class NotifikasiController extends Controller
                     'kode_pinjam'   => $item->kode_pinjam,
                     'hari_berlalu'  => $item->hari_berlalu,
                     'warna_durasi'  => $item->warna_durasi,
-                    'created_at_human' => $item->created_at ? $item->created_at->diffForHumans() : '',
+                    'created_at_iso' => $item->created_at?->copy()->utc()->toIso8601String(),
                 ];
             });
 

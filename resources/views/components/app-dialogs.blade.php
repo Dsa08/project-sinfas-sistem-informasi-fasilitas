@@ -81,6 +81,29 @@
             window.setTimeout(() => toast.remove(), options.duration || 5000);
         };
 
+        window.formatNotificationTimestamp = (value) => {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+
+            const seconds = Math.round((date.getTime() - Date.now()) / 1000);
+            const absSeconds = Math.abs(seconds);
+            const [amount, unit] = absSeconds < 60
+                ? [seconds, 'second']
+                : absSeconds < 3600
+                    ? [Math.round(seconds / 60), 'minute']
+                    : absSeconds < 86400
+                        ? [Math.round(seconds / 3600), 'hour']
+                        : [Math.round(seconds / 86400), 'day'];
+            const relative = new Intl.RelativeTimeFormat('id-ID', {numeric: 'auto'}).format(amount, unit);
+            const datePart = new Intl.DateTimeFormat('id-ID', {day: '2-digit', month: 'short', year: 'numeric'}).format(date);
+            const timePart = new Intl.DateTimeFormat('en-GB', {hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(date);
+            return `${relative} (${datePart}, ${timePart})`;
+        };
+
+        document.querySelectorAll('[data-notification-timestamp]').forEach((element) => {
+            element.textContent = window.formatNotificationTimestamp(element.dataset.notificationTimestamp);
+        });
+
         window.confirmAppForm = (form, text, options = {}, event) => {
             if (form.dataset.appConfirmed === 'true') return true;
             event?.preventDefault();

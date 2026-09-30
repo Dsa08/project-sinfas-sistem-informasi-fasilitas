@@ -80,7 +80,7 @@
                         <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.78rem; color: #64748b; margin-bottom: 0.55rem; flex-wrap: wrap;">
                             <span>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                {{ $item->created_at->diffForHumans() }} ({{ $item->created_at->format('d M Y, H:i') }})
+                                <span data-notification-timestamp="{{ $item->created_at->copy()->utc()->toIso8601String() }}">{{ $item->created_at->diffForHumans() }} ({{ $item->created_at->format('d M Y, H:i') }})</span>
                             </span>
                             @if($item->kode_pinjam)
                                 <span>&bull;</span>
