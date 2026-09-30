@@ -187,7 +187,7 @@
     .sarana-report-container { max-width: 1500px; margin: 0 auto; padding: 1.5rem; color: #172033; }
     .report-screen-heading, .report-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .report-screen-heading { margin-bottom: 1.25rem; }
-    .report-screen-heading h2 { margin: 0; color: #111827; font-size: 1.5rem; }
+    .report-screen-heading h2 { margin: 0; color: #111827; font-size: 1.5rem; font-weight: 700; }
     .report-eyebrow { margin: 0 0 .3rem; color: #64748b; font-size: .72rem; font-weight: 800; letter-spacing: .12em; }
     .report-subtitle, .report-section-heading p { margin: .35rem 0 0; color: #64748b; font-size: .88rem; }
     .report-button { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; color: #fff; font: inherit; font-size: .9rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
