@@ -134,12 +134,13 @@ class AdminProfileController extends Controller
 
         $user = Auth::user();
 
-        // Hapus foto lama jika ada
+        $path = app(\App\Services\WebpImageOptimizer::class)
+            ->storeOnDisk($request->file('foto'), 'avatars');
+
         if ($user->foto && Storage::disk('public')->exists($user->foto)) {
             Storage::disk('public')->delete($user->foto);
         }
 
-        $path       = $request->file('foto')->store('avatars', 'public');
         $user->foto = $path;
         $user->save();
 

@@ -300,12 +300,9 @@ class AdminSaranaController extends Controller
         // Penanganan upload berkas gambar sarana
         if ($request->hasFile('foto')) {
             $destinationPath = public_path('uploads/items');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
             $file = $request->file('foto');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move($destinationPath, $filename);
+            $filename = app(\App\Services\WebpImageOptimizer::class)
+                ->storeAt($file, $destinationPath, 'item');
             $data['foto'] = 'uploads/items/' . $filename;
         }
 
@@ -394,16 +391,14 @@ class AdminSaranaController extends Controller
         // Mengganti berkas gambar jika pengguna mengunggah berkas baru
         if ($request->hasFile('foto')) {
             $destinationPath = public_path('uploads/items');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-            // Hapus foto lama jika berkas fisik masih ada di storage
+            $file = $request->file('foto');
+            $filename = app(\App\Services\WebpImageOptimizer::class)
+                ->storeAt($file, $destinationPath, 'item');
+
+            // Hapus foto lama setelah foto pengganti berhasil disimpan.
             if ($item->foto && file_exists(public_path($item->foto))) {
                 @unlink(public_path($item->foto));
             }
-            $file = $request->file('foto');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move($destinationPath, $filename);
             $data['foto'] = 'uploads/items/' . $filename;
         }
 

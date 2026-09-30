@@ -143,13 +143,13 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        // Hapus foto lama dari penyimpanan disk publik jika ada
+        $path = app(\App\Services\WebpImageOptimizer::class)
+            ->storeOnDisk($request->file('foto'), 'avatars');
+
         if ($user->foto && Storage::disk('public')->exists($user->foto)) {
             Storage::disk('public')->delete($user->foto);
         }
 
-        // Simpan foto baru ke direktori 'avatars' pada disk public
-        $path = $request->file('foto')->store('avatars', 'public');
         $user->foto = $path;
         $user->save();
 

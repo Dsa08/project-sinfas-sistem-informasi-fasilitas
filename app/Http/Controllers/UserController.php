@@ -366,16 +366,22 @@ class UserController extends Controller
             'bukti_foto_video.mimes'   => 'Format bukti harus berupa JPG, PNG, WEBP, atau MP4.',
         ]);
 
-        // 3. Simpan file bukti ke direktori public/uploads/returns jika diunggah
+        // 3. Simpan bukti langsung ke document root public_html agar dapat diakses browser.
         $buktiPath = null;
         if ($request->hasFile('bukti_foto_video')) {
             $file = $request->file('bukti_foto_video');
-            $destinationPath = public_path('uploads/returns');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
+            $destinationPath = base_path('../public_html/uploads/returns');
+
+            if (strtolower($file->getClientOriginalExtension()) === 'mp4') {
+                if (!is_dir($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+                $fileName = 'return_' . time() . '_' . Str::random(8) . '.mp4';
+                $file->move($destinationPath, $fileName);
+            } else {
+                $fileName = app(\App\Services\WebpImageOptimizer::class)
+                    ->storeAt($file, $destinationPath, 'return');
             }
-            $fileName = 'return_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
-            $file->move($destinationPath, $fileName);
             $buktiPath = 'uploads/returns/' . $fileName;
         }
 

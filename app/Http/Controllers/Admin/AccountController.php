@@ -132,7 +132,8 @@ class AccountController extends Controller
         // 3. Upload berkas foto avatar pengguna jika disediakan
         $fotoPath = null;
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('avatars', 'public');
+            $fotoPath = app(\App\Services\WebpImageOptimizer::class)
+                ->storeOnDisk($request->file('foto'), 'avatars');
         }
 
         // 4. Eksekusi pembuatan akun baru
@@ -241,10 +242,13 @@ class AccountController extends Controller
 
         // 3. Penggantian berkas avatar jika ada file baru diunggah
         if ($request->hasFile('foto')) {
+            $newFotoPath = app(\App\Services\WebpImageOptimizer::class)
+                ->storeOnDisk($request->file('foto'), 'avatars');
+
             if ($akun->foto && Storage::disk('public')->exists($akun->foto)) {
                 Storage::disk('public')->delete($akun->foto);
             }
-            $akun->foto = $request->file('foto')->store('avatars', 'public');
+            $akun->foto = $newFotoPath;
         }
 
         // 4. Update data profil
