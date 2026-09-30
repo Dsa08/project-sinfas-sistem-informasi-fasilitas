@@ -71,10 +71,12 @@
 
     <section class="report-print-area" aria-labelledby="report-title">
         <header class="report-print-header">
-            <div class="report-lettermark" aria-hidden="true">S</div>
-            <div class="report-letterhead-copy">
-                <h1>SISTEM INFORMASI FASILITAS</h1>
-                <p>SINFAS · Laporan Administrasi Sarana dan Prasarana</p>
+            <div class="report-letterhead-brand">
+                <img class="report-print-logo" src="{{ asset('assets/logo-sinfas.png') }}" alt="Logo SINFAS">
+                <div class="report-letterhead-copy">
+                    <h1>SISTEM INFORMASI FASILITAS</h1>
+                    <p>SINFAS · Laporan Administrasi Sarana dan Prasarana</p>
+                </div>
             </div>
             <div class="report-letterhead-rule"></div>
         </header>
@@ -231,11 +233,12 @@
         .system-sidebar, .system-topbar, .report-screen-heading, .report-filter-card, .report-chart-card { display: none !important; }
         .admin-system-layout, .system-main-wrapper, .system-content { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; background: #fff !important; }
         .sarana-report-container { max-width: none; padding: 12mm; color: #111827; }
-        .report-print-header { display: flex; align-items: center; gap: 14px; padding-bottom: 10px; border-bottom: 3px double #1f2937; }
-        .report-lettermark { display: grid; width: 48px; height: 48px; place-items: center; border: 2px solid #1f2937; border-radius: 50%; font-size: 25px; font-weight: 800; }
+        .report-print-header { display: block; padding-bottom: 10px; border-bottom: 3px double #1f2937; text-align: center; }
+        .report-letterhead-brand { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .report-print-logo { display: block; width: 58px; height: 58px; object-fit: contain; }
         .report-letterhead-copy h1 { margin: 0; font-size: 16px; letter-spacing: .06em; }
         .report-letterhead-copy p { margin: 3px 0 0; font-size: 10px; }
-        .report-letterhead-rule { flex: 1; }
+        .report-letterhead-rule { display: none; }
         .report-document-heading { display: block; padding: 14px 0 10px; text-align: center; }
         .report-document-heading .report-eyebrow { font-size: 9px; }
         .report-document-heading h2 { margin: 4px 0; font-size: 14px; }
