@@ -13,6 +13,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SINFAS - Panel Admin Sistem Informasi Fasilitas">
     <title>@yield('title', 'Admin Sistem - SINFAS')</title>
+    {{-- Favicon --}}
+    <link rel="icon" type="image/png" href="{{ asset('assets/logo-sinfas.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/logo-sinfas.png') }}">
 
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
