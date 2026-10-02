@@ -13,40 +13,13 @@ class WebpImageOptimizer
     private const QUALITY = 82;
 
     /**
-     * Store an uploaded image in a public filesystem folder, preferring WebP.
+     * Store an uploaded image on the configured public uploads disk, preferring WebP.
      */
-    public function storeAt(UploadedFile $file, string $directory, string $prefix = 'image'): string
-    {
-        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-            throw new \RuntimeException('Folder upload tidak dapat dibuat.');
-        }
-
-        $name = $prefix . '_' . Str::uuid() . '.webp';
-        $destination = rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $name;
-
-        if ($this->convert($file, $destination)) {
-            return $name;
-        }
-
-        Log::warning('WebP conversion unavailable; storing uploaded image in its original format.', [
-            'mime' => $file->getMimeType(),
-        ]);
-
-        $extension = $this->originalImageExtension($file);
-        $name = $prefix . '_' . Str::uuid() . '.' . $extension;
-        $file->move($directory, $name);
-
-        return $name;
-    }
-
-    /**
-     * Store an uploaded image on a local Laravel disk, preferring WebP.
-     */
-    public function storeOnDisk(UploadedFile $file, string $directory, string $disk = 'public'): string
+    public function storeOnDisk(UploadedFile $file, string $directory, string $disk = 'public_uploads', string $prefix = 'image'): string
     {
         Storage::disk($disk)->makeDirectory($directory);
 
-        $relativePath = trim($directory, '/') . '/' . Str::uuid() . '.webp';
+        $relativePath = trim($directory, '/') . '/' . $prefix . '_' . Str::uuid() . '.webp';
         $destination = Storage::disk($disk)->path($relativePath);
 
         if ($this->convert($file, $destination)) {
@@ -57,7 +30,7 @@ class WebpImageOptimizer
             'mime' => $file->getMimeType(),
         ]);
 
-        return $file->store($directory, $disk);
+        return $file->storeAs($directory, $prefix . '_' . Str::uuid() . '.' . $this->originalImageExtension($file), $disk);
     }
 
     private function convert(UploadedFile $file, string $destination): bool

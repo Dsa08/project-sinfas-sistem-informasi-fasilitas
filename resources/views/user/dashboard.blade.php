@@ -18,6 +18,23 @@
 
 @section('content')
 <div class="dashboard-container">
+    <section class="push-prompt" id="push-prompt" aria-labelledby="push-prompt-title" hidden>
+        <div class="push-prompt-copy">
+            <span class="push-prompt-icon" aria-hidden="true">&#128276;</span>
+            <div>
+                <h2 id="push-prompt-title">Dapatkan notifikasi SINFAS di HP</h2>
+                <p id="push-prompt-message">Aktifkan notifikasi untuk mengetahui perubahan status peminjaman dan pengembalian.</p>
+                <p class="push-prompt-status" id="push-prompt-status" role="status" aria-live="polite"></p>
+            </div>
+        </div>
+        <div class="push-prompt-actions">
+            <button type="button" class="push-button push-button--primary" id="push-enable">Aktifkan notifikasi</button>
+            <button type="button" class="push-button push-button--secondary" id="push-test" hidden>Kirim notifikasi uji coba</button>
+            <button type="button" class="push-button push-button--secondary" id="push-disable" hidden>Nonaktifkan</button>
+            <button type="button" class="push-button push-button--quiet" id="push-dismiss" aria-label="Tutup penawaran">Nanti</button>
+        </div>
+    </section>
+
     {{-- Flash Messages --}}
     @if(session('success'))
         <div class="flash-msg flash-msg--success" id="flash-success">
@@ -332,7 +349,7 @@
                             {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
                         </span>
                         @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                            <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                            <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" loading="lazy">
                         @else
                             <div class="shopee-card-img-placeholder">
                                 <div class="placeholder-icon-wrap">
@@ -447,7 +464,7 @@
                                 {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
                             </span>
                             @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                                <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                                <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" loading="lazy">
                             @else
                                 <div class="shopee-card-img-placeholder">
                                     <div class="placeholder-icon-wrap">
@@ -526,7 +543,7 @@
                                     {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
                                 </span>
                                 @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" loading="lazy">
+                                    <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" loading="lazy">
                                 @else
                                     <div class="shopee-card-img-placeholder">
                                         <div class="placeholder-icon-wrap">
@@ -722,5 +739,153 @@
             filterCategory(catParam);
         }
     });
+</script>
+
+<script>
+(() => {
+    const card = document.getElementById('push-prompt');
+    if (!card) return;
+
+    const publicKey = @json(config('services.webpush.public_key'));
+    const enableButton = document.getElementById('push-enable');
+    const testButton = document.getElementById('push-test');
+    const disableButton = document.getElementById('push-disable');
+    const dismissButton = document.getElementById('push-dismiss');
+    const status = document.getElementById('push-prompt-status');
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+    const dismissedKey = 'sinfas-push-prompt-dismissed';
+
+    function setStatus(message) { status.textContent = message; }
+    function decodeVapidKey(value) {
+        const padding = '='.repeat((4 - value.length % 4) % 4);
+        const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+        return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+    }
+    async function getRegistration() {
+        return navigator.serviceWorker.register(@json(asset('sw.js')));
+    }
+    async function saveSubscription(subscription) {
+        const response = await fetch(@json(route('push.subscriptions.store')), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+            body: JSON.stringify(subscription.toJSON()),
+        });
+        if (!response.ok) throw new Error('Server menolak pendaftaran notifikasi.');
+    }
+    async function showSubscribed(subscription) {
+        await saveSubscription(subscription);
+        setStatus('Notifikasi aktif di perangkat ini.');
+        enableButton.hidden = true;
+        testButton.hidden = false;
+        disableButton.hidden = false;
+    }
+
+    async function initialize() {
+        const supported = window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+        if (!supported) {
+            card.hidden = false;
+            enableButton.hidden = true;
+            dismissButton.hidden = true;
+            setStatus('Push memerlukan HTTPS (atau localhost) dan browser yang mendukung notifikasi.');
+            return;
+        }
+        if (Notification.permission === 'denied') {
+            card.hidden = false;
+            enableButton.hidden = true;
+            setStatus('Izin notifikasi diblokir. Ubah izin SINFAS melalui pengaturan situs di browser.');
+            return;
+        }
+
+        const registration = await getRegistration();
+        const existing = await registration.pushManager.getSubscription();
+        if (existing && Notification.permission === 'granted') {
+            card.hidden = false;
+            await showSubscribed(existing);
+            return;
+        }
+        if (!sessionStorage.getItem(dismissedKey)) card.hidden = false;
+        if (!publicKey) {
+            enableButton.disabled = true;
+            setStatus('Server belum dikonfigurasi. Admin perlu mengisi kunci VAPID terlebih dahulu.');
+        }
+    }
+
+    enableButton.addEventListener('click', async () => {
+        enableButton.disabled = true;
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                setStatus('Izin notifikasi belum diberikan.');
+                return;
+            }
+            if (!publicKey) throw new Error('Kunci VAPID server belum dikonfigurasi.');
+            const registration = await getRegistration();
+            let subscription = await registration.pushManager.getSubscription();
+            if (!subscription) {
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: decodeVapidKey(publicKey),
+                });
+            }
+            await showSubscribed(subscription);
+            sessionStorage.removeItem(dismissedKey);
+        } catch (error) {
+            setStatus(error.message || 'Notifikasi gagal diaktifkan. Coba lagi.');
+        } finally {
+            enableButton.disabled = false;
+        }
+    });
+
+    testButton.addEventListener('click', async () => {
+        testButton.disabled = true;
+        try {
+            const response = await fetch(@json(route('push.notifications.test')), {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Notifikasi uji coba gagal dikirim.');
+            setStatus(data.message);
+        } catch (error) {
+            setStatus(error.message || 'Notifikasi uji coba gagal dikirim.');
+        } finally {
+            testButton.disabled = false;
+        }
+    });
+
+    disableButton.addEventListener('click', async () => {
+        disableButton.disabled = true;
+        try {
+            const registration = await navigator.serviceWorker.getRegistration(@json(asset('sw.js')));
+            const subscription = await registration?.pushManager.getSubscription();
+            if (subscription) {
+                await fetch(@json(route('push.subscriptions.destroy')), {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                    body: JSON.stringify({ endpoint: subscription.endpoint }),
+                });
+                await subscription.unsubscribe();
+            }
+            setStatus('Notifikasi push dinonaktifkan di perangkat ini.');
+            testButton.hidden = true;
+            disableButton.hidden = true;
+            enableButton.hidden = false;
+        } catch (_) {
+            setStatus('Notifikasi gagal dinonaktifkan. Coba lagi.');
+        } finally {
+            disableButton.disabled = false;
+        }
+    });
+
+    dismissButton.addEventListener('click', () => {
+        sessionStorage.setItem(dismissedKey, '1');
+        card.hidden = true;
+    });
+
+    initialize().catch(() => {
+        card.hidden = false;
+        setStatus('Status push tidak dapat diperiksa. Coba muat ulang halaman.');
+    });
+})();
 </script>
 @endsection

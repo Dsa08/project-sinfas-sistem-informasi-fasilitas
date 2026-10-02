@@ -1,5 +1,10 @@
 <?php
 
+$publicHtmlPath = env('PUBLIC_HTML_PATH') ?: (
+    env('APP_ENV') === 'production' ? base_path('../public_html') : public_path()
+);
+$publicUploadsUrl = env('PUBLIC_UPLOADS_URL') ?: rtrim((string) env('APP_URL', 'http://localhost'), '/') . '/uploads';
+
 return [
 
     /*
@@ -42,6 +47,14 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
+        ],
+
+        'public_uploads' => [
+            'driver' => 'local',
+            'root' => rtrim($publicHtmlPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'uploads',
+            'url' => $publicUploadsUrl,
+            'visibility' => 'public',
+            'throw' => true,
         ],
 
         's3' => [

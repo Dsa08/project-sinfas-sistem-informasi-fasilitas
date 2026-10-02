@@ -67,6 +67,11 @@ class Pengembalian extends Model
         'tanggal_kembali' => 'date',
     ];
 
+    public function getBuktiFotoVideoUrlAttribute(): ?string
+    {
+        return app(\App\Services\PublicUploadStorage::class)->url($this->bukti_foto_video);
+    }
+
     /**
      * Relasi: Setiap data pengembalian merujuk tepat ke satu permohonan peminjaman (N:1).
      *

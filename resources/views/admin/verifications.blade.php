@@ -278,10 +278,7 @@
                         <td style="text-align: center;">
                             @if($ret->pengembalian->bukti_foto_video)
                                 @php
-                                    $rawBukti = $ret->pengembalian->bukti_foto_video;
-                                    $buktiUrl = str_starts_with($rawBukti, 'uploads/') 
-                                        ? asset($rawBukti) 
-                                        : (str_starts_with($rawBukti, 'http') ? $rawBukti : asset('storage/' . $rawBukti));
+                                    $buktiUrl = $ret->pengembalian->bukti_foto_video_url;
                                 @endphp
                                 <div style="display: flex; gap: 0.35rem; justify-content: center; align-items: center;">
                                     <button type="button" title="Lihat Bukti Foto" onclick="window.open('{{ $buktiUrl }}', '_blank')" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.3rem 0.45rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">

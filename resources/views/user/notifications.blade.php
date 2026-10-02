@@ -89,7 +89,7 @@
                     {{-- Item Thumbnail / Icon --}}
                     <div class="notif-card-thumb">
                         @if($barang && !empty($barang->foto) && file_exists(public_path($barang->foto)))
-                            <img src="{{ asset($barang->foto) }}" alt="{{ $barang->nama_barang }}" class="notif-thumb-img">
+                            <img src="{{ $barang->foto_url }}" alt="{{ $barang->nama_barang }}" class="notif-thumb-img">
                         @else
                             <div class="notif-thumb-placeholder notif-thumb-placeholder--{{ $item->tipe }}">
                                 @if($item->tipe === 'pengajuan_disetujui')

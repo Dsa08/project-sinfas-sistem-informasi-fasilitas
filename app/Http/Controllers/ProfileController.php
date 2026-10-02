@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -144,11 +143,9 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $path = app(\App\Services\WebpImageOptimizer::class)
-            ->storeOnDisk($request->file('foto'), 'avatars');
+            ->storeOnDisk($request->file('foto'), 'avatars', 'public_uploads', 'avatar');
 
-        if ($user->foto && Storage::disk('public')->exists($user->foto)) {
-            Storage::disk('public')->delete($user->foto);
-        }
+        app(\App\Services\PublicUploadStorage::class)->delete($user->foto);
 
         $user->foto = $path;
         $user->save();
@@ -165,9 +162,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->foto && Storage::disk('public')->exists($user->foto)) {
-            Storage::disk('public')->delete($user->foto);
-        }
+        app(\App\Services\PublicUploadStorage::class)->delete($user->foto);
 
         $user->foto = null;
         $user->save();

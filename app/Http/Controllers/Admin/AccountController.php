@@ -8,7 +8,6 @@ use App\Models\Siswa;
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
@@ -133,7 +132,7 @@ class AccountController extends Controller
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = app(\App\Services\WebpImageOptimizer::class)
-                ->storeOnDisk($request->file('foto'), 'avatars');
+                ->storeOnDisk($request->file('foto'), 'avatars', 'public_uploads', 'avatar');
         }
 
         // 4. Eksekusi pembuatan akun baru
@@ -175,7 +174,7 @@ class AccountController extends Controller
             'nomor_kontak' => $akun->nomor_kontak,
             'username'     => $akun->username,
             'email'        => $akun->email,
-            'foto'         => $akun->foto ? asset('storage/' . $akun->foto) : null,
+            'foto'         => $akun->foto_url,
             'is_active'    => $akun->is_active,
             'created_at'   => $akun->created_at?->format('d M Y, H:i'),
         ]);
@@ -243,11 +242,9 @@ class AccountController extends Controller
         // 3. Penggantian berkas avatar jika ada file baru diunggah
         if ($request->hasFile('foto')) {
             $newFotoPath = app(\App\Services\WebpImageOptimizer::class)
-                ->storeOnDisk($request->file('foto'), 'avatars');
+                ->storeOnDisk($request->file('foto'), 'avatars', 'public_uploads', 'avatar');
 
-            if ($akun->foto && Storage::disk('public')->exists($akun->foto)) {
-                Storage::disk('public')->delete($akun->foto);
-            }
+            app(\App\Services\PublicUploadStorage::class)->delete($akun->foto);
             $akun->foto = $newFotoPath;
         }
 

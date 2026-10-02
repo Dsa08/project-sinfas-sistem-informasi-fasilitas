@@ -89,7 +89,7 @@
                 <div class="admin-profile-avatar-section">
                     <div class="admin-profile-avatar-wrap" id="avatar-preview-wrap">
                         @if($user->foto)
-                            <img src="{{ asset('storage/' . $user->foto) }}"
+                            <img src="{{ $user->foto_url }}"
                                  alt="Foto profil {{ $user->nama }}"
                                  class="admin-profile-avatar-img"
                                  id="avatar-preview-img">

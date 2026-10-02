@@ -130,7 +130,7 @@
                                 data-kontak="{{ $akun->nomor_kontak }}"
                                 data-username="{{ $akun->username }}"
                                 data-email="{{ $akun->email }}"
-                                data-foto="{{ $akun->foto ? asset('storage/' . $akun->foto) : '' }}"
+                                data-foto="{{ $akun->foto_url ?? '' }}"
                             >
                                 <x-heroicon-o-pencil-square class="w-4 h-4" />
                             </button>

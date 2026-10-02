@@ -370,19 +370,16 @@ class UserController extends Controller
         $buktiPath = null;
         if ($request->hasFile('bukti_foto_video')) {
             $file = $request->file('bukti_foto_video');
-            $destinationPath = base_path('../public_html/uploads/returns');
 
             if (strtolower($file->getClientOriginalExtension()) === 'mp4') {
-                if (!is_dir($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
-                $fileName = 'return_' . time() . '_' . Str::random(8) . '.mp4';
-                $file->move($destinationPath, $fileName);
+                $storedPath = app(\App\Services\PublicUploadStorage::class)
+                    ->storeFile($file, 'returns', 'return_' . Str::uuid() . '.mp4');
             } else {
-                $fileName = app(\App\Services\WebpImageOptimizer::class)
-                    ->storeAt($file, $destinationPath, 'return');
+                $relativePath = app(\App\Services\WebpImageOptimizer::class)
+                    ->storeOnDisk($file, 'returns', 'public_uploads', 'return');
+                $storedPath = 'uploads/' . $relativePath;
             }
-            $buktiPath = 'uploads/returns/' . $fileName;
+            $buktiPath = $storedPath;
         }
 
         // 4. Generate kode kembali unik (contoh: 'KMB-2026-001')

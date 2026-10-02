@@ -299,10 +299,9 @@ class AdminSaranaController extends Controller
 
         // Penanganan upload berkas gambar sarana
         if ($request->hasFile('foto')) {
-            $destinationPath = public_path('uploads/items');
-            $file = $request->file('foto');
             $filename = app(\App\Services\WebpImageOptimizer::class)
-                ->storeAt($file, $destinationPath, 'item');
+                ->storeOnDisk($request->file('foto'), 'items', 'public_uploads', 'item');
+            $filename = basename($filename);
             $data['foto'] = 'uploads/items/' . $filename;
         }
 
@@ -347,7 +346,7 @@ class AdminSaranaController extends Controller
             'keterangan'         => $item->keterangan,
             'kategori_nama'      => $item->kategori->nama_kategori ?? '-',
             'status'             => $item->status,
-            'foto'               => $item->foto ? asset($item->foto) : null,
+            'foto'               => $item->foto_url,
         ]);
     }
 
@@ -390,15 +389,12 @@ class AdminSaranaController extends Controller
 
         // Mengganti berkas gambar jika pengguna mengunggah berkas baru
         if ($request->hasFile('foto')) {
-            $destinationPath = public_path('uploads/items');
-            $file = $request->file('foto');
             $filename = app(\App\Services\WebpImageOptimizer::class)
-                ->storeAt($file, $destinationPath, 'item');
+                ->storeOnDisk($request->file('foto'), 'items', 'public_uploads', 'item');
+            $filename = basename($filename);
 
             // Hapus foto lama setelah foto pengganti berhasil disimpan.
-            if ($item->foto && file_exists(public_path($item->foto))) {
-                @unlink(public_path($item->foto));
-            }
+            app(\App\Services\PublicUploadStorage::class)->delete($item->foto);
             $data['foto'] = 'uploads/items/' . $filename;
         }
 
@@ -443,9 +439,7 @@ class AdminSaranaController extends Controller
         }
 
         // Hapus file fisik gambar jika tersimpan
-        if ($item->foto && file_exists(public_path($item->foto))) {
-            @unlink(public_path($item->foto));
-        }
+        app(\App\Services\PublicUploadStorage::class)->delete($item->foto);
 
         $item->delete();
 

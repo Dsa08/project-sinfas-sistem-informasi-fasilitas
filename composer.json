@@ -11,7 +11,8 @@
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",
-        "mallardduck/blade-lucide-icons": "^2.0"
+        "mallardduck/blade-lucide-icons": "^2.0",
+        "minishlink/web-push": "^9.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

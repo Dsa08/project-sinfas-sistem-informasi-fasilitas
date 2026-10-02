@@ -118,19 +118,7 @@ class Akun extends Authenticatable
      */
     public function getFotoUrlAttribute(): ?string
     {
-        if (!$this->foto) {
-            return null;
-        }
-        if (filter_var($this->foto, FILTER_VALIDATE_URL)) {
-            return $this->foto;
-        }
-        if (file_exists(public_path($this->foto))) {
-            return asset($this->foto);
-        }
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->foto)) {
-            return asset('storage/' . ltrim($this->foto, '/'));
-        }
-        return asset('storage/' . ltrim($this->foto, '/'));
+        return app(\App\Services\PublicUploadStorage::class)->url($this->foto);
     }
 
     /**

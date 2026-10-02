@@ -32,7 +32,7 @@
         <div class="loan-item-column">
             <div class="loan-image-card">
                 @if(!empty($item->foto) && file_exists(public_path($item->foto)))
-                    <img src="{{ asset($item->foto) }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                    <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                 @else
                     {{-- Placeholder abu-abu --}}
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; color: #9ca3af;">

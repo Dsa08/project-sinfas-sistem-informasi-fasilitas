@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Akun;
 use App\Models\Notifikasi;
 use App\Models\Peminjaman;
+use App\Services\WebPushService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -37,7 +38,7 @@ class NotifikasiService
     {
         $idAkun = $akun instanceof Akun ? $akun->id_akun : $akun;
 
-        return Notifikasi::create([
+        $notifikasi = Notifikasi::create([
             'id_akun'       => $idAkun,
             'tipe'          => $tipe,
             'judul'         => $judul,
@@ -46,6 +47,17 @@ class NotifikasiService
             'data_tambahan' => $dataTambahan,
             'status_baca'   => false,
         ]);
+
+        if ($akun instanceof Akun && $akun->role === 'siswa') {
+            app(WebPushService::class)->sendToStudent(
+                $akun,
+                $judul,
+                $pesan,
+                $dataTambahan['action_url'] ?? route('loan.status')
+            );
+        }
+
+        return $notifikasi;
     }
 
     /**
@@ -100,7 +112,7 @@ class NotifikasiService
         $pesan = "Pengajuan peminjaman {$namaBarang} (Kode: {$peminjaman->kode_pinjam}) telah disetujui. Silakan ambil alat di Ruang Sarpras.";
 
         self::kirim(
-            $akunSiswa->id_akun,
+            $akunSiswa,
             'pengajuan_disetujui',
             $judul,
             $pesan,
@@ -132,7 +144,7 @@ class NotifikasiService
         $pesan = "Pengajuan peminjaman {$namaBarang} (Kode: {$peminjaman->kode_pinjam}) telah ditolak." . $alasanText;
 
         self::kirim(
-            $akunSiswa->id_akun,
+            $akunSiswa,
             'pengajuan_ditolak',
             $judul,
             $pesan,
@@ -195,7 +207,7 @@ class NotifikasiService
         $pesan = "Pengembalian {$namaBarang} (Kode: {$peminjaman->kode_pinjam}) telah diverifikasi oleh Admin dengan kondisi: {$kondisi}. Terima kasih telah menjaga fasilitas sekolah.";
 
         self::kirim(
-            $akunSiswa->id_akun,
+            $akunSiswa,
             'pengembalian_dikonfirmasi',
             $judul,
             $pesan,
@@ -228,7 +240,7 @@ class NotifikasiService
         $pesan = "Sarana {$namaBarang} (Kode: {$peminjaman->kode_pinjam}) telah dipinjam selama {$hariBerlalu} hari sejak {$tglPinjamFormatted}. Harap segera mengembalikan sarana ke Ruang Sarpras.";
 
         self::kirim(
-            $akunSiswa->id_akun,
+            $akunSiswa,
             'batas_waktu',
             $judul,
             $pesan,

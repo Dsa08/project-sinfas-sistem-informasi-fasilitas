@@ -24,6 +24,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if(Auth::user()?->role === 'siswa')
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <meta name="theme-color" content="#1e40af">
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="app-body">
@@ -483,5 +487,12 @@
         </a>
     </nav>
     @include('components.app-dialogs')
+    @if(Auth::user()?->role === 'siswa')
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(() => {}));
+            }
+        </script>
+    @endif
 </body>
 </html>

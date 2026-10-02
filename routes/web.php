@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminSaranaController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\User\PushSubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +88,10 @@ Route::middleware('auth')->group(function () {
     | Mengatur fitur operasional peminjaman dan pengembalian sarana prasarana.
     */
     Route::middleware('role:siswa')->group(function () {
+        Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscriptions.store');
+        Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.subscriptions.destroy');
+        Route::post('/push-notifications/test', [PushSubscriptionController::class, 'test'])->name('push.notifications.test');
+
         // Dashboard Siswa: Menampilkan katalog sarana yang siap dipinjam & filter pencarian
         Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
         
@@ -196,6 +201,32 @@ Route::get('/admin', function () {
 Route::get('/admin-sistem', function () {
     return redirect()->route('admin.sistem.dashboard');
 });
+
+// Fallback pembacaan upload dari public_html jika web server tidak menyajikan file statisnya.
+Route::get('/uploads/{any}', function ($any) {
+    $relativePath = str_replace('\\', '/', $any);
+    abort_if(in_array('..', explode('/', $relativePath), true), 404);
+
+    $disk = \Illuminate\Support\Facades\Storage::disk('public_uploads');
+    $candidates = [
+        [$disk->path($relativePath), realpath($disk->path(''))],
+        [public_path('uploads/' . $relativePath), realpath(public_path('uploads'))],
+    ];
+
+    foreach ($candidates as [$candidate, $rootPath]) {
+        $filePath = realpath($candidate);
+        if (!$rootPath || !$filePath || !is_file($filePath)) {
+            continue;
+        }
+
+        $rootPrefix = rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if (str_starts_with($filePath, $rootPrefix)) {
+            return response()->file($filePath);
+        }
+    }
+
+    abort(404);
+})->where('any', '.*');
 
 /*
 |--------------------------------------------------------------------------

@@ -87,6 +87,11 @@ class Barang extends Model
         return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');
     }
 
+    public function getFotoUrlAttribute(): ?string
+    {
+        return app(\App\Services\PublicUploadStorage::class)->url($this->foto);
+    }
+
     /**
      * Relasi: Satu barang memiliki banyak riwayat transaksi peminjaman (1:N).
      *
