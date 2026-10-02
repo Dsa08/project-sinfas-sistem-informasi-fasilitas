@@ -348,7 +348,7 @@
                             <span class="shopee-img-badge-dot"></span>
                             {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
                         </span>
-                        @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                        @if($item->foto_url)
                             <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" loading="lazy">
                         @else
                             <div class="shopee-card-img-placeholder">
@@ -463,7 +463,7 @@
                                 <span class="shopee-img-badge-dot"></span>
                                 {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
                             </span>
-                            @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                            @if($item->foto_url)
                                 <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" loading="lazy">
                             @else
                                 <div class="shopee-card-img-placeholder">
@@ -542,7 +542,7 @@
                                     <span class="shopee-img-badge-dot"></span>
                                     {{ $item->jumlah_baik > 0 ? $item->jumlah_baik . ' unit' : 'Habis' }}
                                 </span>
-                                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                                @if($item->foto_url)
                                     <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" loading="lazy">
                                 @else
                                     <div class="shopee-card-img-placeholder">
