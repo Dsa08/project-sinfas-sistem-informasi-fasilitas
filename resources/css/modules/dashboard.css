@@ -558,8 +558,10 @@
     }
 
     .navbar--dashboard .navbar-main-row {
-        min-height: 44px;
-        justify-content: flex-end;
+        position: static;
+        width: 0;
+        min-height: 0;
+        height: 0;
     }
 
     .navbar--dashboard .navbar-left,
@@ -574,7 +576,16 @@
         gap: 0;
     }
 
+    .navbar--dashboard .navbar-notif-wrapper {
+        position: absolute !important;
+        top: 50%;
+        right: 0.85rem;
+        transform: translateY(-50%);
+    }
+
     .navbar--dashboard .navbar-search-section {
+        align-self: flex-start;
+        width: calc(100% - 48px);
         margin: 0;
     }
 
