@@ -32,7 +32,8 @@
 </head>
 <body class="app-body">
     {{-- Navbar --}}
-    <nav class="navbar" id="main-navbar" style="position: relative;">
+    <nav class="navbar {{ request()->routeIs('dashboard') ? 'navbar--dashboard' : '' }}" id="main-navbar">
+        <div class="navbar-main-row">
         <div class="navbar-left">
             <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="navbar-logo-img">
             <span class="navbar-brand">@yield('brand_name', 'SINFAS')</span>
@@ -110,6 +111,10 @@
                 @csrf
             </form>
         </div>
+        </div>
+        @if(request()->routeIs('dashboard'))
+            @include('components.dashboard-search')
+        @endif
     </nav>
 
     {{-- Logout Confirmation Modal --}}
@@ -486,9 +491,103 @@
             <span class="mobile-nav-label">Profil</span>
         </a>
     </nav>
+    @if(Auth::user()?->role === 'siswa')
+        <div class="pwa-install-overlay" id="pwa-install-overlay" hidden>
+            <section class="pwa-install-dialog" role="dialog" aria-modal="true" aria-labelledby="pwa-install-title" aria-describedby="pwa-install-description">
+                <button class="pwa-install-close" type="button" id="pwa-install-close" aria-label="Tutup">&times;</button>
+                <div class="pwa-install-mark" aria-hidden="true">S</div>
+                <span class="pwa-install-eyebrow">SINFAS untuk ponsel</span>
+                <h2 id="pwa-install-title">Pasang pintasan SINFAS?</h2>
+                <p id="pwa-install-description">Buka katalog, ajukan peminjaman, dan cek status langsung dari layar utama ponsel Anda.</p>
+                <div class="pwa-install-ios-guide" id="pwa-install-ios-guide" hidden>
+                    <span>Di Safari, ketuk <strong>Bagikan</strong>, lalu pilih <strong>Tambahkan ke Layar Utama</strong>.</span>
+                </div>
+                <div class="pwa-install-actions">
+                    <button class="pwa-install-button" type="button" id="pwa-install-button">Pasang pintasan</button>
+                    <button class="pwa-install-later" type="button" id="pwa-install-later">Nanti saja</button>
+                </div>
+            </section>
+        </div>
+    @endif
     @include('components.app-dialogs')
     @if(Auth::user()?->role === 'siswa')
         <script>
+            (() => {
+                const overlay = document.getElementById('pwa-install-overlay');
+                const installButton = document.getElementById('pwa-install-button');
+                const laterButton = document.getElementById('pwa-install-later');
+                const closeButton = document.getElementById('pwa-install-close');
+                const iosGuide = document.getElementById('pwa-install-ios-guide');
+                if (!overlay || !installButton || !laterButton || !closeButton) return;
+
+                const dismissedKey = 'sinfas-pwa-install-dismissed-at';
+                const dismissedForMs = 14 * 24 * 60 * 60 * 1000;
+                let installPrompt = null;
+                let isIosSafari = false;
+                let shown = false;
+
+                const isInstalled = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+                const wasRecentlyDismissed = () => {
+                    const dismissedAt = Number(localStorage.getItem(dismissedKey) || 0);
+                    return dismissedAt && Date.now() - dismissedAt < dismissedForMs;
+                };
+                const hidePrompt = (remember = false) => {
+                    overlay.hidden = true;
+                    if (remember) localStorage.setItem(dismissedKey, String(Date.now()));
+                };
+                const showPrompt = () => {
+                    if (shown || isInstalled() || wasRecentlyDismissed()) return;
+                    shown = true;
+                    overlay.hidden = false;
+                    installButton.focus();
+                };
+
+                const userAgent = navigator.userAgent || '';
+                isIosSafari = /iphone|ipad|ipod/i.test(userAgent)
+                    && /safari/i.test(userAgent)
+                    && !/crios|fxios|edgios|opios/i.test(userAgent);
+
+                if (isIosSafari && iosGuide) {
+                    iosGuide.hidden = false;
+                    installButton.hidden = true;
+                    window.setTimeout(showPrompt, 1200);
+                }
+
+                window.addEventListener('beforeinstallprompt', (event) => {
+                    event.preventDefault();
+                    installPrompt = event;
+                    window.setTimeout(showPrompt, 1200);
+                });
+
+                window.addEventListener('appinstalled', () => hidePrompt());
+                installButton.addEventListener('click', async () => {
+                    if (isIosSafari) {
+                        hidePrompt(true);
+                        return;
+                    }
+                    if (!installPrompt) return;
+
+                    installButton.disabled = true;
+                    try {
+                        await installPrompt.prompt();
+                        const choice = await installPrompt.userChoice;
+                        installPrompt = null;
+                        hidePrompt(choice.outcome !== 'accepted');
+                    } finally {
+                        installButton.disabled = false;
+                    }
+                });
+
+                laterButton.addEventListener('click', () => hidePrompt(true));
+                closeButton.addEventListener('click', () => hidePrompt(true));
+                overlay.addEventListener('click', (event) => {
+                    if (event.target === overlay) hidePrompt(true);
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && !overlay.hidden) hidePrompt(true);
+                });
+            })();
+
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(() => {}));
             }

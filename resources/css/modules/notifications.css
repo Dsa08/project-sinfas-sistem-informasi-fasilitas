@@ -58,10 +58,11 @@
     .navbar-notif-dropdown {
         position: fixed !important;
         top: 60px !important;
-        left: 10px !important;
-        right: 10px !important;
+        left: max(10px, env(safe-area-inset-left)) !important;
+        right: max(10px, env(safe-area-inset-right)) !important;
         width: auto !important;
-        max-width: calc(100vw - 20px) !important;
+        max-width: none !important;
+        box-sizing: border-box;
         max-height: calc(100vh - 120px) !important;
         border-radius: 14px;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
@@ -403,6 +404,7 @@
 .notif-card-content {
     flex: 1;
     min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .notif-title-row {
@@ -526,6 +528,7 @@
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+    min-width: 0;
 }
 
 .btn-notif-action {
@@ -668,15 +671,37 @@
 
 /* Responsive Notifikasi di Mobile */
 @media (max-width: 640px) {
+    .notifications-page-container {
+        width: 100%;
+        min-width: 0;
+        padding-right: 1rem;
+        padding-left: 1rem;
+        overflow-x: clip;
+    }
+
+    .notif-header-actions,
+    .notif-header-actions form,
+    .notif-header-actions button {
+        max-width: 100%;
+    }
+
+    .notif-filter-tabs {
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+
     .notif-card {
         flex-direction: column;
         align-items: stretch;
         gap: 1rem;
         padding: 1.15rem;
+        min-width: 0;
     }
 
     .notif-card-body {
         gap: 0.85rem;
+        min-width: 0;
+        width: 100%;
     }
 
     .notif-card-thumb {
@@ -687,6 +712,28 @@
     .notif-card-badge-wrap {
         display: flex;
         justify-content: flex-end;
+        max-width: 100%;
+    }
+
+    .notif-actions-bottom {
+        gap: 0.6rem;
+    }
+
+    .notif-actions-bottom form {
+        max-width: 100%;
+    }
+
+    .btn-notif-action {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .notif-title,
+    .notif-message,
+    .notif-meta-row > *,
+    .figma-status-badge {
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
     .figma-status-badge {

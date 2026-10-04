@@ -108,6 +108,36 @@
     color: #1d67f2;
 }
 
+/* Search and filters stay attached to the sticky student dashboard navbar. */
+.navbar--dashboard {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 1.5rem 0.65rem;
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.07);
+}
+
+.navbar-search-section {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+}
+
+.search-control-shell {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.navbar-search-section .search-bar {
+    flex: 1;
+}
+
+.navbar-search-section .filter-dropdown-wrapper {
+    flex: 0 0 auto;
+}
+
 
 
 /* Category Active Filter Banner */
@@ -521,6 +551,85 @@
 @media (max-width: 768px) {
     .navbar {
         padding: 0 1rem;
+    }
+
+    .navbar--dashboard {
+        padding: 0 0.85rem 0.6rem;
+    }
+
+    .navbar--dashboard .navbar-main-row {
+        min-height: 44px;
+        justify-content: flex-end;
+    }
+
+    .navbar--dashboard .navbar-left,
+    .navbar--dashboard .navbar-center,
+    .navbar--dashboard .navbar-right #loan-status-btn,
+    .navbar--dashboard .navbar-right #profile-btn,
+    .navbar--dashboard .navbar-right #logout-trigger-btn {
+        display: none !important;
+    }
+
+    .navbar--dashboard .navbar-right {
+        gap: 0;
+    }
+
+    .navbar--dashboard .navbar-search-section {
+        margin: 0;
+    }
+
+    .navbar--dashboard .search-control-shell {
+        gap: 0;
+        overflow: visible;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .navbar--dashboard .search-control-shell:focus-within {
+        border-color: #1d67f2;
+        box-shadow: 0 0 0 3px rgba(29, 103, 242, 0.12);
+    }
+
+    .navbar--dashboard .search-bar {
+        height: 42px;
+        padding: 0 0.65rem;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .navbar--dashboard .search-bar:focus-within {
+        border: 0;
+        box-shadow: none;
+    }
+
+    .navbar--dashboard .filter-dropdown-wrapper {
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+        border-left: 1px solid #e2e8f0;
+    }
+
+    .navbar--dashboard .filter-btn {
+        width: 44px;
+        height: 32px;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        border-radius: 0 8px 8px 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .navbar--dashboard .filter-btn:hover,
+    .navbar--dashboard .filter-btn--has-filter {
+        background: #eff6ff;
+    }
+
+    .navbar--dashboard .filter-btn > span:not(.filter-active-dot) {
+        display: none;
     }
 
     .app-main {

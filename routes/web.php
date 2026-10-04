@@ -58,7 +58,7 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 | Seluruh endpoint di bawah grup ini mewajibkan pengguna lolos middleware 'auth'.
 */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin.desktop'])->group(function () {
     // --- Keluar Aplikasi (Logout) ---
     // Menghapus session login, meregenerasi token CSRF, dan mengarahkan kembali ke login
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
