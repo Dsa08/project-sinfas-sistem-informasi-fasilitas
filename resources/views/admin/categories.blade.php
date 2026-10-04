@@ -56,7 +56,7 @@
             if (request('sort') === $col) {
                 return request('dir') === 'asc' 
                     ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
-                    : 'Klik untuk mengembalikan ke urutan default (Terbaru di atas)';
+                    : 'Klik untuk mengembalikan urutan ke yang terbaru';
             }
             return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
         };

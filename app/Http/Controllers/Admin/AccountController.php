@@ -112,7 +112,7 @@ class AccountController extends Controller
         if ($role === 'siswa') {
             $siswa = Siswa::where('nis', $nisNip)->first();
             if (!$siswa) {
-                return back()->withErrors(['nis_nip' => 'NIS tidak ditemukan di data master siswa.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'Data siswa dengan NIS tersebut tidak ditemukan. Periksa kembali NIS.'])->withInput();
             }
             if (Akun::where('nis', $nisNip)->exists()) {
                 return back()->withErrors(['nis_nip' => 'NIS ini sudah memiliki akun terdaftar.'])->withInput();
@@ -121,7 +121,7 @@ class AccountController extends Controller
         } elseif ($role === 'admin_sarana') {
             $pegawai = Pegawai::where('nip', $nisNip)->first();
             if (!$pegawai) {
-                return back()->withErrors(['nis_nip' => 'NIP tidak ditemukan di data master pegawai.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'Data pegawai dengan NIP tersebut tidak ditemukan. Periksa kembali NIP.'])->withInput();
             }
             if (Akun::where('nip', $nisNip)->exists()) {
                 return back()->withErrors(['nis_nip' => 'NIP ini sudah memiliki akun terdaftar.'])->withInput();
@@ -246,7 +246,7 @@ class AccountController extends Controller
         if ($role === 'siswa') {
             $siswa = Siswa::where('nis', $nisNip)->first();
             if (!$siswa) {
-                return back()->withErrors(['nis_nip' => 'NIS tidak ditemukan di data siswa.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'Data siswa dengan NIS tersebut tidak ditemukan. Periksa kembali NIS.'])->withInput();
             }
             $existingAkun = Akun::where('nis', $nisNip)->where('id_akun', '!=', $akun->id_akun)->first();
             if ($existingAkun) {
@@ -256,7 +256,7 @@ class AccountController extends Controller
         } elseif ($role === 'admin_sarana') {
             $pegawai = Pegawai::where('nip', $nisNip)->first();
             if (!$pegawai) {
-                return back()->withErrors(['nis_nip' => 'NIP tidak ditemukan di data pegawai.'])->withInput();
+                return back()->withErrors(['nis_nip' => 'Data pegawai dengan NIP tersebut tidak ditemukan. Periksa kembali NIP.'])->withInput();
             }
             $existingAkun = Akun::where('nip', $nisNip)->where('id_akun', '!=', $akun->id_akun)->first();
             if ($existingAkun) {
@@ -334,6 +334,6 @@ class AccountController extends Controller
         $akun->save();
 
         return redirect()->route('admin.sistem.accounts')
-            ->with('success', "Password akun {$akun->nama} berhasil di-reset ke nilai bawaan ('password123').");
+            ->with('success', "Kata sandi akun {$akun->nama} dikembalikan ke kata sandi awal (password123).");
     }
 }

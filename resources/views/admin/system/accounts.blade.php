@@ -66,7 +66,7 @@
             if (request('sort') === $col) {
                 return request('dir') === 'asc' 
                     ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
-                    : 'Klik untuk mengembalikan ke urutan default (Terbaru di atas)';
+                    : 'Klik untuk mengembalikan urutan ke yang terbaru';
             }
             return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
         };
@@ -148,11 +148,11 @@
                                 </button>
                                 <div class="action-dropdown-menu">
                                     {{-- Reset Password --}}
-                                    <form method="POST" action="{{ route('admin.sistem.accounts.reset', $akun->id_akun) }}" class="inline-form" onsubmit="return confirmAppForm(this, @js('Reset password ' . $akun->nama . ' ke default?'), {title: 'Reset Password', confirmText: 'Reset Password', danger: true}, event)">
+                                    <form method="POST" action="{{ route('admin.sistem.accounts.reset', $akun->id_akun) }}" class="inline-form" onsubmit="return confirmAppForm(this, @js('Kembalikan kata sandi akun ' . $akun->nama . ' ke kata sandi awal?'), {title: 'Atur Ulang Kata Sandi', confirmText: 'Atur Ulang', danger: true}, event)">
                                         @csrf
                                         <button type="submit" class="action-dropdown-item btn-action-reset">
                                             <x-heroicon-o-key class="w-4 h-4" />
-                                            <span>Reset Password</span>
+                                            <span>Atur Ulang Kata Sandi</span>
                                         </button>
                                     </form>
                                     {{-- Deactivate/Activate Account --}}

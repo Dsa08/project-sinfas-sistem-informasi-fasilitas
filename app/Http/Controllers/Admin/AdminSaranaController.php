@@ -313,10 +313,11 @@ class AdminSaranaController extends Controller
                 ->with('toast_message', "Data barang {$data['nama_barang']} berhasil ditambahkan.")
                 ->with('success', 'Penambahan data barang berhasil');
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal menambahkan barang.', ['exception' => $e]);
             return back()->withInput()
                 ->with('toast_type', 'error')
                 ->with('toast_title', 'Gagal menambahkan barang')
-                ->with('toast_message', 'Terjadi kesalahan basis data: ' . $e->getMessage())
+                ->with('toast_message', 'Barang gagal ditambahkan. Periksa kembali data yang diisi, lalu coba lagi.')
                 ->with('error', 'Gagal menambahkan barang');
         }
     }
@@ -406,10 +407,11 @@ class AdminSaranaController extends Controller
                 ->with('toast_message', "Data barang {$item->nama_barang} berhasil diperbarui.")
                 ->with('success', 'Perubahan data barang berhasil');
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal memperbarui barang.', ['exception' => $e]);
             return back()->withInput()
                 ->with('toast_type', 'error')
                 ->with('toast_title', 'Gagal memperbarui barang')
-                ->with('toast_message', 'Terjadi kesalahan basis data: ' . $e->getMessage())
+                ->with('toast_message', 'Perubahan barang gagal disimpan. Periksa kembali data yang diisi, lalu coba lagi.')
                 ->with('error', 'Gagal memperbarui barang');
         }
     }
@@ -661,7 +663,7 @@ class AdminSaranaController extends Controller
                 return redirect()->route('admin.verifications')
                     ->with('toast_type', 'error')
                     ->with('toast_title', 'Persetujuan pengajuan gagal')
-                    ->with('toast_message', "Error: Data pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses.")
+                    ->with('toast_message', "Pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses. Muat ulang halaman, lalu coba lagi.")
                     ->with('error', 'Persetujuan pengajuan gagal');
             }
 
@@ -684,10 +686,11 @@ class AdminSaranaController extends Controller
                 ->with('toast_message', "Pengajuan peminjaman {$namaBarang} untuk {$namaPeminjam} ({$kode}) telah disetujui.")
                 ->with('success', 'Persetujuan pengajuan berhasil');
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal menyetujui pengajuan peminjaman.', ['kode_pinjam' => $kode, 'exception' => $e]);
             return redirect()->route('admin.verifications')
                 ->with('toast_type', 'error')
                 ->with('toast_title', 'Persetujuan pengajuan gagal')
-                ->with('toast_message', 'Error: ' . $e->getMessage())
+                ->with('toast_message', 'Pengajuan belum dapat disetujui. Coba lagi beberapa saat lagi.')
                 ->with('error', 'Persetujuan pengajuan gagal');
         }
     }
@@ -712,7 +715,7 @@ class AdminSaranaController extends Controller
                 return redirect()->route('admin.verifications')
                     ->with('toast_type', 'error')
                     ->with('toast_title', 'Penolakan pengajuan gagal')
-                    ->with('toast_message', "Error: Data pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses.")
+                    ->with('toast_message', "Pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses. Muat ulang halaman, lalu coba lagi.")
                     ->with('error', 'Penolakan pengajuan gagal');
             }
 
@@ -735,10 +738,11 @@ class AdminSaranaController extends Controller
                 ->with('toast_message', "Pengajuan peminjaman ({$kode}) untuk {$namaPeminjam} telah ditolak.")
                 ->with('success', 'Penolakan pengajuan berhasil');
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal menolak pengajuan peminjaman.', ['kode_pinjam' => $kode, 'exception' => $e]);
             return redirect()->route('admin.verifications')
                 ->with('toast_type', 'error')
                 ->with('toast_title', 'Penolakan pengajuan gagal')
-                ->with('toast_message', 'Error: ' . $e->getMessage())
+                ->with('toast_message', 'Pengajuan belum dapat ditolak. Coba lagi beberapa saat lagi.')
                 ->with('error', 'Penolakan pengajuan gagal');
         }
     }

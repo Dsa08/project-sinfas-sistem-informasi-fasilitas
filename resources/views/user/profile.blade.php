@@ -54,7 +54,7 @@
 
                 @if($user->foto)
                     <span style="color: #d1d5db; font-size: 0.8rem;">|</span>
-                    <form action="{{ route('profile.photo.delete') }}" method="POST" style="display: inline;" onsubmit="return confirmAppForm(this, 'Apakah Anda yakin ingin menghapus foto profil ini dan kembali ke avatar default?', {title: 'Hapus Foto Profil', confirmText: 'Hapus Foto', danger: true}, event)">
+                    <form action="{{ route('profile.photo.delete') }}" method="POST" style="display: inline;" onsubmit="return confirmAppForm(this, 'Apakah Anda yakin ingin menghapus foto profil ini dan kembali ke gambar profil awal?', {title: 'Hapus Foto Profil', confirmText: 'Hapus Foto', danger: true}, event)">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="profile-avatar-link" style="background: none; border: none; padding: 0; color: #ef4444; font-family: inherit; font-size: 0.85rem; cursor: pointer;">

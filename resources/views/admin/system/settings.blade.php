@@ -39,7 +39,7 @@
 
     {{-- Card 2: Backup & Restore --}}
     <div class="system-card">
-        <h3 class="system-card-title">Pencadangan & Pemulihan Sistem (Backup & Restore)</h3>
+        <h3 class="system-card-title">Pencadangan & Pemulihan Data</h3>
         <div class="system-card-divider"></div>
         <div class="backup-restore-section">
             <div class="backup-btn-group">
@@ -52,7 +52,7 @@
 
     {{-- Card 3: Activity Log --}}
     <div class="system-card">
-        <h3 class="system-card-title no-border">Log Aktivitas Sistem</h3>
+        <h3 class="system-card-title no-border">Riwayat Aktivitas</h3>
         <div class="system-table-card no-border mt-2">
             <table class="system-table activity-log-table">
                 <thead>

@@ -232,9 +232,9 @@ class AuthController extends Controller
         $emailSent = false;
         if ($targetEmail && filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
             try {
-                Mail::raw("Halo {$akun->nama},\n\nAnda menerima email ini karena ada permohonan reset password untuk akun SINFAS Anda.\n\nSilakan klik tautan berikut untuk membuat password baru:\n{$resetUrl}\n\nTautan ini akan kedaluwarsa dalam waktu 60 menit.\nJika Anda tidak meminta reset password, abaikan email ini.\n\nSalam,\nTim SINFAS", function ($message) use ($targetEmail, $akun) {
+                Mail::raw("Halo {$akun->nama},\n\nAnda menerima email ini karena ada permintaan untuk mengatur ulang kata sandi akun SINFAS Anda.\n\nBuka tautan berikut untuk membuat kata sandi baru:\n{$resetUrl}\n\nTautan ini berlaku selama 60 menit. Jika Anda tidak meminta perubahan ini, abaikan email ini.\n\nSalam,\nTim SINFAS", function ($message) use ($targetEmail, $akun) {
                     $message->to($targetEmail, $akun->nama)
-                            ->subject('Permintaan Reset Password - SINFAS');
+                            ->subject('Permintaan Atur Ulang Kata Sandi - SINFAS');
                 });
                 $emailSent = true;
             } catch (\Throwable $e) {
@@ -244,11 +244,11 @@ class AuthController extends Controller
 
         Log::info("Password reset request for [{$akun->username}] ({$emailRecord}): {$resetUrl}");
 
-        $statusMessage = 'Permintaan reset password berhasil diproses!';
+        $statusMessage = 'Permintaan untuk mengatur ulang kata sandi berhasil diproses.';
         if ($emailSent) {
-            $statusMessage .= " Tautan reset telah dikirimkan ke email: {$targetEmail}.";
+            $statusMessage .= " Tautan untuk membuat kata sandi baru telah dikirim ke email: {$targetEmail}.";
         } else {
-            $statusMessage .= " Silakan gunakan tautan verifikasi di bawah ini untuk melanjutkan reset password.";
+            $statusMessage .= ' Gunakan tautan di bawah ini untuk membuat kata sandi baru.';
         }
 
         return back()->with('status', $statusMessage)->with('direct_reset_url', $resetUrl);
@@ -276,14 +276,14 @@ class AuthController extends Controller
 
         if (!$resetRecord) {
             return redirect()->route('password.request')
-                ->withErrors(['email' => 'Tautan reset password ini tidak valid atau sudah digunakan. Silakan ajukan permohonan baru.']);
+                ->withErrors(['email' => 'Tautan untuk mengatur ulang kata sandi sudah tidak berlaku. Silakan ajukan permintaan baru.']);
         }
 
         // Validasi kedaluwarsa token (maksimal 60 menit)
         if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
             DB::table('password_reset_tokens')->where('token', $token)->delete();
             return redirect()->route('password.request')
-                ->withErrors(['email' => 'Tautan reset password telah kedaluwarsa (berlaku 60 menit). Silakan ajukan permohonan baru.']);
+                ->withErrors(['email' => 'Tautan untuk mengatur ulang kata sandi sudah kedaluwarsa. Silakan ajukan permintaan baru.']);
         }
 
         return view('auth.reset-password', [
@@ -306,7 +306,7 @@ class AuthController extends Controller
             'email'    => 'required|string',
             'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
         ], [
-            'token.required'      => 'Token reset password tidak valid.',
+            'token.required'      => 'Tautan untuk mengatur ulang kata sandi tidak dapat digunakan. Silakan ajukan permintaan baru.',
             'email.required'      => 'Email atau identitas akun wajib disertakan.',
             'password.required'   => 'Password baru wajib diisi.',
             'password.confirmed'  => 'Konfirmasi password baru tidak cocok.',
@@ -320,14 +320,14 @@ class AuthController extends Controller
 
         if (!$resetRecord) {
             return back()->withErrors([
-                'email' => 'Token reset password tidak valid atau sesi telah berakhir.',
+                'email' => 'Tautan untuk mengatur ulang kata sandi tidak dapat digunakan. Silakan ajukan permintaan baru.',
             ])->withInput();
         }
 
         if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
             DB::table('password_reset_tokens')->where('token', $request->token)->delete();
             return redirect()->route('password.request')
-                ->withErrors(['email' => 'Tautan reset password telah kedaluwarsa. Silakan ajukan permohonan baru.']);
+                ->withErrors(['email' => 'Tautan untuk mengatur ulang kata sandi sudah kedaluwarsa. Silakan ajukan permintaan baru.']);
         }
 
         // 3. Ambil data akun berdasarkan email atau username
@@ -358,6 +358,6 @@ class AuthController extends Controller
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return redirect()->route('login')
-            ->with('success', 'Password berhasil diperbarui! Silakan login menggunakan password baru Anda.');
+            ->with('success', 'Kata sandi berhasil diperbarui. Silakan masuk dengan kata sandi baru Anda.');
     }
 }

@@ -607,9 +607,12 @@
             controls.className = 'category-pagination';
             controls.setAttribute('aria-label', `Halaman produk ${grid.closest('.category-section')?.dataset.categoryName || ''}`);
             controls.innerHTML = `
-                <button type="button" class="category-pagination-button" data-page-step="-1" aria-label="Produk sebelumnya">‹</button>
-                <span class="category-pagination-info" aria-live="polite"></span>
-                <button type="button" class="category-pagination-button" data-page-step="1" aria-label="Produk berikutnya">›</button>
+                <span class="category-pagination-summary" aria-live="polite"></span>
+                <div class="category-pagination-controls">
+                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="-1" aria-label="Halaman sebelumnya">‹</button>
+                    <div class="category-pagination-pages"></div>
+                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="1" aria-label="Halaman berikutnya">›</button>
+                </div>
             `;
             grid.insertAdjacentElement('afterend', controls);
 
@@ -637,8 +640,50 @@
             state.controls.hidden = pageCount <= 1;
             state.controls.querySelector('[data-page-step="-1"]').disabled = state.page === 0;
             state.controls.querySelector('[data-page-step="1"]').disabled = state.page >= pageCount - 1;
-            state.controls.querySelector('.category-pagination-info').textContent =
-                `Menampilkan ${start + 1}–${end} dari ${state.cards.length} produk · Halaman ${state.page + 1} dari ${pageCount}`;
+
+            state.controls.querySelector('.category-pagination-summary').textContent =
+                `Produk ${start + 1} sampai ${end} dari ${state.cards.length}. Halaman ${state.page + 1} dari ${pageCount}.`;
+
+            const pageList = state.controls.querySelector('.category-pagination-pages');
+            pageList.replaceChildren();
+            const maxVisiblePages = window.matchMedia('(max-width: 540px)').matches ? 3 : 5;
+            let firstPage = Math.max(0, state.page - Math.floor(maxVisiblePages / 2));
+            let lastPage = Math.min(pageCount - 1, firstPage + maxVisiblePages - 1);
+            firstPage = Math.max(0, lastPage - maxVisiblePages + 1);
+
+            const addEllipsis = () => {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'category-pagination-ellipsis';
+                ellipsis.textContent = '…';
+                ellipsis.setAttribute('aria-hidden', 'true');
+                pageList.append(ellipsis);
+            };
+            const addPageButton = (pageIndex) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'category-pagination-button category-pagination-page';
+                button.textContent = String(pageIndex + 1);
+                button.setAttribute('aria-label', `Halaman ${pageIndex + 1}`);
+                if (pageIndex === state.page) {
+                    button.classList.add('category-pagination-page--active');
+                    button.setAttribute('aria-current', 'page');
+                }
+                button.addEventListener('click', () => {
+                    state.page = pageIndex;
+                    render(state);
+                });
+                pageList.append(button);
+            };
+
+            if (firstPage > 0) {
+                addPageButton(0);
+                if (firstPage > 1) addEllipsis();
+            }
+            for (let pageIndex = firstPage; pageIndex <= lastPage; pageIndex++) addPageButton(pageIndex);
+            if (lastPage < pageCount - 1) {
+                if (lastPage < pageCount - 2) addEllipsis();
+                addPageButton(pageCount - 1);
+            }
         }
 
         let resizeTimer;
@@ -688,7 +733,7 @@
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
             body: JSON.stringify(subscription.toJSON()),
         });
-        if (!response.ok) throw new Error('Server menolak pendaftaran notifikasi.');
+        if (!response.ok) throw new Error('Notifikasi belum dapat diaktifkan. Coba lagi beberapa saat lagi.');
     }
     async function showSubscribed(subscription) {
         await saveSubscription(subscription);
@@ -704,13 +749,13 @@
             card.hidden = false;
             enableButton.hidden = true;
             dismissButton.hidden = true;
-            setStatus('Push memerlukan HTTPS (atau localhost) dan browser yang mendukung notifikasi.');
+            setStatus('Notifikasi belum tersedia di browser ini atau alamat SINFAS yang Anda buka belum aman.');
             return;
         }
         if (Notification.permission === 'denied') {
             card.hidden = false;
             enableButton.hidden = true;
-            setStatus('Izin notifikasi diblokir. Ubah izin SINFAS melalui pengaturan situs di browser.');
+            setStatus('Izin notifikasi untuk SINFAS diblokir. Izinkan notifikasi melalui pengaturan situs di browser, lalu coba lagi.');
             return;
         }
 
@@ -724,7 +769,7 @@
         if (!sessionStorage.getItem(dismissedKey)) card.hidden = false;
         if (!publicKey) {
             enableButton.disabled = true;
-            setStatus('Server belum dikonfigurasi. Admin perlu mengisi kunci VAPID terlebih dahulu.');
+            setStatus('Notifikasi HP belum tersedia saat ini. Anda tetap bisa memantau perubahan di halaman Status Pengajuan.');
         }
     }
 
@@ -733,10 +778,10 @@
         try {
             const permission = await Notification.requestPermission();
             if (permission !== 'granted') {
-                setStatus('Izin notifikasi belum diberikan.');
+                setStatus('Izin notifikasi belum diberikan. Pilih Izinkan agar pemberitahuan dapat diterima.');
                 return;
             }
-            if (!publicKey) throw new Error('Kunci VAPID server belum dikonfigurasi.');
+            if (!publicKey) throw new Error('Notifikasi HP belum tersedia saat ini. Silakan pantau perubahan di halaman Status Pengajuan.');
             const registration = await getRegistration();
             let subscription = await registration.pushManager.getSubscription();
             if (!subscription) {
@@ -748,7 +793,7 @@
             await showSubscribed(subscription);
             sessionStorage.removeItem(dismissedKey);
         } catch (error) {
-            setStatus(error.message || 'Notifikasi gagal diaktifkan. Coba lagi.');
+            setStatus('Notifikasi belum dapat diaktifkan. Periksa izin notifikasi di perangkat Anda, lalu coba lagi.');
         } finally {
             enableButton.disabled = false;
         }
@@ -765,7 +810,7 @@
             if (!response.ok) throw new Error(data.message || 'Notifikasi uji coba gagal dikirim.');
             setStatus(data.message);
         } catch (error) {
-            setStatus(error.message || 'Notifikasi uji coba gagal dikirim.');
+            setStatus('Notifikasi uji coba belum dapat dikirim. Periksa koneksi dan izin notifikasi, lalu coba lagi.');
         } finally {
             testButton.disabled = false;
         }
@@ -784,12 +829,12 @@
                 });
                 await subscription.unsubscribe();
             }
-            setStatus('Notifikasi push dinonaktifkan di perangkat ini.');
+            setStatus('Notifikasi dinonaktifkan di perangkat ini.');
             testButton.hidden = true;
             disableButton.hidden = true;
             enableButton.hidden = false;
         } catch (_) {
-            setStatus('Notifikasi gagal dinonaktifkan. Coba lagi.');
+            setStatus('Notifikasi belum dapat dinonaktifkan. Coba lagi beberapa saat lagi.');
         } finally {
             disableButton.disabled = false;
         }
@@ -802,7 +847,7 @@
 
     initialize().catch(() => {
         card.hidden = false;
-        setStatus('Status push tidak dapat diperiksa. Coba muat ulang halaman.');
+        setStatus('Status notifikasi belum dapat diperiksa. Coba muat ulang halaman.');
     });
 })();
 </script>

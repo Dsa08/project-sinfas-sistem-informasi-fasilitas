@@ -31,7 +31,7 @@ class PushSubscriptionController extends Controller
             ]
         );
 
-        return response()->json(['message' => 'Notifikasi push berhasil diaktifkan.']);
+        return response()->json(['message' => 'Notifikasi berhasil diaktifkan di perangkat ini.']);
     }
 
     public function destroy(Request $request): JsonResponse
@@ -58,7 +58,7 @@ class PushSubscriptionController extends Controller
 
         if ($sent === 0) {
             return response()->json([
-                'message' => 'Notifikasi belum terkirim. Periksa izin browser dan konfigurasi VAPID server.',
+                'message' => 'Notifikasi belum dapat dikirim. Periksa izin notifikasi di perangkat Anda, lalu coba lagi.',
             ], 422);
         }
 

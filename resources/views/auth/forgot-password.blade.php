@@ -57,7 +57,7 @@
     @endif
 
     <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1.25rem; line-height: 1.45;">
-        Masukkan <strong>Email</strong>, <strong>Username</strong>, atau <strong>NIS / NIP</strong> yang terdaftar pada akun Anda. Kami akan menyiapkan tautan verifikasi untuk membuat kata sandi baru.
+        Masukkan <strong>Email</strong>, <strong>Username</strong>, atau <strong>NIS / NIP</strong> yang terdaftar pada akun Anda. Kami akan menyiapkan tautan untuk membuat kata sandi baru.
     </p>
 
     {{-- Forgot Password Form --}}
