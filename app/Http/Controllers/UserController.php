@@ -138,7 +138,6 @@ class UserController extends Controller
             ->withCount('peminjaman')
             ->orderByDesc('peminjaman_count')
             ->orderBy('nama_barang', 'asc')
-            ->take(8)
             ->get();
 
         return view('user.dashboard', compact(

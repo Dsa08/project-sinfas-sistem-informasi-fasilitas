@@ -588,6 +588,66 @@
         }, 4000);
     }
 
+    // Paginasi terpisah untuk setiap section katalog, mengikuti kapasitas grid aktif.
+    document.addEventListener('DOMContentLoaded', function () {
+        const grids = Array.from(document.querySelectorAll('.category-section .shopee-grid'));
+        if (!grids.length) return;
+
+        const getPageSize = () => {
+            const columns = window.matchMedia('(min-width: 1200px)').matches ? 5
+                : window.matchMedia('(min-width: 900px)').matches ? 4
+                : window.matchMedia('(min-width: 540px)').matches ? 3
+                : 2;
+            return columns * 2;
+        };
+
+        const paginations = grids.map((grid) => {
+            const cards = Array.from(grid.querySelectorAll('.shopee-card'));
+            const controls = document.createElement('nav');
+            controls.className = 'category-pagination';
+            controls.setAttribute('aria-label', `Halaman produk ${grid.closest('.category-section')?.dataset.categoryName || ''}`);
+            controls.innerHTML = `
+                <button type="button" class="category-pagination-button" data-page-step="-1" aria-label="Produk sebelumnya">‹</button>
+                <span class="category-pagination-info" aria-live="polite"></span>
+                <button type="button" class="category-pagination-button" data-page-step="1" aria-label="Produk berikutnya">›</button>
+            `;
+            grid.insertAdjacentElement('afterend', controls);
+
+            const state = { grid, cards, controls, page: 0, pageSize: getPageSize() };
+            controls.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-page-step]');
+                if (!button || button.disabled) return;
+                state.page += Number(button.dataset.pageStep);
+                render(state);
+            });
+            render(state);
+            return state;
+        });
+
+        function render(state) {
+            state.pageSize = getPageSize();
+            const pageCount = Math.ceil(state.cards.length / state.pageSize);
+            state.page = Math.max(0, Math.min(state.page, pageCount - 1));
+            const start = state.page * state.pageSize;
+            const end = Math.min(start + state.pageSize, state.cards.length);
+
+            state.cards.forEach((card, index) => {
+                card.hidden = index < start || index >= end;
+            });
+            state.controls.hidden = pageCount <= 1;
+            state.controls.querySelector('[data-page-step="-1"]').disabled = state.page === 0;
+            state.controls.querySelector('[data-page-step="1"]').disabled = state.page >= pageCount - 1;
+            state.controls.querySelector('.category-pagination-info').textContent =
+                `Menampilkan ${start + 1}–${end} dari ${state.cards.length} produk · Halaman ${state.page + 1} dari ${pageCount}`;
+        }
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => paginations.forEach(render), 120);
+        });
+    });
+
     // Inisialisasi otomatis jika ada parameter kategori di URL saat halaman dimuat
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);

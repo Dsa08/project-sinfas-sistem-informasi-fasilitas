@@ -473,6 +473,13 @@
 
             <div class="account-modal-divider"></div>
 
+            <section class="account-loan-history">
+                <h4>Riwayat Peminjaman Terakhir</h4>
+                <div id="detail-loan-history" class="account-loan-history-list">
+                    <p class="account-loan-history-empty">Riwayat peminjaman dimuat saat detail akun dibuka.</p>
+                </div>
+            </section>
+
             <div class="account-modal-footer">
                 <button type="button" class="btn-modal-exit" id="btn-exit-detail-modal">Tutup</button>
             </div>
@@ -600,6 +607,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('detail-view-kontak').value = data.nomor_kontak || '-';
                 document.getElementById('detail-view-username').value = data.username || '';
                 document.getElementById('detail-view-email').value = data.email || '-';
+
+                const historyContainer = document.getElementById('detail-loan-history');
+                historyContainer.replaceChildren();
+                if (data.loan_history?.length) {
+                    data.loan_history.forEach(loan => {
+                        const card = document.createElement('article');
+                        card.className = 'account-loan-history-item';
+                        const title = document.createElement('strong');
+                        title.textContent = loan.item;
+                        const details = document.createElement('p');
+                        details.textContent = `${loan.date} · ${loan.status}`;
+                        const purpose = document.createElement('p');
+                        purpose.textContent = `Keperluan: ${loan.purpose} · Lokasi: ${loan.location}`;
+                        const returned = document.createElement('p');
+                        returned.textContent = loan.return_date
+                            ? `Dikembalikan: ${loan.return_date} · Kondisi: ${loan.condition || 'Belum diverifikasi'}${loan.return_note ? ` · Catatan: ${loan.return_note}` : ''}`
+                            : 'Belum ada catatan pengembalian.';
+                        card.append(title, details, purpose, returned);
+                        historyContainer.append(card);
+                    });
+                } else {
+                    const empty = document.createElement('p');
+                    empty.className = 'account-loan-history-empty';
+                    empty.textContent = data.role === 'siswa'
+                        ? 'Belum ada riwayat peminjaman.'
+                        : 'Riwayat peminjaman hanya tersedia untuk akun siswa.';
+                    historyContainer.append(empty);
+                }
 
                 const avatar = document.getElementById('detail-view-avatar');
                 const avatarPlaceholder = document.getElementById('detail-view-avatar-placeholder');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Akun;
 use App\Models\Siswa;
 use App\Models\Pegawai;
+use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -162,6 +163,30 @@ class AccountController extends Controller
     public function show($id)
     {
         $akun = Akun::findOrFail($id);
+        $loanHistory = $akun->nis
+            ? Peminjaman::with(['barang', 'pengembalian'])
+                ->where('nis', $akun->nis)
+                ->orderByDesc('tanggal_pinjam')
+                ->limit(10)
+                ->get()
+                ->map(fn (Peminjaman $loan) => [
+                    'item' => $loan->barang->nama_barang ?? 'Barang tidak ditemukan',
+                    'date' => $loan->tanggal_pinjam?->format('d M Y') ?? '-',
+                    'purpose' => $loan->keterangan_penggunaan ?: '-',
+                    'location' => $loan->lokasi_penggunaan ?: '-',
+                    'status' => $loan->pengembalian
+                        ? ($loan->pengembalian->kondisi_barang ? 'Dikembalikan' : 'Menunggu verifikasi pengembalian')
+                        : match ($loan->status_pengajuan) {
+                            'disetujui' => 'Sedang dipinjam',
+                            'menunggu' => 'Menunggu persetujuan',
+                            'ditolak' => 'Ditolak',
+                            default => ucfirst($loan->status_pengajuan),
+                        },
+                    'return_date' => $loan->pengembalian?->tanggal_kembali?->format('d M Y'),
+                    'condition' => $loan->pengembalian?->kondisi_barang,
+                    'return_note' => $loan->pengembalian?->catatan,
+                ])
+            : collect();
 
         return response()->json([
             'id_akun'      => $akun->id_akun,
@@ -177,6 +202,7 @@ class AccountController extends Controller
             'foto'         => $akun->foto_url,
             'is_active'    => $akun->is_active,
             'created_at'   => $akun->created_at?->format('d M Y, H:i'),
+            'loan_history' => $loanHistory,
         ]);
     }
 

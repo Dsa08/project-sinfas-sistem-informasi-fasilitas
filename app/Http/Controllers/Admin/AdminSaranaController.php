@@ -630,9 +630,19 @@ class AdminSaranaController extends Controller
         $retPerPage = in_array((int)$request->input('ret_per_page', $request->input('per_page')), [10, 25, 50, 100]) ? (int)$request->input('ret_per_page', $request->input('per_page')) : 10;
         $pendingReturns = $retQuery->paginate($retPerPage, ['*'], 'ret_page')->withQueryString();
 
+        $activeLoansPerPage = in_array((int) $request->input('active_per_page', 10), [10, 25, 50, 100])
+            ? (int) $request->input('active_per_page', 10)
+            : 10;
+        $activeLoans = Peminjaman::disetujui()
+            ->whereDoesntHave('pengembalian')
+            ->with(['siswa', 'akun', 'barang'])
+            ->orderBy('tanggal_pinjam')
+            ->paginate($activeLoansPerPage, ['*'], 'active_page')
+            ->withQueryString();
+
         $activeTab = $request->input('tab', 'requests');
 
-        return view('admin.verifications', compact('pendingRequests', 'pendingReturns', 'activeTab'));
+        return view('admin.verifications', compact('pendingRequests', 'pendingReturns', 'activeLoans', 'activeTab'));
     }
 
     /**

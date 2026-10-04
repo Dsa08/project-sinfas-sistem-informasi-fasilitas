@@ -1297,6 +1297,38 @@ a.th-content:hover {
     background-color: #94a3b8;
 }
 
+.account-loan-history h4 {
+    margin: 0 0 .65rem;
+    color: #1e293b;
+    font-size: .9rem;
+}
+
+.account-loan-history-list {
+    display: grid;
+    gap: .55rem;
+}
+
+.account-loan-history-item {
+    padding: .7rem .8rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.account-loan-history-item strong {
+    color: #0f172a;
+    font-size: .84rem;
+}
+
+.account-loan-history-item p,
+.account-loan-history-empty {
+    margin: .25rem 0 0;
+    color: #64748b;
+    font-size: .77rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
 .account-modal-title {
     font-size: 1.25rem;
     font-weight: 700;

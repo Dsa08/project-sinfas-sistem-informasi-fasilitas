@@ -15,6 +15,16 @@
 <style>
     .borrower-type-badge { display:inline-flex; align-items:center; padding:.25rem .6rem; border-radius:999px; font-size:.75rem; font-weight:700; line-height:1.2; white-space:nowrap; }
     .borrower-type-badge--student { color:#1d4ed8; background:#eff6ff; }
+    .borrower-type-badge--active { color:#047857; background:#ecfdf5; }
+    .sarana-tab-count { display:inline-flex; min-width:1.25rem; height:1.25rem; margin-left:.35rem; padding:0 .25rem; align-items:center; justify-content:center; border-radius:999px; background:rgba(255,255,255,.7); font-size:.72rem; }
+    .loan-overdue-label { display:block; margin-top:.2rem; color:#b91c1c; font-size:.75rem; font-weight:700; }
+    .btn-active-loan-detail { border:1px solid #bfdbfe; border-radius:7px; padding:.4rem .7rem; background:#eff6ff; color:#1d4ed8; font-weight:600; cursor:pointer; }
+    .btn-active-loan-detail:hover { background:#dbeafe; }
+    .active-loan-detail-list { display:grid; gap:.7rem; margin:0 0 1.4rem; }
+    .active-loan-detail-list div { display:grid; grid-template-columns: minmax(110px, .7fr) 1fr; gap:.75rem; padding-bottom:.55rem; border-bottom:1px solid #e2e8f0; }
+    .active-loan-detail-list dt { color:#64748b; font-size:.85rem; }
+    .active-loan-detail-list dd { margin:0; color:#0f172a; font-size:.9rem; font-weight:600; overflow-wrap:anywhere; }
+    @media (max-width: 768px) { .sarana-tab-bar { flex-wrap:wrap; } .sarana-tab-btn { flex:1 1 11rem; } }
 </style>
 <div class="sarana-verifications-container">
     {{-- Tab Navigation Bar --}}
@@ -24,6 +34,9 @@
         </button>
         <button type="button" class="sarana-tab-btn {{ $activeTab === 'returns' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-returns" data-tab="returns">
             Menunggu Pengembalian
+        </button>
+        <button type="button" class="sarana-tab-btn {{ $activeTab === 'active' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-active" data-tab="active">
+            Sedang Dipinjam <span class="sarana-tab-count">{{ $activeLoans->total() }}</span>
         </button>
     </div>
 
@@ -356,6 +369,111 @@
             @endif
         </div>
     </div>
+
+    {{-- Tab 3: Barang yang masih berada pada peminjam --}}
+    <div class="sarana-tab-content {{ $activeTab === 'active' ? 'sarana-tab-content--active' : '' }}" id="tab-content-active">
+        <div class="system-section-header">
+            <div>
+                <h2 class="sarana-section-heading">Barang Sedang Dipinjam</h2>
+                <p class="system-section-subtitle">Peminjaman dihitung terlambat setelah melewati batas 3 hari.</p>
+            </div>
+        </div>
+
+        <div class="system-table-card">
+            <table class="system-table">
+                <thead>
+                    <tr>
+                        <th class="th-number">No.</th>
+                        <th>Peminjam</th>
+                        <th>NIS/NIP</th>
+                        <th>Waktu Peminjaman</th>
+                        <th>Barang</th>
+                        <th>Lama Dipinjam</th>
+                        <th>Status</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($activeLoans as $loan)
+                        @php
+                            $daysBorrowed = $loan->tanggal_pinjam
+                                ? max(0, (int) \Carbon\Carbon::parse($loan->tanggal_pinjam)->startOfDay()->diffInDays(now()->startOfDay()))
+                                : 0;
+                            $lateDays = max(0, $daysBorrowed - 3);
+                            $borrowerName = $loan->akun?->nama ?? $loan->peminjam_nama;
+                        @endphp
+                        <tr>
+                            <td class="td-number">{{ $loop->iteration + ($activeLoans->currentPage() - 1) * $activeLoans->perPage() }}</td>
+                            <td class="td-name">{{ $borrowerName }}</td>
+                            <td>{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</td>
+                            <td class="td-date">{{ $loan->tanggal_pinjam?->format('d M Y') ?? '-' }}</td>
+                            <td>{{ $loan->barang->nama_barang ?? 'Barang tidak ditemukan' }}</td>
+                            <td>
+                                <strong>{{ $daysBorrowed }} hari</strong>
+                                @if($lateDays > 0)
+                                    <span class="loan-overdue-label">Terlambat {{ $lateDays }} hari</span>
+                                @endif
+                            </td>
+                            <td><span class="borrower-type-badge borrower-type-badge--active">Masih dipinjam</span></td>
+                            <td>
+                                <button type="button" class="btn-active-loan-detail"
+                                    onclick="openActiveLoanDetail(@js($borrowerName), @js($loan->akun?->nis_nip ?? $loan->nis ?? '-'), @js($loan->barang->nama_barang ?? 'Barang tidak ditemukan'), @js($loan->tanggal_pinjam?->format('d M Y') ?? '-'), @js($loan->keterangan_penggunaan ?: '-'), @js($loan->lokasi_penggunaan ?: '-'))">
+                                    Lihat
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8">
+                                <div class="system-table-empty-state">
+                                    <div class="system-empty-title">Tidak ada barang yang sedang dipinjam</div>
+                                    <div class="system-empty-desc">Peminjaman aktif akan muncul di tabel ini setelah disetujui.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="system-table-footer">
+            <div class="system-table-meta">
+                <div class="system-per-page-wrapper">
+                    <span>Tampilkan</span>
+                    <select class="system-per-page-select" onchange="window.location.href=this.value">
+                        @foreach([10, 25, 50, 100] as $size)
+                            <option value="{{ request()->fullUrlWithQuery(['tab' => 'active', 'active_per_page' => $size, 'active_page' => 1]) }}" {{ request('active_per_page', 10) == $size ? 'selected' : '' }}>{{ $size }}</option>
+                        @endforeach
+                    </select>
+                    <span>data per halaman</span>
+                </div>
+                @if($activeLoans->total() > 0)
+                    <span class="system-table-meta-dot">&bull;</span>
+                    <div class="system-table-entries-info">Menampilkan <strong>{{ $activeLoans->firstItem() }}</strong> - <strong>{{ $activeLoans->lastItem() }}</strong> dari <strong>{{ $activeLoans->total() }}</strong> data</div>
+                @endif
+            </div>
+            @if($activeLoans->hasPages())
+                <div class="system-pagination-bar">{{ $activeLoans->links('vendor.pagination.simple-default') }}</div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<div class="verification-modal-overlay" id="active-loan-detail-modal" style="display:none;">
+    <div class="verification-modal-card">
+        <h3 class="verification-modal-title">Detail Peminjaman Aktif</h3>
+        <dl class="active-loan-detail-list">
+            <div><dt>Peminjam</dt><dd id="active-detail-name"></dd></div>
+            <div><dt>NIS/NIP</dt><dd id="active-detail-id"></dd></div>
+            <div><dt>Barang</dt><dd id="active-detail-item"></dd></div>
+            <div><dt>Waktu peminjaman</dt><dd id="active-detail-date"></dd></div>
+            <div><dt>Keperluan</dt><dd id="active-detail-purpose"></dd></div>
+            <div><dt>Lokasi</dt><dd id="active-detail-location"></dd></div>
+        </dl>
+        <div class="verification-modal-actions">
+            <button type="button" class="verification-btn-cancel" onclick="closeActiveLoanDetail()">Tutup</button>
+        </div>
+    </div>
 </div>
 
 {{-- ============================================================ --}}
@@ -551,24 +669,22 @@
     document.addEventListener('DOMContentLoaded', function () {
         const tabBtnRequests = document.getElementById('tab-btn-requests');
         const tabBtnReturns = document.getElementById('tab-btn-returns');
+        const tabBtnActive = document.getElementById('tab-btn-active');
         const tabContentRequests = document.getElementById('tab-content-requests');
         const tabContentReturns = document.getElementById('tab-content-returns');
+        const tabContentActive = document.getElementById('tab-content-active');
 
-        if (tabBtnRequests && tabBtnReturns) {
-            tabBtnRequests.addEventListener('click', function () {
-                tabBtnRequests.classList.add('sarana-tab-btn--active');
-                tabBtnReturns.classList.remove('sarana-tab-btn--active');
-                tabContentRequests.classList.add('sarana-tab-content--active');
-                tabContentReturns.classList.remove('sarana-tab-content--active');
+        const tabs = [
+            [tabBtnRequests, tabContentRequests],
+            [tabBtnReturns, tabContentReturns],
+            [tabBtnActive, tabContentActive],
+        ];
+        tabs.forEach(([button]) => button?.addEventListener('click', () => {
+            tabs.forEach(([tabButton, content]) => {
+                tabButton?.classList.toggle('sarana-tab-btn--active', tabButton === button);
+                content?.classList.toggle('sarana-tab-content--active', tabButton === button);
             });
-
-            tabBtnReturns.addEventListener('click', function () {
-                tabBtnReturns.classList.add('sarana-tab-btn--active');
-                tabBtnRequests.classList.remove('sarana-tab-btn--active');
-                tabContentReturns.classList.add('sarana-tab-content--active');
-                tabContentRequests.classList.remove('sarana-tab-content--active');
-            });
-        }
+        }));
     });
 
     function openApproveModal(kodePinjam, borrowerName, itemName) {
@@ -623,10 +739,32 @@
         setTimeout(() => overlay.style.display = 'none', 200);
     }
 
+    function openActiveLoanDetail(name, identity, item, date, purpose, location) {
+        const values = {
+            'active-detail-name': name,
+            'active-detail-id': identity,
+            'active-detail-item': item,
+            'active-detail-date': date,
+            'active-detail-purpose': purpose,
+            'active-detail-location': location,
+        };
+        Object.entries(values).forEach(([id, value]) => { document.getElementById(id).textContent = value || '-'; });
+        const overlay = document.getElementById('active-loan-detail-modal');
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('active'));
+    }
+
+    function closeActiveLoanDetail() {
+        const overlay = document.getElementById('active-loan-detail-modal');
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.style.display = 'none', 200);
+    }
+
     window.addEventListener('click', function (e) {
         if (e.target === document.getElementById('approve-modal-overlay')) closeApproveModal();
         if (e.target === document.getElementById('reject-modal-overlay')) closeRejectModal();
         if (e.target === document.getElementById('return-modal-overlay')) closeConfirmReturnModal();
+        if (e.target === document.getElementById('active-loan-detail-modal')) closeActiveLoanDetail();
     });
 
     window.addEventListener('keydown', function (e) {
@@ -634,6 +772,7 @@
             closeApproveModal();
             closeRejectModal();
             closeConfirmReturnModal();
+            closeActiveLoanDetail();
         }
     });
 </script>
