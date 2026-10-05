@@ -2,11 +2,10 @@
 /node_modules
 /public/hot
 /public/storage
-/storage/*.key
 /vendor
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -18,3 +17,10 @@ yarn-error.log
 /.vscode
 /public/uploads
 *.zip
+
+# Private keys and generated VAPID secret material
+*.key
+*.pem
+*.p12
+*.pfx
+/vapid_private.txt
