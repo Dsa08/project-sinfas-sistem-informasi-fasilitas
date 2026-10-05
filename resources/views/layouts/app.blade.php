@@ -496,11 +496,11 @@
             <section class="pwa-install-dialog" role="dialog" aria-modal="true" aria-labelledby="pwa-install-title" aria-describedby="pwa-install-description">
                 <button class="pwa-install-close" type="button" id="pwa-install-close" aria-label="Tutup">&times;</button>
                 <div class="pwa-install-mark" aria-hidden="true">S</div>
-                <span class="pwa-install-eyebrow">SINFAS untuk ponsel</span>
-                <h2 id="pwa-install-title">Pasang pintasan SINFAS?</h2>
-                <p id="pwa-install-description">Buka katalog, ajukan peminjaman, dan cek status langsung dari layar utama ponsel Anda.</p>
+                <span class="pwa-install-eyebrow">Akses cepat SINFAS</span>
+                <h2 id="pwa-install-title">Tambahkan pintasan SINFAS?</h2>
+                <p id="pwa-install-description">Letakkan pintasan SINFAS di perangkat ini agar lebih cepat dibuka kapan saja.</p>
                 <div class="pwa-install-ios-guide" id="pwa-install-ios-guide" hidden>
-                    <span>Di Safari, ketuk <strong>Bagikan</strong>, lalu pilih <strong>Tambahkan ke Layar Utama</strong>.</span>
+                    <span>Gunakan menu berbagi atau menu browser, lalu pilih opsi untuk menambahkan SINFAS ke layar utama atau memasang aplikasi.</span>
                 </div>
                 <div class="pwa-install-actions">
                     <button class="pwa-install-button" type="button" id="pwa-install-button">Pasang pintasan</button>
@@ -520,23 +520,23 @@
                 const iosGuide = document.getElementById('pwa-install-ios-guide');
                 if (!overlay || !installButton || !laterButton || !closeButton) return;
 
-                const dismissedKey = 'sinfas-pwa-install-dismissed-at';
-                const dismissedForMs = 14 * 24 * 60 * 60 * 1000;
+                const dismissedKey = 'sinfas-pwa-install-dismissed';
+                const installedKey = 'sinfas-pwa-install-installed';
+                const legacyDismissedKey = 'sinfas-pwa-install-dismissed-at';
                 let installPrompt = null;
                 let isIosSafari = false;
                 let shown = false;
 
                 const isInstalled = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-                const wasRecentlyDismissed = () => {
-                    const dismissedAt = Number(localStorage.getItem(dismissedKey) || 0);
-                    return dismissedAt && Date.now() - dismissedAt < dismissedForMs;
-                };
+                const wasDismissed = () => localStorage.getItem(dismissedKey) === '1'
+                    || localStorage.getItem(installedKey) === '1'
+                    || Boolean(localStorage.getItem(legacyDismissedKey));
                 const hidePrompt = (remember = false) => {
                     overlay.hidden = true;
-                    if (remember) localStorage.setItem(dismissedKey, String(Date.now()));
+                    if (remember) localStorage.setItem(dismissedKey, '1');
                 };
                 const showPrompt = () => {
-                    if (shown || isInstalled() || wasRecentlyDismissed()) return;
+                    if (shown || isInstalled() || wasDismissed()) return;
                     shown = true;
                     overlay.hidden = false;
                     installButton.focus();
@@ -559,7 +559,11 @@
                     window.setTimeout(showPrompt, 1200);
                 });
 
-                window.addEventListener('appinstalled', () => hidePrompt());
+                if (isInstalled()) localStorage.setItem(installedKey, '1');
+                window.addEventListener('appinstalled', () => {
+                    localStorage.setItem(installedKey, '1');
+                    hidePrompt(true);
+                });
                 installButton.addEventListener('click', async () => {
                     if (isIosSafari) {
                         hidePrompt(true);
@@ -572,7 +576,12 @@
                         await installPrompt.prompt();
                         const choice = await installPrompt.userChoice;
                         installPrompt = null;
-                        hidePrompt(choice.outcome !== 'accepted');
+                        if (choice.outcome === 'accepted') {
+                            localStorage.setItem(installedKey, '1');
+                            hidePrompt(true);
+                        } else {
+                            hidePrompt();
+                        }
                     } finally {
                         installButton.disabled = false;
                     }

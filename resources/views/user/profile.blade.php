@@ -194,6 +194,30 @@
             </form>
         </div>
 
+        {{-- Device push notification preferences --}}
+        <div class="profile-section">
+            <h2 class="profile-section-title">Pengaturan Notifikasi</h2>
+            <div class="profile-notification-card" id="profile-push-settings">
+                <div class="profile-notification-copy">
+                    <span class="profile-notification-icon" aria-hidden="true">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21h4"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3>Notifikasi di perangkat ini</h3>
+                        <p>Dapatkan pemberitahuan saat pengajuan peminjaman atau pengembalian berubah status.</p>
+                        <p class="profile-notification-status" id="profile-push-status" role="status" aria-live="polite">Memeriksa dukungan notifikasi…</p>
+                    </div>
+                </div>
+                <div class="profile-notification-actions">
+                    <button type="button" class="btn-profile-save" id="profile-push-enable">Aktifkan notifikasi</button>
+                    <button type="button" class="profile-notification-secondary" id="profile-push-test" hidden>Kirim notifikasi uji</button>
+                    <button type="button" class="profile-notification-secondary" id="profile-push-disable" hidden>Nonaktifkan di perangkat ini</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -252,6 +276,141 @@
 </div>
 
 <script>
+    (() => {
+        const status = document.getElementById('profile-push-status');
+        const enableButton = document.getElementById('profile-push-enable');
+        const testButton = document.getElementById('profile-push-test');
+        const disableButton = document.getElementById('profile-push-disable');
+        if (!status || !enableButton || !testButton || !disableButton) return;
+
+        const publicKey = @json(config('services.webpush.public_key'));
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+        const workerUrl = @json(asset('sw.js'));
+        const storeUrl = @json(route('push.subscriptions.store'));
+        const deleteUrl = @json(route('push.subscriptions.destroy'));
+        const testUrl = @json(route('push.notifications.test'));
+        const supported = window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+        function setStatus(message) { status.textContent = message; }
+        function decodeVapidKey(value) {
+            const padding = '='.repeat((4 - value.length % 4) % 4);
+            const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+            return Uint8Array.from(atob(base64), character => character.charCodeAt(0));
+        }
+        async function saveSubscription(subscription) {
+            const response = await fetch(storeUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: JSON.stringify(subscription.toJSON()),
+            });
+            if (!response.ok) throw new Error('Langganan perangkat ini belum dapat disimpan.');
+        }
+        function showEnabled() {
+            enableButton.hidden = true;
+            testButton.hidden = false;
+            disableButton.hidden = false;
+            setStatus('Notifikasi aktif di perangkat ini.');
+        }
+        async function initialize() {
+            if (!supported) {
+                enableButton.hidden = true;
+                setStatus('Browser atau koneksi perangkat ini belum mendukung notifikasi push.');
+                return;
+            }
+            if (!publicKey) {
+                enableButton.disabled = true;
+                setStatus('Notifikasi push belum dikonfigurasi di server.');
+                return;
+            }
+            if (Notification.permission === 'denied') {
+                enableButton.disabled = true;
+                setStatus('Izin notifikasi diblokir. Ubah izin SINFAS melalui pengaturan situs di browser.');
+                return;
+            }
+            try {
+                const registration = await navigator.serviceWorker.register(workerUrl);
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription && Notification.permission === 'granted') {
+                    await saveSubscription(subscription);
+                    showEnabled();
+                } else {
+                    setStatus('Notifikasi belum diaktifkan di perangkat ini.');
+                }
+            } catch (error) {
+                setStatus('Status notifikasi belum dapat diperiksa. Muat ulang halaman dan coba lagi.');
+            }
+        }
+
+        enableButton.addEventListener('click', async () => {
+            enableButton.disabled = true;
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    setStatus('Izin notifikasi belum diberikan.');
+                    return;
+                }
+                const registration = await navigator.serviceWorker.register(workerUrl);
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) {
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: decodeVapidKey(publicKey),
+                    });
+                }
+                await saveSubscription(subscription);
+                showEnabled();
+            } catch (error) {
+                setStatus(error.message || 'Notifikasi belum dapat diaktifkan. Periksa izin perangkat dan coba lagi.');
+            } finally {
+                enableButton.disabled = false;
+            }
+        });
+
+        disableButton.addEventListener('click', async () => {
+            disableButton.disabled = true;
+            try {
+                const registration = await navigator.serviceWorker.getRegistration(workerUrl);
+                const subscription = await registration?.pushManager.getSubscription();
+                if (subscription) {
+                    const response = await fetch(deleteUrl, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                        body: JSON.stringify({ endpoint: subscription.endpoint }),
+                    });
+                    if (!response.ok) throw new Error('Pengaturan notifikasi belum dapat disimpan.');
+                    await subscription.unsubscribe();
+                }
+                testButton.hidden = true;
+                disableButton.hidden = true;
+                enableButton.hidden = false;
+                setStatus('Notifikasi dinonaktifkan di perangkat ini.');
+            } catch (error) {
+                setStatus(error.message || 'Notifikasi belum dapat dinonaktifkan. Coba lagi.');
+            } finally {
+                disableButton.disabled = false;
+            }
+        });
+
+        testButton.addEventListener('click', async () => {
+            testButton.disabled = true;
+            try {
+                const response = await fetch(testUrl, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Notifikasi uji gagal dikirim.');
+                setStatus(result.message || 'Notifikasi uji dikirim ke perangkat ini.');
+            } catch (error) {
+                setStatus(error.message || 'Notifikasi uji belum dapat dikirim.');
+            } finally {
+                testButton.disabled = false;
+            }
+        });
+
+        initialize();
+    })();
+
     function handleProfilePhotoSelected(input) {
         if (!input.files || !input.files[0]) return;
 

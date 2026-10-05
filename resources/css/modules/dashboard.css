@@ -583,6 +583,17 @@
         transform: translateY(-50%);
     }
 
+    /* The wrapper is transformed to center the bell, so keep its menu anchored
+       to the wrapper instead of using fixed positioning inside that context. */
+    .navbar--dashboard .navbar-notif-dropdown {
+        position: absolute !important;
+        top: calc(100% + 10px) !important;
+        right: 0 !important;
+        left: auto !important;
+        width: min(360px, calc(100vw - 20px)) !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+
     .navbar--dashboard .navbar-search-section {
         align-self: flex-start;
         width: calc(100% - 48px);

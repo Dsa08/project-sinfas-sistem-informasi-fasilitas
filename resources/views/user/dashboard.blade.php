@@ -22,7 +22,7 @@
         <div class="push-prompt-copy">
             <span class="push-prompt-icon" aria-hidden="true">&#128276;</span>
             <div>
-                <h2 id="push-prompt-title">Dapatkan notifikasi SINFAS di HP</h2>
+                <h2 id="push-prompt-title">Aktifkan notifikasi SINFAS di perangkat ini</h2>
                 <p id="push-prompt-message">Aktifkan notifikasi untuk mengetahui perubahan status peminjaman dan pengembalian.</p>
                 <p class="push-prompt-status" id="push-prompt-status" role="status" aria-live="polite"></p>
             </div>
@@ -769,7 +769,7 @@
         if (!sessionStorage.getItem(dismissedKey)) card.hidden = false;
         if (!publicKey) {
             enableButton.disabled = true;
-            setStatus('Notifikasi HP belum tersedia saat ini. Anda tetap bisa memantau perubahan di halaman Status Pengajuan.');
+            setStatus('Notifikasi push belum dikonfigurasi di server. Perubahan status tetap dapat dilihat di halaman Status Pengajuan.');
         }
     }
 
@@ -781,7 +781,7 @@
                 setStatus('Izin notifikasi belum diberikan. Pilih Izinkan agar pemberitahuan dapat diterima.');
                 return;
             }
-            if (!publicKey) throw new Error('Notifikasi HP belum tersedia saat ini. Silakan pantau perubahan di halaman Status Pengajuan.');
+            if (!publicKey) throw new Error('Notifikasi push belum dikonfigurasi di server. Silakan pantau perubahan di halaman Status Pengajuan.');
             const registration = await getRegistration();
             let subscription = await registration.pushManager.getSubscription();
             if (!subscription) {

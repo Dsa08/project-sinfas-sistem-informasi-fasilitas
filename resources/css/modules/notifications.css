@@ -58,15 +58,26 @@
     .navbar-notif-dropdown {
         position: fixed !important;
         top: 60px !important;
-        left: max(10px, env(safe-area-inset-left)) !important;
-        right: max(10px, env(safe-area-inset-right)) !important;
-        width: auto !important;
+        inset-inline: max(10px, env(safe-area-inset-left)) !important;
+        width: calc(100vw - 20px) !important;
         max-width: none !important;
         box-sizing: border-box;
+        min-width: 0 !important;
         max-height: calc(100vh - 120px) !important;
         border-radius: 14px;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
     }
+
+    .navbar-notif-dropdown-header,
+    .navbar-notif-dropdown-body,
+    .navbar-notif-dropdown-footer,
+    .navbar-notif-item { min-width: 0; max-width: 100%; box-sizing: border-box; }
+    .navbar-notif-dropdown-header { gap: 0.75rem; }
+    .navbar-notif-dropdown-link { white-space: nowrap; }
+    .navbar-notif-item-header { align-items: flex-start; flex-wrap: wrap; }
+    .navbar-notif-item-title,
+    .navbar-notif-item-desc { min-width: 0; overflow-wrap: anywhere; }
+    .navbar-notif-item-time { white-space: normal; overflow-wrap: anywhere; }
 
     .filter-dropdown {
         position: fixed !important;
