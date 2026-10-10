@@ -49,7 +49,7 @@ class PushSubscriptionController extends Controller
 
     public function test(Request $request, WebPushService $webPush): JsonResponse
     {
-        $sent = $webPush->sendToStudent(
+        $sent = $webPush->sendToUser(
             $request->user(),
             'Uji coba notifikasi SINFAS',
             'Notifikasi push SINFAS berhasil diterima di perangkat ini.',

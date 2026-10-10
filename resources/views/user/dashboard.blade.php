@@ -1,10 +1,10 @@
 {{-- 
-  DASHBOARD SISWA (KATALOG SARANA PRASARANA) — SINFAS
+  DASHBOARD PEMINJAM (KATALOG SARANA PRASARANA) â€” SINFAS
   File: resources/views/user/dashboard.blade.php
   Fitur Sesuai Desain Figma:
   - Hero banner sambutan: "Mau Pinjam Apa Hari Ini?"
   - Search bar & Filter dropdown interaktif.
-  - Navigasi Kategori Cepat (Kapsul/Chips): Tombol cepat sesuai kategori di database (🎤 Audio & Sound System, 💡 Proyektor & Presentasi, 📷 Kamera & Dokumentasi, 🔌 Kabel & Adapter, 💻 Peralatan Lab & Multimedia).
+  - Navigasi Kategori Cepat (Kapsul/Chips): Tombol cepat sesuai kategori di database (ðŸŽ¤ Audio & Sound System, ðŸ’¡ Proyektor & Presentasi, ðŸ“· Kamera & Dokumentasi, ðŸ”Œ Kabel & Adapter, ðŸ’» Peralatan Lab & Multimedia).
   - Carousel Kategori Horizontal (Pengganti Pagination di beranda utama) dengan tombol panah navigasi (< dan >) dan smooth horizontal scrolling.
   - Tombol "Lihat Semua >" di setiap sudut kanan judul kategori untuk membuka seluruh inventaris secara penuh di halaman terpisah.
   - Detail & Feedback Visual:
@@ -46,15 +46,15 @@
 
     {{-- Hero Banner (Personalized & Modern Minimalist Blue) --}}
     @php
-        $siswaNama = Auth::user()->siswa->nama ?? Auth::user()->nama ?? Auth::user()->username ?? 'Siswa';
-        $firstName = explode(' ', trim($siswaNama))[0];
+        $namaPengguna = Auth::user()->siswa->nama ?? Auth::user()->pegawai->nama ?? Auth::user()->nama ?? Auth::user()->username ?? 'Pengguna';
+        $firstName = explode(' ', trim($namaPengguna))[0];
     @endphp
     <div class="dashboard-hero">
         <div class="dashboard-hero-content">
             <div class="dashboard-hero-tag">
                 <span class="dashboard-hero-tag-dot"></span> Selamat Datang di SINFAS
             </div>
-            <h2 class="dashboard-hero-text">Halo, {{ $firstName }}! 👋</h2>
+            <h2 class="dashboard-hero-text">Halo, {{ $firstName }}! ðŸ‘‹</h2>
             <p class="dashboard-hero-subtext">Mau pinjam sarana atau peralatan apa hari ini?</p>
         </div>
         <div class="dashboard-hero-ornament">
@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    {{-- Widget Aktivitas Pinjaman Siswa (Hanya tampil jika ada pinjaman aktif atau pengajuan menunggu) --}}
+    {{-- Ringkasan pinjaman akun yang sedang login. --}}
     @if((isset($activeLoans) && $activeLoans->isNotEmpty()) || (isset($pendingLoans) && $pendingLoans->isNotEmpty()))
     <div class="active-loans-widget" id="active-loans-widget">
         {{-- 1. Pinjaman Sedang Berjalan (Disetujui) --}}
@@ -302,7 +302,7 @@
             <section class="category-section" id="category-popular" data-category-id="popular" data-category-name="Sering Dipinjam">
                 <div class="category-section-header">
                     <div class="category-title-wrap">
-                        <span style="font-size: 1.15rem; flex-shrink: 0;">🔥</span>
+                        <span style="font-size: 1.15rem; flex-shrink: 0;">ðŸ”¥</span>
                         <h3 class="category-title" title="Sering Dipinjam">Sering Dipinjam</h3>
                     </div>
                     <a href="{{ route('dashboard', ['kategori' => 'popular', 'view' => 'all']) }}" class="category-view-all" title="Buka seluruh alat sering dipinjam">
@@ -609,9 +609,9 @@
             controls.innerHTML = `
                 <span class="category-pagination-summary" aria-live="polite"></span>
                 <div class="category-pagination-controls">
-                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="-1" aria-label="Halaman sebelumnya">‹</button>
+                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="-1" aria-label="Halaman sebelumnya">â€¹</button>
                     <div class="category-pagination-pages"></div>
-                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="1" aria-label="Halaman berikutnya">›</button>
+                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="1" aria-label="Halaman berikutnya">â€º</button>
                 </div>
             `;
             grid.insertAdjacentElement('afterend', controls);
@@ -654,7 +654,7 @@
             const addEllipsis = () => {
                 const ellipsis = document.createElement('span');
                 ellipsis.className = 'category-pagination-ellipsis';
-                ellipsis.textContent = '…';
+                ellipsis.textContent = 'â€¦';
                 ellipsis.setAttribute('aria-hidden', 'true');
                 pageList.append(ellipsis);
             };

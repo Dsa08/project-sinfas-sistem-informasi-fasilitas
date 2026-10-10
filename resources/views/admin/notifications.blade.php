@@ -42,7 +42,6 @@
                 $isUnread = !$item->status_baca;
                 $loan = $item->peminjaman;
                 $barang = $loan ? $loan->barang : null;
-                $siswa = $loan ? $loan->siswa : null;
             @endphp
 
             <div class="notif-card {{ $isUnread ? 'notif-card--unread' : '' }}" style="background: #ffffff; border: 1px solid {{ $isUnread ? '#bfdbfe' : '#e2e8f0' }}; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-start; gap: 1.25rem; transition: all 0.2s ease;">
@@ -86,9 +85,9 @@
                                 <span>&bull;</span>
                                 <span style="font-weight: 600; color: #1e293b;">Kode: {{ $item->kode_pinjam }}</span>
                             @endif
-                            @if($siswa)
+                            @if($loan)
                                 <span>&bull;</span>
-                                <span style="color: #475569;">Peminjam: <strong>{{ $siswa->nama }}</strong> ({{ $siswa->nis }})</span>
+                                <span style="color: #475569;">Peminjam: <strong>{{ $loan->peminjam_nama }}</strong> ({{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }})</span>
                             @endif
                         </div>
 

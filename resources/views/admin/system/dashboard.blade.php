@@ -18,7 +18,7 @@
         <div class="system-stat-card">
             <div class="system-stat-value">{{ $totalAccounts }}</div>
             <div class="system-stat-label">Total Akun Pengguna</div>
-            <div class="system-stat-subtext">{{ $totalSiswa }} Siswa · {{ $totalAdminSarana }} Admin Sarana · {{ $totalAdminSistem }} Admin Sistem</div>
+            <div class="system-stat-subtext">{{ $totalSiswa }} Siswa · {{ $totalPegawai }} Pegawai · {{ $totalAdminSarana }} Admin Sarana · {{ $totalAdminSistem }} Admin Sistem</div>
         </div>
 
         {{-- Card 2: Akun Baru Bulan Ini --}}

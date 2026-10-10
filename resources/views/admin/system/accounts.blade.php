@@ -32,6 +32,14 @@
             <button type="button" class="system-alert-close" onclick="this.parentElement.remove()">×</button>
         </div>
     @endif
+    @if(session('temporary_password'))
+        {{-- Sandi sementara hanya dikirim melalui flash sekali; admin harus menyampaikannya secara privat. --}}
+        <div class="system-alert system-alert--success" id="temporary-password" role="status">
+            <strong>Sandi sementara untuk {{ session('temporary_password_account') }}:</strong>
+            <code>{{ session('temporary_password') }}</code>
+            <span>Salin sekarang dan sampaikan secara privat kepada pengguna.</span>
+        </div>
+    @endif
 
     {{-- Filter & Action Bar --}}
     <div class="system-filter-bar">
@@ -148,11 +156,11 @@
                                 </button>
                                 <div class="action-dropdown-menu">
                                     {{-- Reset Password --}}
-                                    <form method="POST" action="{{ route('admin.sistem.accounts.reset', $akun->id_akun) }}" class="inline-form" onsubmit="return confirmAppForm(this, @js('Kembalikan kata sandi akun ' . $akun->nama . ' ke kata sandi awal?'), {title: 'Atur Ulang Kata Sandi', confirmText: 'Atur Ulang', danger: true}, event)">
+                                    <form method="POST" action="{{ route('admin.sistem.accounts.reset', $akun->id_akun) }}" class="inline-form" onsubmit="return confirmAppForm(this, @js('Buat kata sandi sementara baru untuk akun ' . $akun->nama . '?'), {title: 'Atur Ulang Kata Sandi', confirmText: 'Buat Sandi Sementara', danger: true}, event)">
                                         @csrf
                                         <button type="submit" class="action-dropdown-item btn-action-reset">
                                             <x-heroicon-o-key class="w-4 h-4" />
-                                            <span>Atur Ulang Kata Sandi</span>
+                                            <span>Buat Sandi Sementara</span>
                                         </button>
                                     </form>
                                     {{-- Deactivate/Activate Account --}}
@@ -274,6 +282,7 @@
                     <select id="add-role" name="role" class="account-form-select" required>
                         <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih peran</option>
                         <option value="siswa" {{ old('role') === 'siswa' ? 'selected' : '' }}>Siswa</option>
+                        <option value="pegawai" {{ old('role') === 'pegawai' ? 'selected' : '' }}>Pegawai / Guru</option>
                         <option value="admin_sarana" {{ old('role') === 'admin_sarana' ? 'selected' : '' }}>Admin Sarana</option>
                     </select>
                 </div>
@@ -361,6 +370,7 @@
                     <select id="edit-role" name="role" class="account-form-select" required>
                         <option value="" disabled>Pilih peran</option>
                         <option value="siswa">Siswa</option>
+                        <option value="pegawai">Pegawai / Guru</option>
                         <option value="admin_sarana">Admin Sarana</option>
                     </select>
                 </div>
@@ -630,9 +640,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     const empty = document.createElement('p');
                     empty.className = 'account-loan-history-empty';
-                    empty.textContent = data.role === 'siswa'
+                    empty.textContent = ['siswa', 'pegawai'].includes(data.role)
                         ? 'Belum ada riwayat peminjaman.'
-                        : 'Riwayat peminjaman hanya tersedia untuk akun siswa.';
+                        : 'Akun ini tidak memiliki riwayat peminjaman.';
                     historyContainer.append(empty);
                 }
 

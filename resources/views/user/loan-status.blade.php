@@ -1,8 +1,8 @@
 {{-- 
-  HALAMAN STATUS PENGAJUAN & RIWAYAT PEMINJAMAN — SINFAS
+  HALAMAN STATUS PENGAJUAN & RIWAYAT PEMINJAMAN â€” SINFAS
   File: resources/views/user/loan-status.blade.php
   Fitur:
-  - Pelacakan status permohonan pinjam siswa (Menunggu Verifikasi, Disetujui, Ditolak, dan Selesai).
+  - Pelacakan status permohonan pinjam akun pengguna.
   - Badge status dengan styling warna indikator dinamis.
   - Penjelasan alasan penolakan dari admin sarana jika permohonan ditolak.
   - Tombol aksi pengembalian sarana (Return Item) dengan modal popup interaktif atau halaman mandiri.
@@ -166,7 +166,7 @@
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
             </svg>
             <p style="color: #6b7280; font-size: 0.95rem; margin: 0 0 0.5rem;">Belum ada pengajuan peminjaman.</p>
-            <a href="{{ route('dashboard') }}" style="color: #1D67F2; font-size: 0.88rem; text-decoration: none; font-weight: 500;">Lihat Katalog Barang →</a>
+            <a href="{{ route('dashboard') }}" style="color: #1D67F2; font-size: 0.88rem; text-decoration: none; font-weight: 500;">Lihat Katalog Barang â†’</a>
         </div>
         @endforelse
     </div>
@@ -328,7 +328,7 @@
         currentItemTitle = namaBarang;
         modalReturnForm.action = `/loan-return/${kodePinjam}`;
         modalItemName.textContent = namaBarang;
-        modalItemMeta.textContent = `Kode: ${kodePinjam} • Kategori: ${kategori} • Dipinjam: ${tanggalPinjam}`;
+        modalItemMeta.textContent = `Kode: ${kodePinjam} â€¢ Kategori: ${kategori} â€¢ Dipinjam: ${tanggalPinjam}`;
 
         if (fotoUrl) {
             modalItemImg.src = fotoUrl;

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Controller UserController
  * 
- * Mengelola seluruh alur interaksi dan transaksi operasional untuk pengguna siswa:
+ * Mengelola katalog dan transaksi peminjaman untuk akun siswa dan pegawai:
  * 1. Dashboard Katalog Barang: Pencarian instan (nama, merk, kode, kategori), filter kategori, dan caching 1 jam.
  * 2. Status & Riwayat Peminjaman: Menampilkan daftar riwayat dan pemantauan status transaksi secara real-time.
  * 3. Permohonan Peminjaman: Detail sarana, kuota pinjam aktif (anti-spam max 2), pencegahan pinjam ganda.
@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Cache;
 class UserController extends Controller
 {
     /**
-     * Menampilkan dashboard utama siswa dengan katalog sarana prasarana.
+     * Menampilkan dashboard utama pengguna dengan katalog sarana prasarana.
      * Mengimplementasikan pencarian multifield, filter kategori, paginasi, dan caching kategori.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -109,14 +109,14 @@ class UserController extends Controller
             }
         }])->orderBy('nama_kategori', 'asc')->get();
 
-        // 8. Ambil aktivitas transaksi aktif siswa yang login (Widget Ringkasan Beranda)
+        // Ringkasan pinjaman milik akun yang sedang login.
         $user = auth()->user();
         $activeLoans = collect();
         $pendingLoans = collect();
 
-        if ($user && $user->nis) {
+        if ($user) {
             // Pinjaman yang disetujui dan belum selesai dikembalikan
-            $activeLoans = Peminjaman::where('nis', $user->nis)
+            $activeLoans = Peminjaman::ownedBy($user)
                 ->disetujui()
                 ->whereDoesntHave('pengembalian', function ($q) {
                     $q->whereNotNull('kondisi_barang');
@@ -126,7 +126,7 @@ class UserController extends Controller
                 ->get();
 
             // Pengajuan yang masih menunggu persetujuan
-            $pendingLoans = Peminjaman::where('nis', $user->nis)
+            $pendingLoans = Peminjaman::ownedBy($user)
                 ->menunggu()
                 ->with('barang.kategori')
                 ->latest('created_at')
@@ -154,7 +154,7 @@ class UserController extends Controller
     }
 
     /**
-     * Menampilkan status transaksi peminjaman milik siswa yang sedang login.
+     * Menampilkan status transaksi peminjaman milik pengguna yang sedang login.
      * Termasuk relasi barang, kategori, dan catatan pengembalian.
      *
      * @return \Illuminate\View\View
@@ -163,8 +163,8 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        // Mengambil seluruh permohonan pinjam siswa urut dari yang paling baru
-        $loans = Peminjaman::where('nis', $user->nis)
+        // Mengambil seluruh permohonan pinjam pengguna urut dari yang paling baru
+        $loans = Peminjaman::ownedBy($user)
             ->with(['barang.kategori', 'pengembalian'])
             ->latest('created_at')
             ->paginate(10);
@@ -172,10 +172,10 @@ class UserController extends Controller
         return view('user.loan-status', compact('loans'));
     }
 
-    /** Batalkan pengajuan yang masih menunggu verifikasi dan milik siswa yang login. */
+    /** Batalkan pengajuan yang masih menunggu verifikasi dan milik pengguna yang login. */
     public function cancelLoanRequest($kode)
     {
-        $loan = Peminjaman::where('nis', auth()->user()->nis)
+        $loan = Peminjaman::ownedBy(auth()->user())
             ->where('kode_pinjam', $kode)
             ->where('status_pengajuan', 'menunggu')
             ->firstOrFail();
@@ -188,7 +188,7 @@ class UserController extends Controller
 
     /**
      * Menampilkan halaman detail sarana dan formulir pengajuan peminjaman.
-     * Memeriksa kuota pinjam siswa dan status pengajuan yang sedang berjalan.
+     * Memeriksa kuota pinjam pengguna dan status pengajuan yang sedang berjalan.
      *
      * @param  string  $kode  Kode unik barang yang akan dipinjam
      * @return \Illuminate\View\View
@@ -198,16 +198,16 @@ class UserController extends Controller
         $item = Barang::with('kategori')->findOrFail($kode);
         $user = auth()->user();
 
-        // 1. Hitung jumlah peminjaman aktif siswa (yang masih menunggu verifikasi atau sedang dipinjam)
-        $activeLoansCount = Peminjaman::where('nis', $user->nis)
+        // 1. Hitung jumlah peminjaman aktif pengguna (yang masih menunggu verifikasi atau sedang dipinjam)
+        $activeLoansCount = Peminjaman::ownedBy($user)
             ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
             ->whereDoesntHave('pengembalian', function ($q) {
                 $q->whereNotNull('kondisi_barang');
             })
             ->count();
 
-        // 2. Periksa apakah siswa sudah memiliki permohonan pending untuk barang spesifik ini
-        $alreadyPending = Peminjaman::where('nis', $user->nis)
+        // 2. Cegah permohonan berulang untuk barang yang sama.
+        $alreadyPending = Peminjaman::ownedBy($user)
             ->where('kode_barang', $kode)
             ->where('status_pengajuan', 'menunggu')
             ->exists();
@@ -227,8 +227,8 @@ class UserController extends Controller
         $item = Barang::findOrFail($kode);
         $user = auth()->user();
 
-        // 1. Aturan Anti-Spam: Batas maksimal kuota peminjaman aktif adalah 2 transaksi per siswa
-        $activeLoansCount = Peminjaman::where('nis', $user->nis)
+        // 1. Aturan Anti-Spam: Batas maksimal kuota peminjaman aktif adalah 2 transaksi per pengguna
+        $activeLoansCount = Peminjaman::ownedBy($user)
             ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
             ->whereDoesntHave('pengembalian', function ($q) {
                 $q->whereNotNull('kondisi_barang');
@@ -240,7 +240,7 @@ class UserController extends Controller
         }
 
         // 2. Aturan Anti-Duplikasi: Mencegah permohonan ganda yang masih berstatus menunggu verifikasi
-        $alreadyPending = Peminjaman::where('nis', $user->nis)
+        $alreadyPending = Peminjaman::ownedBy($user)
             ->where('kode_barang', $kode)
             ->where('status_pengajuan', 'menunggu')
             ->exists();
@@ -250,7 +250,7 @@ class UserController extends Controller
         }
 
         // 3. Aturan Kepemilikan: Mencegah peminjaman alat yang sama jika unit sebelumnya belum dikembalikan
-        $alreadyBorrowing = Peminjaman::where('nis', $user->nis)
+        $alreadyBorrowing = Peminjaman::ownedBy($user)
             ->where('kode_barang', $kode)
             ->where('status_pengajuan', 'disetujui')
             ->whereDoesntHave('pengembalian')
@@ -286,6 +286,8 @@ class UserController extends Controller
         // 7. Simpan permohonan baru ke database dengan status awal 'menunggu'
         $peminjaman = Peminjaman::create([
             'kode_pinjam'           => $kodePinjam,
+            'id_peminjaman'         => $kodePinjam,
+            'id_akun'               => $user->id_akun,
             'nis'                   => $user->nis,
             'kode_barang'           => $kode,
             'tanggal_pinjam'        => $request->tanggal_pinjam,
@@ -307,7 +309,7 @@ class UserController extends Controller
     }
 
     /**
-     * Menampilkan halaman pengembalian sarana yang sedang dipinjam oleh siswa.
+     * Menampilkan formulir pengembalian untuk pinjaman akun yang sedang login.
      *
      * @param  string  $kode  Kode transaksi peminjaman
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
@@ -317,7 +319,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         // Cari transaksi peminjaman milik user yang berstatus 'disetujui'
-        $loan = Peminjaman::where('nis', $user->nis)
+        $loan = Peminjaman::ownedBy($user)
             ->where('kode_pinjam', $kode)
             ->where('status_pengajuan', 'disetujui')
             ->with(['barang.kategori', 'pengembalian'])
@@ -333,7 +335,7 @@ class UserController extends Controller
     }
 
     /**
-     * Memproses pengajuan pengembalian sarana dari siswa beserta upload bukti fisik (foto/video).
+     * Memproses pengembalian beserta bukti foto atau video.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  string  $kode  Kode transaksi peminjaman
@@ -344,7 +346,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         // 1. Verifikasi kepemilikan transaksi pinjam
-        $loan = Peminjaman::where('nis', $user->nis)
+        $loan = Peminjaman::ownedBy($user)
             ->where('kode_pinjam', $kode)
             ->where('status_pengajuan', 'disetujui')
             ->with('pengembalian')

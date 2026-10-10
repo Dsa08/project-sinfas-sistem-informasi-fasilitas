@@ -6,6 +6,8 @@ use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Akun;
+use App\Support\RoleHome;
 use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
@@ -21,6 +23,11 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+                if ($user instanceof Akun) {
+                    return redirect()->to(RoleHome::url($user));
+                }
+
                 return redirect(RouteServiceProvider::HOME);
             }
         }

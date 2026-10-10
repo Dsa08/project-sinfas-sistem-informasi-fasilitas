@@ -36,7 +36,7 @@ class CekBatasWaktuPeminjaman extends Command
             ->whereDoesntHave('pengembalian', function ($q) {
                 $q->whereNotNull('kondisi_barang');
             })
-            ->with(['siswa', 'barang'])
+            ->with(['akun', 'siswa', 'barang'])
             ->get();
 
         if ($activeLoans->isEmpty()) {
@@ -70,7 +70,7 @@ class CekBatasWaktuPeminjaman extends Command
                     $this->line(sprintf(
                         '[NOTIFIKASI] Kode: %s | Peminjam: %s | Barang: %s | Telah dipinjam: %d hari',
                         $loan->kode_pinjam,
-                        $loan->siswa->nama ?? $loan->nis,
+                        $loan->peminjam_nama,
                         $loan->barang->nama_barang ?? '-',
                         $hariBerlalu
                     ));

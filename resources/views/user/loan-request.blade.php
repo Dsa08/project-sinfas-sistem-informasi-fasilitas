@@ -1,9 +1,9 @@
 {{-- 
-  HALAMAN PENGAJUAN PEMINJAMAN SARANA (LOAN REQUEST) — SINFAS
+  HALAMAN PENGAJUAN PEMINJAMAN SARANA (LOAN REQUEST) â€” SINFAS
   File: resources/views/user/loan-request.blade.php
   Fitur:
   - Rincian spesifikasi sarana: Foto, merk/model, kode inventaris, kategori, nomor seri pabrik, dimensi, dan bahan.
-  - Peringatan kuota aktif peminjaman siswa (maksimal 2 transaksi berjalan).
+  - Peringatan kuota aktif peminjaman (maksimal 2 transaksi berjalan).
   - Formulir input pengajuan: Tanggal mulai pinjam (validasi minimal hari ini), lokasi penggunaan, dan alasan/keperluan penggunaan.
   - Proteksi anti-spam submit pinjaman.
 --}}
@@ -118,7 +118,7 @@
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Barang Tidak Tersedia</button>
                     @endif
 
-                    <p class="loan-form-note">Catatan: Kuota peminjaman maksimal 2 alat aktif per siswa. Pengajuan memerlukan persetujuan Admin Sarana.</p>
+                    <p class="loan-form-note">Kuota peminjaman maksimal 2 alat aktif. Pengajuan memerlukan persetujuan Admin Sarana.</p>
                 </form>
             </div>
         </div>

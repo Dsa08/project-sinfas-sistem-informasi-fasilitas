@@ -38,7 +38,7 @@ class RoleMiddleware
         $user = Auth::user();
 
         // 2. Validasi Hak Akses (Role): Periksa apakah role user terdaftar dalam parameter $roles
-        if (!in_array($user->role, $roles)) {
+        if (!in_array($user->role, $roles, true)) {
             // Tolak dengan HTTP 403 Forbidden bila hak akses tidak sesuai
             abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk mengakses halaman ini.');
         }

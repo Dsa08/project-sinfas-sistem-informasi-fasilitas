@@ -4,7 +4,7 @@
   Fitur:
   - Mengirimkan tautan reset kata sandi melalui surel pengguna.
   - Mendukung input Email, Username, atau NIS/NIP.
-  - Menampilkan tautan reset langsung (direct reset URL) bila pengiriman surel simulasi lokal aktif.
+  - Tidak menampilkan token atau tautan reset pada halaman; pemulihan hanya lewat email terdaftar.
 --}}
 @extends('layouts.auth')
 
@@ -33,13 +33,6 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top: 0.15rem; flex-shrink: 0;"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
                 <div>
                     {{ session('status') }}
-                    @if(session('direct_reset_url'))
-                        <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed #6ee7b7;">
-                            <a href="{{ session('direct_reset_url') }}" style="color: #1D67F2; font-weight: 600; text-decoration: underline; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                &rarr; Buka Formulir Atur Ulang Kata Sandi Sekarang
-                            </a>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -57,7 +50,7 @@
     @endif
 
     <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1.25rem; line-height: 1.45;">
-        Masukkan <strong>Email</strong>, <strong>Username</strong>, atau <strong>NIS / NIP</strong> yang terdaftar pada akun Anda. Kami akan menyiapkan tautan untuk membuat kata sandi baru.
+        Masukkan <strong>Email</strong>, <strong>Username</strong>, atau <strong>NIS / NIP</strong>. Tautan pemulihan hanya dapat dikirim ke email yang terdaftar pada akun.
     </p>
 
     {{-- Forgot Password Form --}}

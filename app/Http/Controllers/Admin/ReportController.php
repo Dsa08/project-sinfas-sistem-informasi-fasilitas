@@ -107,7 +107,7 @@ class ReportController extends Controller
                 'barPercentage' => 0.9,
             ];
         } elseif ($type === 'damage-history') {
-            $loans = Peminjaman::with(['siswa', 'barang.kategori', 'pengembalian'])
+            $loans = Peminjaman::with(['akun', 'siswa', 'barang.kategori', 'pengembalian'])
                 ->whereHas('pengembalian', function ($query) use ($startDate, $endDate, $condition) {
                     $query->whereBetween('tanggal_kembali', [$startDate->toDateString(), $endDate->toDateString()])
                         ->whereIn('kondisi_barang', ['Kurang Baik', 'Rusak Berat'])
@@ -117,12 +117,12 @@ class ReportController extends Controller
                 ->orderByDesc('tanggal_pinjam')
                 ->get();
 
-            $columns = ['Kode pinjam', 'Tanggal kembali', 'NIS', 'Nama siswa', 'Barang', 'Kategori', 'Kondisi', 'Catatan'];
+            $columns = ['Kode pinjam', 'Tanggal kembali', 'NIS/NIP', 'Nama peminjam', 'Barang', 'Kategori', 'Kondisi', 'Catatan'];
             $rows = $loans->map(fn ($loan) => [
                 $loan->kode_pinjam,
                 optional($loan->pengembalian->tanggal_kembali)->format('d-m-Y'),
-                $loan->nis,
-                $loan->siswa->nama ?? '-',
+                $loan->akun?->nis_nip ?? $loan->nis ?? '-',
+                $loan->peminjam_nama,
                 $loan->barang->nama_barang ?? '-',
                 $loan->barang->kategori->nama_kategori ?? '-',
                 $loan->pengembalian->kondisi_barang,
@@ -147,7 +147,7 @@ class ReportController extends Controller
             $query = Peminjaman::query()
                 ->select('peminjaman.*')
                 ->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
-                ->with(['siswa', 'barang.kategori', 'pengembalian'])
+                ->with(['akun', 'siswa', 'barang.kategori', 'pengembalian'])
                 ->where('peminjaman.status_pengajuan', 'disetujui')
                 ->whereBetween('peminjaman.tanggal_pinjam', [$startDate->toDateString(), $endDate->toDateString()])
                 ->whereRaw('DATEDIFF(COALESCE(pengembalian.tanggal_kembali, CURDATE()), DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL ' . self::LOAN_DAYS . ' DAY)) > 0')
@@ -157,7 +157,7 @@ class ReportController extends Controller
                 ->orderBy('peminjaman.tanggal_pinjam');
 
             $loans = $query->get();
-            $columns = ['Kode pinjam', 'NIS', 'Nama siswa', 'Barang', 'Tanggal pinjam', 'Batas kembali', 'Tanggal kembali', 'Status', 'Terlambat (hari)'];
+            $columns = ['Kode pinjam', 'NIS/NIP', 'Nama peminjam', 'Barang', 'Tanggal pinjam', 'Batas kembali', 'Tanggal kembali', 'Status', 'Terlambat (hari)'];
             $rows = $loans->map(function ($loan) {
                 $dueDate = Carbon::parse($loan->tanggal_pinjam)->addDays(self::LOAN_DAYS);
                 $returnedDate = $loan->pengembalian?->tanggal_kembali
@@ -166,8 +166,8 @@ class ReportController extends Controller
 
                 return [
                     $loan->kode_pinjam,
-                    $loan->nis,
-                    $loan->siswa->nama ?? '-',
+                    $loan->akun?->nis_nip ?? $loan->nis ?? '-',
+                    $loan->peminjam_nama,
                     $loan->barang->nama_barang ?? '-',
                     Carbon::parse($loan->tanggal_pinjam)->format('d-m-Y'),
                     $dueDate->format('d-m-Y'),

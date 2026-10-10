@@ -99,8 +99,7 @@
                     >
                 </div>
 
-                {{-- Email field: hanya tampil untuk siswa --}}
-                @if($user->isSiswa())
+                @if($user->isPeminjam())
                 <div class="profile-form-group">
                     <label class="profile-form-label" for="email">Email</label>
                     <input

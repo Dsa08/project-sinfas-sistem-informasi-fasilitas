@@ -11,8 +11,8 @@ use Laravel\Sanctum\HasApiTokens;
  * Model Akun
  * 
  * Entitas utama autentikasi dan otorisasi pengguna pada aplikasi SINFAS.
- * Mendukung autentikasi multi-peran (Siswa, Admin Sarana, Admin Sistem)
- * serta terhubung secara polimorfis logis ke data siswa (NIS) atau pegawai (NIP).
+ * Menyimpan identitas login dan peran aplikasi, lalu menghubungkan akun ke
+ * profil siswa atau pegawai melalui foreign key pada tabel profil.
  */
 class Akun extends Authenticatable
 {
@@ -43,11 +43,12 @@ class Akun extends Authenticatable
         'nama',          // Nama lengkap pengguna
         'nomor_kontak',  // Nomor WhatsApp / HP aktif untuk koordinasi
         'email',         // Alamat surel unik pengguna
-        'role',          // Hak akses: 'siswa', 'admin_sarana', 'admin_sistem'
+        'role',          // siswa, pegawai, admin_sarana, atau admin_sistem
         'username',      // Username unik untuk login
         'password',      // Hash kata sandi
         'foto',          // Path relatif foto profil pengguna
         'is_active',     // Status keaktifan akun (true: aktif, false: disuspend)
+        'must_change_password',
     ];
 
     /**
@@ -68,6 +69,7 @@ class Akun extends Authenticatable
     protected $casts = [
         'password'  => 'hashed',
         'is_active' => 'boolean',
+        'must_change_password' => 'boolean',
     ];
 
     /**
@@ -82,23 +84,23 @@ class Akun extends Authenticatable
     }
 
     /**
-     * Relasi: Akun terhubung ke biodata master Siswa berdasarkan NIS.
+     * Profil siswa yang menggunakan akun ini.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class, 'nis', 'nis');
+        return $this->hasOne(Siswa::class, 'id_akun', 'id_akun');
     }
 
     /**
-     * Relasi: Akun terhubung ke biodata master Pegawai/Staf berdasarkan NIP.
+     * Profil pegawai yang menggunakan akun ini.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function pegawai()
     {
-        return $this->belongsTo(Pegawai::class, 'nip', 'nip');
+        return $this->hasOne(Pegawai::class, 'id_akun', 'id_akun');
     }
 
     /**
@@ -131,6 +133,21 @@ class Akun extends Authenticatable
         return $this->role === 'siswa';
     }
 
+    public function isPegawai(): bool
+    {
+        return $this->role === 'pegawai';
+    }
+
+    public function isPeminjam(): bool
+    {
+        return $this->isSiswa() || $this->isPegawai();
+    }
+
+    public function staffSarana()
+    {
+        return $this->hasOne(StaffSarana::class, 'id_akun', 'id_akun');
+    }
+
     /**
      * Helper: Memeriksa apakah akun merupakan Admin (Sarana maupun Sistem).
      *
@@ -138,7 +155,7 @@ class Akun extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return in_array($this->role, ['admin_sarana', 'admin_sistem']);
+        return in_array($this->role, ['admin_sarana', 'admin_sistem'], true);
     }
 
     /**
@@ -171,9 +188,10 @@ class Akun extends Authenticatable
     {
         return match ($this->role) {
             'siswa'        => 'Siswa',
+            'pegawai'      => 'Pegawai',
             'admin_sarana' => 'Admin Sarana',
             'admin_sistem' => 'Admin Sistem',
-            default        => ucfirst($this->role),
+            default        => 'Tidak diketahui',
         };
     }
 

@@ -2,7 +2,7 @@
   HALAMAN LOGIN (MASUK APLIKASI) — SINFAS
   File: resources/views/auth/login.blade.php
   Fitur:
-  - Form otentikasi login multi-identifier (Username, Email, NIS Siswa, atau NIP Pegawai).
+  - Form otentikasi melalui username, email, NIS, atau NIP yang tidak ambigu.
   - Tampilan alert kesalahan validasi dan notifikasi rate-limiting brute force.
   - Opsi checkbox "Ingat Saya" (Remember Me).
   - Tautan pemulihan kata sandi.
@@ -61,6 +61,7 @@
                 required
                 autocomplete="username"
             >
+            <small>Jika satu NIP terhubung ke dua akun, gunakan username akun yang ingin dibuka.</small>
         </div>
 
         <div class="form-group">

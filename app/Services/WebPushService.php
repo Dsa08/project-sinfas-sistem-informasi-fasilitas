@@ -11,9 +11,9 @@ use Throwable;
 
 class WebPushService
 {
-    public function sendToStudent(Akun $akun, string $title, string $body, string $url = '/dashboard'): int
+    public function sendToUser(Akun $akun, string $title, string $body, string $url = '/dashboard'): int
     {
-        if ($akun->role !== 'siswa') {
+        if (!$akun->isPeminjam()) {
             return 0;
         }
 

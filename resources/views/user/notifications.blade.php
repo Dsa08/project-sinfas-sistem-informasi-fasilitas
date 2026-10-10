@@ -1,5 +1,5 @@
 {{-- 
-  HALAMAN PUSAT NOTIFIKASI PENGGUNA (SISWA) — SINFAS
+  HALAMAN PUSAT NOTIFIKASI PENGGUNA â€” SINFAS
   File: resources/views/user/notifications.blade.php
   Fitur Sesuai Desain Figma:
   - Header navigasi "Kembali ke Beranda" & judul halaman "Pusat Notifikasi"

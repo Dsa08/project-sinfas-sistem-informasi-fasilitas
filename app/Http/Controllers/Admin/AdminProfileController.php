@@ -73,6 +73,13 @@ class AdminProfileController extends Controller
         }
         $user->save();
 
+        if ($user->isAdminSarana() && $user->staffSarana) {
+            $user->staffSarana->update([
+                'nama' => $user->nama,
+                'no_hp' => $user->nomor_kontak,
+            ]);
+        }
+
         return redirect()
             ->route('admin.profile', ['tab' => 'profile'])
             ->with('success', 'Profil berhasil diperbarui.');

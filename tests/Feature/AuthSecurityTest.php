@@ -25,6 +25,17 @@ class AuthSecurityTest extends TestCase
         $response->assertRedirect('/login');
     }
 
+    public function test_password_reset_never_discloses_a_recovery_link_for_unknown_identifier(): void
+    {
+        $response = $this->from('/forgot-password')->post('/forgot-password', [
+            'email' => 'unknown-reset-test-user',
+        ]);
+
+        $response->assertRedirect('/forgot-password');
+        $response->assertSessionHas('status');
+        $response->assertSessionMissing('direct_reset_url');
+    }
+
     public function test_login_throttling_triggers_after_multiple_failed_attempts(): void
     {
         for ($i = 0; $i < 5; $i++) {

@@ -1,8 +1,8 @@
 {{-- 
-  LAYOUT UTAMA PENGGUNA (SISWA) — SINFAS
+  LAYOUT UTAMA PENGGUNA â€” SINFAS
   File: resources/views/layouts/app.blade.php
   Fungsi:
-  - Kerangka layout induk antarmuka siswa (Dashboard katalog, status peminjaman, form pinjam & kembali).
+  - Kerangka layout induk antarmuka pengguna (Dashboard katalog, status peminjaman, form pinjam & kembali).
   - Memuat Google Fonts (Inter & Poppins), bundle asset Vite (app.css & app.js).
   - Menyediakan Navbar atas interaktif: Tombol status pengajuan, indikator lonceng notifikasi, dan avatar profil dropdown.
   - Menampilkan global flash messages (success, error, status).
@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @if(Auth::user()?->role === 'siswa')
+    @if(Auth::user()?->isPeminjam())
         <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
         <meta name="theme-color" content="#1e40af">
     @endif
@@ -333,24 +333,24 @@
             function getNotifIcon(tipe) {
                 const baseStyle = 'flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;';
                 if (tipe === 'ditolak') {
-                    // Merah — pengajuan ditolak
+                    // Merah â€” pengajuan ditolak
                     return `<div style="${baseStyle}background:#fee2e2;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                     </div>`;
                 } else if (tipe === 'disetujui' || tipe === 'pengembalian_dikonfirmasi') {
-                    // Hijau — disetujui / pengembalian dikonfirmasi
+                    // Hijau â€” disetujui / pengembalian dikonfirmasi
                     return `<div style="${baseStyle}background:#dcfce7;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                     </div>`;
                 } else {
-                    // Kuning — menunggu / info / default
+                    // Kuning â€” menunggu / info / default
                     return `<div style="${baseStyle}background:#fef9c3;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     </div>`;
                 }
             }
 
-            // Notification Dropdown Logic — buka dropdown + langsung mark-all-read
+            // Notification Dropdown Logic â€” buka dropdown + langsung mark-all-read
             window.toggleNotifDropdown = function(e) {
                 if (e) e.stopPropagation();
                 const dropdown = document.getElementById('navbar-notif-dropdown');
@@ -491,7 +491,7 @@
             <span class="mobile-nav-label">Profil</span>
         </a>
     </nav>
-    @if(Auth::user()?->role === 'siswa')
+    @if(Auth::user()?->isPeminjam())
         <div class="pwa-install-overlay" id="pwa-install-overlay" hidden>
             <section class="pwa-install-dialog" role="dialog" aria-modal="true" aria-labelledby="pwa-install-title" aria-describedby="pwa-install-description">
                 <button class="pwa-install-close" type="button" id="pwa-install-close" aria-label="Tutup">&times;</button>
@@ -510,7 +510,7 @@
         </div>
     @endif
     @include('components.app-dialogs')
-    @if(Auth::user()?->role === 'siswa')
+    @if(Auth::user()?->isPeminjam())
         <script>
             (() => {
                 const overlay = document.getElementById('pwa-install-overlay');

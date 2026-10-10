@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Model Peminjaman
  * 
- * Mengelola siklus transaksi permohonan peminjaman sarana oleh siswa.
- * Memuat informasi nomor pengajuan unik (kode_pinjam), identitas peminjam (nis),
+ * Mengelola siklus transaksi permohonan peminjaman sarana oleh akun.
+ * Memuat kode transaksi, identitas akun peminjam,
  * barang yang dipinjam (kode_barang), rincian lokasi dan peruntukan, status verifikasi,
  * hingga alasan jika permohonan ditolak admin.
  */
@@ -52,7 +52,9 @@ class Peminjaman extends Model
      */
     protected $fillable = [
         'kode_pinjam',            // Kode transaksi unik peminjaman
-        'nis',                    // Nomor Induk Siswa peminjam
+        'id_peminjaman',
+        'id_akun',
+        'nis',                    // Kolom lama untuk riwayat dan kompatibilitas
         'kode_barang',            // Kode sarana prasarana yang diajukan
         'tanggal_pinjam',         // Tanggal rencana/mulai peminjaman
         'keterangan_penggunaan',  // Keperluan peminjaman (kegiatan belajar, lomba, dll.)
@@ -80,10 +82,10 @@ class Peminjaman extends Model
         return $this->belongsTo(Siswa::class, 'nis', 'nis');
     }
 
-    /** Akun peminjam yang terhubung melalui NIS. */
+    /** Akun peminjam langsung, termasuk akun pegawai. */
     public function akun()
     {
-        return $this->belongsTo(Akun::class, 'nis', 'nis');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 
     /** Label status diambil dari role akun agar konsisten dengan tabel akun Admin Sistem. */
@@ -103,7 +105,7 @@ class Peminjaman extends Model
     /** Nama peminjam mengikuti data siswa yang memiliki NIS transaksi. */
     public function getPeminjamNamaAttribute(): string
     {
-        return $this->siswa?->nama ?? '-';
+        return $this->siswa?->nama ?? $this->akun?->nama ?? '-';
     }
 
     /**
@@ -126,6 +128,11 @@ class Peminjaman extends Model
         return $this->hasOne(Pengembalian::class, 'kode_pinjam', 'kode_pinjam');
     }
 
+    public function penyetujuan()
+    {
+        return $this->hasMany(Penyetujuan::class, 'id_peminjaman', 'id_peminjaman');
+    }
+
     /**
      * Query Scope: Menyaring transaksi yang masih menunggu proses verifikasi admin.
      *
@@ -135,6 +142,11 @@ class Peminjaman extends Model
     public function scopeMenunggu($query)
     {
         return $query->where('status_pengajuan', 'menunggu');
+    }
+
+    public function scopeOwnedBy($query, Akun $akun)
+    {
+        return $query->where('id_akun', $akun->id_akun);
     }
 
     /**

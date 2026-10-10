@@ -50,8 +50,10 @@ class Siswa extends Model
      */
     protected $fillable = [
         'nis',   // Nomor Induk Siswa unik
+        'id_akun',
         'nama',  // Nama lengkap siswa
         'email', // Alamat email siswa
+        'kelas',
         'no_hp', // Nomor kontak / WhatsApp aktif siswa
     ];
 
@@ -62,6 +64,6 @@ class Siswa extends Model
      */
     public function akun()
     {
-        return $this->hasOne(Akun::class, 'nis', 'nis');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 }

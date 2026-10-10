@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Akun;
+use App\Models\Pegawai;
+use App\Models\Siswa;
+use App\Support\RoleHome;
+use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
-use App\Models\Akun;
-use Carbon\Carbon;
+use Illuminate\View\View;
 
 /**
  * Controller AuthController
- * 
+ *
  * Mengelola seluruh alur otentikasi dan keamanan akun pengguna:
  * 1. Login multi-identitas (Username / NIS / NIP) dengan proteksi Brute Force (Rate Limiting).
  * 3. Pemulihan kata sandi (Forgot Password) via token kriptografis dan tautan email.
@@ -29,7 +34,7 @@ class AuthController extends Controller
      * Menampilkan formulir login aplikasi.
      * Jika pengguna sudah dalam status login, otomatis dialihkan ke dashboard sesuai perannya.
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function showLoginForm()
     {
@@ -44,17 +49,16 @@ class AuthController extends Controller
      * Memproses permohonan login dengan Rate Limiting anti brute force.
      * Pengguna dapat menginputkan Username, Email, NIS siswa, atau NIP pegawai.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function login(Request $request)
     {
         // 1. Validasi keberadaan input identifier dan password
         $credentials = $request->validate([
-            'email'    => 'required|string',
+            'email' => 'required|string',
             'password' => 'required|string',
         ], [
-            'email.required'    => 'Username, Email, atau NIS/NIP wajib diisi.',
+            'email.required' => 'Username, Email, atau NIS/NIP wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
@@ -71,16 +75,26 @@ class AuthController extends Controller
         }
 
         // 3. Cari akun berdasarkan salah satu identitas unik (username, email, nis, atau nip)
-        $akun = Akun::where('username', $identifier)
-            ->orWhere('email', $identifier)
-            ->orWhere('nis', $identifier)
-            ->orWhere('nip', $identifier)
-            ->first();
+        $akun = Akun::where(function ($query) use ($identifier) {
+            $query->where('username', $identifier)
+                ->orWhere('email', $identifier)
+                ->orWhere('nis', $identifier);
+        })->first();
+
+        if (! $akun) {
+            $nipAccounts = Akun::where('nip', $identifier)->where('is_active', true)->limit(2)->get();
+            if ($nipAccounts->count() > 1) {
+                return back()->withErrors([
+                    'email' => 'NIP ini memiliki lebih dari satu akun. Silakan masuk menggunakan username akun.',
+                ])->onlyInput('email');
+            }
+            $akun = $nipAccounts->first();
+        }
 
         // 4. Verifikasi kecocokan hash kata sandi dan status keaktifan akun
         if ($akun && Hash::check($credentials['password'], $akun->password)) {
             // Cek apakah akun dinonaktifkan oleh administrator
-            if (isset($akun->is_active) && !$akun->is_active) {
+            if (isset($akun->is_active) && ! $akun->is_active) {
                 return back()->withErrors([
                     'email' => 'Akun Anda sedang dinonaktifkan. Silakan hubungi Administrator Sistem.',
                 ])->onlyInput('email');
@@ -93,7 +107,7 @@ class AuthController extends Controller
             Auth::login($akun, $request->filled('remember'));
             $request->session()->regenerate();
 
-            return $this->redirectBasedOnRole($akun)->with('success', 'Selamat datang kembali, ' . $akun->nama . '!');
+            return $this->redirectBasedOnRole($akun)->with('success', 'Selamat datang kembali, '.$akun->nama.'!');
         }
 
         // 5. Catat kegagalan login ke Rate Limiter (decay time 60 detik)
@@ -107,8 +121,7 @@ class AuthController extends Controller
     /**
      * Memproses logout pengguna secara aman (menghapus session & token CSRF).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function logout(Request $request)
     {
@@ -121,39 +134,27 @@ class AuthController extends Controller
 
     /**
      * Helper: Menghasilkan kunci pembatas (rate limit key) berbasis kombinasi identifier dan alamat IP klien.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $identifier
-     * @return string
      */
     protected function throttleKey(Request $request, string $identifier): string
     {
-        return Str::transliterate(Str::lower($identifier) . '|' . $request->ip());
+        return Str::transliterate(Str::lower($identifier).'|'.$request->ip());
     }
 
     /**
      * Helper: Mengarahkan pengguna ke rute dashboard yang sesuai dengan peran (role) masing-masing.
      *
-     * @param  \App\Models\Akun  $user
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Akun  $user
+     * @return RedirectResponse
      */
     private function redirectBasedOnRole($user)
     {
-        if ($user->role === 'siswa') {
-            return redirect()->route('dashboard');
-        } elseif ($user->role === 'admin_sarana') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->role === 'admin_sistem') {
-            return redirect()->route('admin.sistem.dashboard');
-        }
-
-        return redirect('/');
+        return redirect()->to(RoleHome::url($user));
     }
 
     /**
      * Menampilkan formulir permintaan lupa password.
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function showForgotPasswordForm()
     {
@@ -166,10 +167,9 @@ class AuthController extends Controller
 
     /**
      * Memproses permohonan reset password, men-generate token unik aman 64-karakter,
-     * dan mengirimkan tautan reset via email (atau logging URL darurat).
+     * dan mengirimkan tautan reset ke email terdaftar tanpa menampilkan token ke halaman.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function sendResetLink(Request $request)
     {
@@ -186,32 +186,47 @@ class AuthController extends Controller
         $akun = Akun::where('email', $identifier)
             ->orWhere('username', $identifier)
             ->orWhere('nis', $identifier)
-            ->orWhere('nip', $identifier)
             ->first();
 
-        if (!$akun) {
+        if (! $akun) {
+            $nipAccounts = Akun::where('nip', $identifier)->where('is_active', true)->limit(2)->get();
+            if ($nipAccounts->count() > 1) {
+                return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
+            }
+            $akun = $nipAccounts->first();
+        }
+
+        if (! $akun) {
             $siswa = Siswa::where('email', $identifier)->orWhere('nis', $identifier)->first();
             if ($siswa) {
-                $akun = Akun::where('nis', $siswa->nis)->first();
+                $akun = $siswa->akun;
+            }
+            if (! $akun) {
+                $pegawai = Pegawai::where('email', $identifier)->first();
+                $akun = $pegawai?->akun;
             }
         }
 
-        if (!$akun) {
-            return back()->withErrors([
-                'email' => 'Akun dengan identitas tersebut tidak ditemukan dalam sistem.',
-            ])->withInput();
+        if (! $akun || ! $akun->is_active) {
+            return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
         }
 
         // 3. Tentukan alamat email tujuan pengiriman tautan reset
         $targetEmail = $akun->email;
-        if (!$targetEmail && $akun->siswa && $akun->siswa->email) {
-            $targetEmail = $akun->siswa->email;
+        $profile = $akun->siswa ?? $akun->pegawai;
+        if (! $targetEmail && $profile?->email) {
+            $targetEmail = $profile->email;
         }
-        if (!$targetEmail && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+        if (! $targetEmail && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
             $targetEmail = $identifier;
         }
 
-        $emailRecord = $targetEmail ?: ($akun->username . '@sinfas.local');
+        // Reset wajib membuktikan akses ke kotak email; URL pemulihan tidak boleh muncul di halaman atau log.
+        if (! $targetEmail || ! filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
+            return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
+        }
+
+        $emailRecord = $targetEmail;
 
         // 4. Generate token acak kriptografis 64 karakter
         $token = Str::random(64);
@@ -219,47 +234,36 @@ class AuthController extends Controller
         // Bersihkan token lama untuk identitas email ini
         DB::table('password_reset_tokens')->where('email', $emailRecord)->delete();
 
-        // Catat token baru beserta timestamp pembuatan
+        // Simpan hash token agar kebocoran tabel tidak langsung membocorkan tautan reset.
         DB::table('password_reset_tokens')->insert([
-            'email'      => $emailRecord,
-            'token'      => $token,
+            'email' => $emailRecord,
+            'token' => Hash::make($token),
             'created_at' => Carbon::now(),
         ]);
 
         $resetUrl = route('password.reset', ['token' => $token, 'email' => $emailRecord]);
 
         // 5. Eksekusi pengiriman email jika alamat email valid terkonfigurasi
-        $emailSent = false;
-        if ($targetEmail && filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
-            try {
-                Mail::raw("Halo {$akun->nama},\n\nAnda menerima email ini karena ada permintaan untuk mengatur ulang kata sandi akun SINFAS Anda.\n\nBuka tautan berikut untuk membuat kata sandi baru:\n{$resetUrl}\n\nTautan ini berlaku selama 60 menit. Jika Anda tidak meminta perubahan ini, abaikan email ini.\n\nSalam,\nTim SINFAS", function ($message) use ($targetEmail, $akun) {
-                    $message->to($targetEmail, $akun->nama)
-                            ->subject('Permintaan Atur Ulang Kata Sandi - SINFAS');
-                });
-                $emailSent = true;
-            } catch (\Throwable $e) {
-                Log::warning("Gagal mengirim email reset password: " . $e->getMessage());
-            }
+        try {
+            Mail::raw("Halo {$akun->nama},\n\nAnda menerima email ini karena ada permintaan untuk mengatur ulang kata sandi akun SINFAS.\n\nBuka tautan berikut untuk membuat kata sandi baru:\n{$resetUrl}\n\nTautan ini berlaku selama 60 menit. Jika Anda tidak meminta perubahan ini, abaikan email ini.\n\nSalam,\nTim SINFAS", function ($message) use ($targetEmail, $akun) {
+                $message->to($targetEmail, $akun->nama)
+                    ->subject('Permintaan Atur Ulang Kata Sandi - SINFAS');
+            });
+        } catch (\Throwable $e) {
+            DB::table('password_reset_tokens')->where('email', $emailRecord)->delete();
+            // Hindari isi exception karena transport email mungkin menyertakan isi pesan.
+            Log::warning('Gagal mengirim email reset password.', ['exception_class' => $e::class]);
         }
 
-        Log::info("Password reset request for [{$akun->username}] ({$emailRecord}): {$resetUrl}");
-
-        $statusMessage = 'Permintaan untuk mengatur ulang kata sandi berhasil diproses.';
-        if ($emailSent) {
-            $statusMessage .= " Tautan untuk membuat kata sandi baru telah dikirim ke email: {$targetEmail}.";
-        } else {
-            $statusMessage .= ' Gunakan tautan di bawah ini untuk membuat kata sandi baru.';
-        }
-
-        return back()->with('status', $statusMessage)->with('direct_reset_url', $resetUrl);
+        // Samakan respons agar halaman tidak membocorkan keberadaan akun atau email.
+        return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
     }
 
     /**
      * Menampilkan formulir input password baru dengan validasi masa aktif token.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  string  $token
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function showResetPasswordForm(Request $request, $token)
     {
@@ -270,18 +274,17 @@ class AuthController extends Controller
         $email = $request->query('email');
 
         // Validasi keberadaan token di tabel reset
-        $resetRecord = DB::table('password_reset_tokens')
-            ->where('token', $token)
-            ->first();
+        $resetRecord = DB::table('password_reset_tokens')->where('email', $email)->first();
 
-        if (!$resetRecord) {
+        if (! $resetRecord || ! Hash::check($token, $resetRecord->token)) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Tautan untuk mengatur ulang kata sandi sudah tidak berlaku. Silakan ajukan permintaan baru.']);
         }
 
         // Validasi kedaluwarsa token (maksimal 60 menit)
         if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
-            DB::table('password_reset_tokens')->where('token', $token)->delete();
+            DB::table('password_reset_tokens')->where('email', $resetRecord->email)->delete();
+
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Tautan untuk mengatur ulang kata sandi sudah kedaluwarsa. Silakan ajukan permintaan baru.']);
         }
@@ -295,37 +298,34 @@ class AuthController extends Controller
     /**
      * Mengeksekusi perubahan password baru pada database dan menghapus token yang telah terpakai.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function resetPassword(Request $request)
     {
         // 1. Validasi parameter token, identitas, dan syarat password baru
         $request->validate([
-            'token'    => 'required|string',
-            'email'    => 'required|string',
+            'token' => 'required|string',
+            'email' => 'required|string',
             'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
         ], [
-            'token.required'      => 'Tautan untuk mengatur ulang kata sandi tidak dapat digunakan. Silakan ajukan permintaan baru.',
-            'email.required'      => 'Email atau identitas akun wajib disertakan.',
-            'password.required'   => 'Password baru wajib diisi.',
-            'password.confirmed'  => 'Konfirmasi password baru tidak cocok.',
+            'token.required' => 'Tautan untuk mengatur ulang kata sandi tidak dapat digunakan. Silakan ajukan permintaan baru.',
+            'email.required' => 'Email atau identitas akun wajib disertakan.',
+            'password.required' => 'Password baru wajib diisi.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 
         // 2. Verifikasi kecocokan token dengan email di tabel password_reset_tokens
-        $resetRecord = DB::table('password_reset_tokens')
-            ->where('token', $request->token)
-            ->where('email', $request->email)
-            ->first();
+        $resetRecord = DB::table('password_reset_tokens')->where('email', $request->email)->first();
 
-        if (!$resetRecord) {
+        if (! $resetRecord || ! Hash::check($request->token, $resetRecord->token)) {
             return back()->withErrors([
                 'email' => 'Tautan untuk mengatur ulang kata sandi tidak dapat digunakan. Silakan ajukan permintaan baru.',
             ])->withInput();
         }
 
         if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
-            DB::table('password_reset_tokens')->where('token', $request->token)->delete();
+            DB::table('password_reset_tokens')->where('email', $resetRecord->email)->delete();
+
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Tautan untuk mengatur ulang kata sandi sudah kedaluwarsa. Silakan ajukan permintaan baru.']);
         }
@@ -339,14 +339,18 @@ class AuthController extends Controller
             ->orWhere('username', $identifier)
             ->first();
 
-        if (!$akun) {
+        if (! $akun) {
             $siswa = Siswa::where('email', $identifier)->first();
             if ($siswa) {
-                $akun = Akun::where('nis', $siswa->nis)->first();
+                $akun = $siswa->akun;
+            }
+            if (! $akun) {
+                $pegawai = Pegawai::where('email', $identifier)->first();
+                $akun = $pegawai?->akun;
             }
         }
 
-        if (!$akun) {
+        if (! $akun) {
             return back()->withErrors(['email' => 'Data akun tidak ditemukan.'])->withInput();
         }
 

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * Model Pegawai
  * 
  * Mengelola data master guru dan tenaga kependidikan / staf sekolah.
- * Terhubung dengan akun login admin sarana atau admin sistem (relasi 1:1).
+ * Menyimpan profil pegawai dan relasi akun pegawai.
  */
 class Pegawai extends Model
 {
@@ -50,7 +50,11 @@ class Pegawai extends Model
      */
     protected $fillable = [
         'nip',  // Nomor Induk Pegawai unik
+        'id_akun',
         'nama', // Nama lengkap pegawai / staf
+        'email',
+        'jabatan',
+        'no_hp',
     ];
 
     /**
@@ -60,6 +64,6 @@ class Pegawai extends Model
      */
     public function akun()
     {
-        return $this->hasOne(Akun::class, 'nip', 'nip');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 }

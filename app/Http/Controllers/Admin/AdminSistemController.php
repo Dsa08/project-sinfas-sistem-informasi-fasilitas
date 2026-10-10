@@ -29,6 +29,7 @@ class AdminSistemController extends Controller
 
         // 2. Distribusi pengguna berdasarkan hak akses (role)
         $totalSiswa = Akun::where('role', 'siswa')->count();
+        $totalPegawai = Akun::where('role', 'pegawai')->count();
         $totalAdminSarana = Akun::where('role', 'admin_sarana')->count();
         $totalAdminSistem = Akun::where('role', 'admin_sistem')->count();
 
@@ -42,6 +43,7 @@ class AdminSistemController extends Controller
         return view('admin.system.dashboard', compact(
             'totalAccounts',
             'totalSiswa',
+            'totalPegawai',
             'totalAdminSarana',
             'totalAdminSistem',
             'newAccountsThisMonth',

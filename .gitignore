@@ -17,6 +17,7 @@ yarn-error.log
 /.vscode
 /public/uploads
 *.zip
+sinfas_backup_*.sql
 
 # Private keys and generated VAPID secret material
 *.key

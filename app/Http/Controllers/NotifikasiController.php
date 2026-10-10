@@ -64,7 +64,7 @@ class NotifikasiController extends Controller
         Notifikasi::tandaiSemuaDibaca($user->id_akun);
 
         $query = Notifikasi::where('id_akun', $user->id_akun)
-            ->with(['peminjaman.siswa', 'peminjaman.barang', 'peminjaman.pengembalian'])
+            ->with(['peminjaman.akun', 'peminjaman.siswa', 'peminjaman.barang', 'peminjaman.pengembalian'])
             ->terbaru();
 
         $filter = $request->input('filter');

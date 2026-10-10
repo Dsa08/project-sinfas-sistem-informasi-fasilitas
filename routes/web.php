@@ -1,15 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AccountController;
-use App\Http\Controllers\Admin\AdminSistemController;
-use App\Http\Controllers\Admin\AdminSaranaController;
 use App\Http\Controllers\Admin\AdminProfileController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\AdminSaranaController;
+use App\Http\Controllers\Admin\AdminSistemController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\PushSubscriptionController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\RequirePasswordChange;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,11 +48,11 @@ Route::middleware('guest')->group(function () {
     // Menampilkan form permohonan tautan reset password
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
     // Mengirim tautan token reset password ke email yang terdaftar
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('password.email');
     // Menampilkan form pengisian password baru dengan validasi token
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
     // Memproses pembaharuan kata sandi baru ke database
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.update');
 });
 
 /*
@@ -58,10 +61,14 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 | Seluruh endpoint di bawah grup ini mewajibkan pengguna lolos middleware 'auth'.
 */
-Route::middleware(['auth', 'admin.desktop'])->group(function () {
+Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->group(function () {
     // --- Keluar Aplikasi (Logout) ---
     // Menghapus session login, meregenerasi token CSRF, dan mengarahkan kembali ke login
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Temporary credentials must be replaced before using application features.
+    Route::get('/password/change', [ProfileController::class, 'showRequiredPasswordChange'])->name('password.change.show');
+    Route::put('/password/change', [ProfileController::class, 'updateRequiredPassword'])->name('password.change.update');
 
     // --- Manajemen Profil Pengguna (Dapat diakses oleh semua role) ---
     // Menampilkan biodata diri profil pengguna yang sedang login
@@ -87,25 +94,25 @@ Route::middleware(['auth', 'admin.desktop'])->group(function () {
     |----------------------------------------------------------------------
     | Mengatur fitur operasional peminjaman dan pengembalian sarana prasarana.
     */
-    Route::middleware('role:siswa')->group(function () {
+    Route::middleware('role:siswa,pegawai')->group(function () {
         Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscriptions.store');
         Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.subscriptions.destroy');
         Route::post('/push-notifications/test', [PushSubscriptionController::class, 'test'])->name('push.notifications.test');
 
         // Dashboard Siswa: Menampilkan katalog sarana yang siap dipinjam & filter pencarian
         Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
-        
+
         // Status Pengajuan: Melihat riwayat peminjaman, tracking status (menunggu, disetujui, ditolak, selesai)
         Route::get('/loan-status', [UserController::class, 'loanStatus'])->name('loan.status');
         Route::delete('/loan-status/{kode}/cancel', [UserController::class, 'cancelLoanRequest'])->name('loan.cancel');
-        
+
         // Form Pengajuan Pinjam: Menampilkan rincian barang dan form input peminjaman
         Route::get('/loan-request/{kode}', [UserController::class, 'loanRequest'])->name('loan.request');
         // Submit Pinjaman: Memproses transaksi pinjam (Dibatasi throttle anti-spam: 3 request/menit)
         Route::post('/loan-request/{kode}', [UserController::class, 'submitLoanRequest'])
             ->middleware('throttle:3,1')
             ->name('loan.submit');
-            
+
         // Form Pengembalian: Menampilkan formulir input kondisi saat mengembalikan barang
         Route::get('/loan-return/{kode}', [UserController::class, 'loanReturn'])->name('loan.return');
         // Submit Pengembalian: Mengajukan konfirmasi pengembalian barang ke admin sarana
@@ -161,7 +168,7 @@ Route::middleware(['auth', 'admin.desktop'])->group(function () {
         Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deletePhoto'])->name('admin.profile.photo.delete');
 
         // --- Laporan operasional sarana dan prasarana ---
-        Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports');
+        Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports');
     });
 
     /*
@@ -207,19 +214,19 @@ Route::get('/uploads/{any}', function ($any) {
     $relativePath = str_replace('\\', '/', $any);
     abort_if(in_array('..', explode('/', $relativePath), true), 404);
 
-    $disk = \Illuminate\Support\Facades\Storage::disk('public_uploads');
+    $disk = Storage::disk('public_uploads');
     $candidates = [
         [$disk->path($relativePath), realpath($disk->path(''))],
-        [public_path('uploads/' . $relativePath), realpath(public_path('uploads'))],
+        [public_path('uploads/'.$relativePath), realpath(public_path('uploads'))],
     ];
 
     foreach ($candidates as [$candidate, $rootPath]) {
         $filePath = realpath($candidate);
-        if (!$rootPath || !$filePath || !is_file($filePath)) {
+        if (! $rootPath || ! $filePath || ! is_file($filePath)) {
             continue;
         }
 
-        $rootPrefix = rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $rootPrefix = rtrim($rootPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
         if (str_starts_with($filePath, $rootPrefix)) {
             return response()->file($filePath);
         }
@@ -237,13 +244,13 @@ Route::get('/uploads/{any}', function ($any) {
 */
 Route::get('/storage/{any}', function ($any) {
     // 1. Cek di storage/app/public/ (tempat upload disk 'public' default Laravel, contoh: avatars)
-    $storagePath = storage_path('app/public/' . $any);
+    $storagePath = storage_path('app/public/'.$any);
     if (file_exists($storagePath)) {
         return response()->file($storagePath);
     }
 
     // 2. Cek di public/uploads/ (jika dipanggil melalui /storage/uploads/...)
-    $uploadPath = public_path('uploads/' . $any);
+    $uploadPath = public_path('uploads/'.$any);
     if (file_exists($uploadPath)) {
         return response()->file($uploadPath);
     }
@@ -266,8 +273,8 @@ Route::get('/storage/{any}', function ($any) {
 */
 Route::get('/build/{any}', function ($any) {
     $candidates = [
-        public_path('build/' . $any),
-        base_path('public/build/' . $any),
+        public_path('build/'.$any),
+        base_path('public/build/'.$any),
     ];
 
     foreach ($candidates as $filePath) {
@@ -280,10 +287,10 @@ Route::get('/build/{any}', function ($any) {
             } elseif (str_ends_with($any, '.json')) {
                 $headers['Content-Type'] = 'application/json';
             }
+
             return response()->file($filePath, $headers);
         }
     }
 
     abort(404);
 })->where('any', '.*');
-
