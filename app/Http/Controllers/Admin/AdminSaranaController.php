@@ -587,6 +587,15 @@ class AdminSaranaController extends Controller
             $reqQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
                      ->select('peminjaman.*')
                      ->orderBy('siswa.nama', $reqDir);
+        } elseif ($reqSort === 'status_peminjam') {
+            $reqQuery->leftJoin('akun', 'peminjaman.nis', '=', 'akun.nis')
+                     ->select('peminjaman.*')
+                     ->orderBy('akun.role', $reqDir);
+        } elseif ($reqSort === 'nomor_kontak') {
+            $reqQuery->leftJoin('akun', 'peminjaman.nis', '=', 'akun.nis')
+                     ->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                     ->select('peminjaman.*')
+                     ->orderByRaw('COALESCE(NULLIF(akun.nomor_kontak, ?), siswa.no_hp) ' . $reqDir, ['']);
         } elseif ($reqSort === 'barang') {
             $reqQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
                      ->select('peminjaman.*')
@@ -614,6 +623,15 @@ class AdminSaranaController extends Controller
             $retQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
                      ->select('peminjaman.*')
                      ->orderBy('siswa.nama', $retDir);
+        } elseif ($retSort === 'status_peminjam') {
+            $retQuery->leftJoin('akun', 'peminjaman.nis', '=', 'akun.nis')
+                     ->select('peminjaman.*')
+                     ->orderBy('akun.role', $retDir);
+        } elseif ($retSort === 'nomor_kontak') {
+            $retQuery->leftJoin('akun', 'peminjaman.nis', '=', 'akun.nis')
+                     ->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                     ->select('peminjaman.*')
+                     ->orderByRaw('COALESCE(NULLIF(akun.nomor_kontak, ?), siswa.no_hp) ' . $retDir, ['']);
         } elseif ($retSort === 'barang') {
             $retQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
                      ->select('peminjaman.*')
@@ -622,6 +640,10 @@ class AdminSaranaController extends Controller
             $retQuery->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
                      ->select('peminjaman.*')
                      ->orderBy('pengembalian.tanggal_kembali', $retDir);
+        } elseif ($retSort === 'bukti') {
+            $retQuery->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
+                     ->select('peminjaman.*')
+                     ->orderBy('pengembalian.bukti_foto_video', $retDir);
         } elseif ($retSort === 'tanggal_pinjam') {
             $retQuery->orderBy('peminjaman.tanggal_pinjam', $retDir);
         } else {
@@ -635,10 +657,36 @@ class AdminSaranaController extends Controller
         $activeLoansPerPage = in_array((int) $request->input('active_per_page', 10), [10, 25, 50, 100])
             ? (int) $request->input('active_per_page', 10)
             : 10;
-        $activeLoans = Peminjaman::disetujui()
+        $activeSort = $request->input('active_sort');
+        $activeDir = strtolower($request->input('active_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $activeQuery = Peminjaman::disetujui()
             ->whereDoesntHave('pengembalian')
-            ->with(['siswa', 'akun', 'barang'])
-            ->orderBy('tanggal_pinjam')
+            ->with(['siswa', 'akun', 'barang']);
+
+        if ($activeSort === 'siswa') {
+            $activeQuery->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                ->select('peminjaman.*')
+                ->orderBy('siswa.nama', $activeDir);
+        } elseif ($activeSort === 'identitas') {
+            $activeQuery->orderBy('peminjaman.nis', $activeDir);
+        } elseif ($activeSort === 'nomor_kontak') {
+            $activeQuery->leftJoin('akun', 'peminjaman.nis', '=', 'akun.nis')
+                ->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
+                ->select('peminjaman.*')
+                ->orderByRaw('COALESCE(NULLIF(akun.nomor_kontak, ?), siswa.no_hp) ' . $activeDir, ['']);
+        } elseif ($activeSort === 'tanggal_pinjam') {
+            $activeQuery->orderBy('peminjaman.tanggal_pinjam', $activeDir);
+        } elseif ($activeSort === 'lama_dipinjam') {
+            $activeQuery->orderBy('peminjaman.tanggal_pinjam', $activeDir === 'asc' ? 'desc' : 'asc');
+        } elseif ($activeSort === 'barang') {
+            $activeQuery->leftJoin('barang', 'peminjaman.kode_barang', '=', 'barang.kode_barang')
+                ->select('peminjaman.*')
+                ->orderBy('barang.nama_barang', $activeDir);
+        } else {
+            $activeQuery->orderBy('peminjaman.tanggal_pinjam');
+        }
+
+        $activeLoans = $activeQuery
             ->paginate($activeLoansPerPage, ['*'], 'active_page')
             ->withQueryString();
 

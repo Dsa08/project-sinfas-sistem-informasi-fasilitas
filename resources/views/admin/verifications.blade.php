@@ -41,27 +41,6 @@
     </div>
 
     {{-- Tab 1: Pending Requests Section --}}
-    @php
-        $getReqSortUrl = function($col) {
-            if (request('req_sort') === $col) {
-                if (request('req_dir') === 'asc') {
-                    return request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => $col, 'req_dir' => 'desc']);
-                }
-                $params = request()->except(['req_sort', 'req_dir']);
-                $params['tab'] = 'requests';
-                return url()->current() . '?' . http_build_query($params);
-            }
-            return request()->fullUrlWithQuery(['tab' => 'requests', 'req_sort' => $col, 'req_dir' => 'asc']);
-        };
-        $getReqSortTitle = function($col) {
-            if (request('req_sort') === $col) {
-                return request('req_dir') === 'asc' 
-                    ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
-                    : 'Klik untuk mengembalikan urutan ke yang terbaru';
-            }
-            return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
-        };
-    @endphp
     <div class="sarana-tab-content {{ $activeTab === 'requests' ? 'sarana-tab-content--active' : '' }}" id="tab-content-requests">
         <div class="system-section-header">
             <h2 class="sarana-section-heading">Permintaan Peminjaman</h2>
@@ -72,52 +51,13 @@
                 <thead>
                     <tr>
                         <th class="th-number">No.</th>
-                        <th style="width: 17%;">
-                            <a href="{{ $getReqSortUrl('siswa') }}" class="th-content {{ request('req_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('siswa') }}">
-                                <span>Peminjam</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'siswa' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'siswa' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'siswa' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'siswa' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 10%;">Status Peminjam</th>
-                        <th style="width: 20%;">
-                            <a href="{{ $getReqSortUrl('barang') }}" class="th-content {{ request('req_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('barang') }}">
-                                <span>Barang</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'barang' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'barang' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'barang' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'barang' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 15%;">
-                            <a href="{{ $getReqSortUrl('lokasi_penggunaan') }}" class="th-content {{ request('req_sort') === 'lokasi_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('lokasi_penggunaan') }}">
-                                <span>Lokasi</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'lokasi_penggunaan' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 18%;">
-                            <a href="{{ $getReqSortUrl('keterangan_penggunaan') }}" class="th-content {{ request('req_sort') === 'keterangan_penggunaan' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('keterangan_penggunaan') }}">
-                                <span>Keperluan</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'keterangan_penggunaan' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 14%;">
-                            <a href="{{ $getReqSortUrl('tanggal_pinjam') }}" class="th-content {{ request('req_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}" title="{{ $getReqSortTitle('tanggal_pinjam') }}">
-                                <span>Tanggal Pinjam</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('req_sort') === 'tanggal_pinjam' && request('req_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
+                        <th><x-sortable-table-heading label="Peminjam" column="siswa" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Status Peminjam" column="status_peminjam" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Nomor Telepon" column="nomor_kontak" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Barang" column="barang" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Lokasi" column="lokasi_penggunaan" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Keperluan" column="keterangan_penggunaan" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Tanggal Pinjam" column="tanggal_pinjam" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
                         <th style="width: 14%;">Aksi</th>
                     </tr>
                 </thead>
@@ -127,6 +67,7 @@
                         <td class="td-number">{{ $loop->iteration + ($pendingRequests->currentPage() - 1) * $pendingRequests->perPage() }}</td>
                         <td class="td-name">{{ $req->peminjam_nama }}</td>
                         <td><span class="borrower-type-badge borrower-type-badge--student">{{ $req->peminjam_status }}</span></td>
+                        <td>{{ $req->akun?->nomor_kontak ?: ($req->siswa?->no_hp ?: '-') }}</td>
                         <td class="td-item">{{ $req->barang->nama_barang ?? '-' }}</td>
                         <td class="td-location">{{ $req->lokasi_penggunaan ?? '-' }}</td>
                         <td class="td-category" style="font-size: 0.82rem;">{{ Str::limit($req->keterangan_penggunaan, 30) ?? '-' }}</td>
@@ -150,7 +91,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8">
+                        <td colspan="9">
                             <div class="system-table-empty-state">
                                 <div class="system-empty-icon-box">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -199,27 +140,6 @@
     </div>
 
     {{-- Tab 2: Pending Returns Section --}}
-    @php
-        $getRetSortUrl = function($col) {
-            if (request('ret_sort') === $col) {
-                if (request('ret_dir') === 'asc') {
-                    return request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => $col, 'ret_dir' => 'desc']);
-                }
-                $params = request()->except(['ret_sort', 'ret_dir']);
-                $params['tab'] = 'returns';
-                return url()->current() . '?' . http_build_query($params);
-            }
-            return request()->fullUrlWithQuery(['tab' => 'returns', 'ret_sort' => $col, 'ret_dir' => 'asc']);
-        };
-        $getRetSortTitle = function($col) {
-            if (request('ret_sort') === $col) {
-                return request('ret_dir') === 'asc' 
-                    ? 'Klik untuk mengurutkan menurun (Z-A / 9-0)' 
-                    : 'Klik untuk mengembalikan urutan ke yang terbaru';
-            }
-            return 'Klik untuk mengurutkan menaik (A-Z / 0-9)';
-        };
-    @endphp
     <div class="sarana-tab-content {{ $activeTab === 'returns' ? 'sarana-tab-content--active' : '' }}" id="tab-content-returns">
         <div class="system-section-header">
             <h2 class="sarana-section-heading">Menunggu Pengembalian</h2>
@@ -230,44 +150,13 @@
                 <thead>
                     <tr>
                         <th class="th-number">No.</th>
-                        <th style="width: 17%;">
-                            <a href="{{ $getRetSortUrl('siswa') }}" class="th-content {{ request('ret_sort') === 'siswa' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('siswa') }}">
-                                <span>Peminjam</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'siswa' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 10%;">Status Peminjam</th>
-                        <th style="width: 20%;">
-                            <a href="{{ $getRetSortUrl('barang') }}" class="th-content {{ request('ret_sort') === 'barang' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('barang') }}">
-                                <span>Barang</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'barang' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 13%;">
-                            <a href="{{ $getRetSortUrl('tanggal_pinjam') }}" class="th-content {{ request('ret_sort') === 'tanggal_pinjam' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_pinjam') }}">
-                                <span>Tanggal Pinjam</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_pinjam' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 13%;">
-                            <a href="{{ $getRetSortUrl('tanggal_kembali') }}" class="th-content {{ request('ret_sort') === 'tanggal_kembali' ? 'th-content--active' : '' }}" title="{{ $getRetSortTitle('tanggal_kembali') }}">
-                                <span>Tanggal Kembali</span>
-                                <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
-                                    <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'desc' ? '0.2' : '0.85' }}"/>
-                                    <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('ret_sort') === 'tanggal_kembali' && request('ret_dir') === 'asc' ? '0.2' : '0.85' }}"/>
-                                </svg>
-                            </a>
-                        </th>
-                        <th style="width: 11%; text-align: center;">Bukti</th>
+                        <th><x-sortable-table-heading label="Peminjam" column="siswa" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th><x-sortable-table-heading label="Status Peminjam" column="status_peminjam" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th><x-sortable-table-heading label="Nomor Telepon" column="nomor_kontak" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th><x-sortable-table-heading label="Barang" column="barang" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th><x-sortable-table-heading label="Tanggal Pinjam" column="tanggal_pinjam" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th><x-sortable-table-heading label="Tanggal Kembali" column="tanggal_kembali" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th style="width: 11%; text-align: center;"><x-sortable-table-heading label="Bukti" column="bukti" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
                         <th style="width: 11%;">Kondisi</th>
                         <th style="width: 11%;">Aksi</th>
                     </tr>
@@ -278,6 +167,7 @@
                         <td class="td-number">{{ $loop->iteration + ($pendingReturns->currentPage() - 1) * $pendingReturns->perPage() }}</td>
                         <td class="td-name">{{ $ret->peminjam_nama }}</td>
                         <td><span class="borrower-type-badge borrower-type-badge--student">{{ $ret->peminjam_status }}</span></td>
+                        <td>{{ $ret->akun?->nomor_kontak ?: ($ret->siswa?->no_hp ?: '-') }}</td>
                         <td class="td-item">
                             {{ $ret->barang->nama_barang ?? '-' }}
                             @if(!empty($ret->pengembalian->catatan))
@@ -322,7 +212,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9">
+                        <td colspan="10">
                             <div class="system-table-empty-state">
                                 <div class="system-empty-icon-box">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -384,11 +274,12 @@
                 <thead>
                     <tr>
                         <th class="th-number">No.</th>
-                        <th>Peminjam</th>
-                        <th>NIS/NIP</th>
-                        <th>Waktu Peminjaman</th>
-                        <th>Barang</th>
-                        <th>Lama Dipinjam</th>
+                        <th><x-sortable-table-heading label="Peminjam" column="siswa" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="NIS/NIP" column="identitas" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Nomor Telepon" column="nomor_kontak" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Waktu Peminjaman" column="tanggal_pinjam" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Barang" column="barang" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Lama Dipinjam" column="lama_dipinjam" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
                         <th>Status</th>
                         <th>Detail</th>
                     </tr>
@@ -406,6 +297,7 @@
                             <td class="td-number">{{ $loop->iteration + ($activeLoans->currentPage() - 1) * $activeLoans->perPage() }}</td>
                             <td class="td-name">{{ $borrowerName }}</td>
                             <td>{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</td>
+                            <td>{{ $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: '-') }}</td>
                             <td class="td-date">{{ $loan->tanggal_pinjam?->format('d M Y') ?? '-' }}</td>
                             <td>{{ $loan->barang->nama_barang ?? 'Barang tidak ditemukan' }}</td>
                             <td>
@@ -424,7 +316,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8">
+                            <td colspan="9">
                                 <div class="system-table-empty-state">
                                     <div class="system-empty-title">Tidak ada barang yang sedang dipinjam</div>
                                     <div class="system-empty-desc">Peminjaman aktif akan muncul di tabel ini setelah disetujui.</div>
