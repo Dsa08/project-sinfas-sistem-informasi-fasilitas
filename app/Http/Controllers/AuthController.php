@@ -173,6 +173,8 @@ class AuthController extends Controller
      */
     public function sendResetLink(Request $request)
     {
+        $genericStatusMessage = 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.';
+
         // 1. Validasi input identifier
         $request->validate([
             'email' => 'required|string',
@@ -191,7 +193,7 @@ class AuthController extends Controller
         if (! $akun) {
             $nipAccounts = Akun::where('nip', $identifier)->where('is_active', true)->limit(2)->get();
             if ($nipAccounts->count() > 1) {
-                return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
+                return back()->with('status', $genericStatusMessage);
             }
             $akun = $nipAccounts->first();
         }
@@ -208,7 +210,7 @@ class AuthController extends Controller
         }
 
         if (! $akun || ! $akun->is_active) {
-            return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
+            return back()->with('status', $genericStatusMessage);
         }
 
         // 3. Tentukan alamat email tujuan pengiriman tautan reset
@@ -223,7 +225,7 @@ class AuthController extends Controller
 
         // Reset wajib membuktikan akses ke kotak email; URL pemulihan tidak boleh muncul di halaman atau log.
         if (! $targetEmail || ! filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
-            return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
+            return back()->with('status', $genericStatusMessage);
         }
 
         $emailRecord = $targetEmail;
@@ -256,7 +258,7 @@ class AuthController extends Controller
         }
 
         // Samakan respons agar halaman tidak membocorkan keberadaan akun atau email.
-        return back()->with('status', 'Jika akun aktif memiliki email terdaftar, tautan pemulihan akan dikirim ke email tersebut.');
+        return back()->with('status', $genericStatusMessage);
     }
 
     /**

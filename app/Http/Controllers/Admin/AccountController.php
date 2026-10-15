@@ -134,20 +134,7 @@ class AccountController extends Controller
                 'is_active' => true,
             ]);
 
-            if ($role === 'admin_sarana') {
-                StaffSarana::create([
-                    'nip' => $identity['nip'],
-                    'id_akun' => $akun->id_akun,
-                    'nama' => $akun->nama,
-                    'no_hp' => $akun->nomor_kontak,
-                ]);
-            } else {
-                $identity['profile']->id_akun = $akun->id_akun;
-                $identity['profile']->nama = $akun->nama;
-                $identity['profile']->email = $akun->email;
-                $identity['profile']->no_hp = $akun->nomor_kontak;
-                $identity['profile']->save();
-            }
+            $this->syncUserProfile($akun, $identity, $role);
         });
 
         return redirect()->route('admin.sistem.accounts')
@@ -266,20 +253,7 @@ class AccountController extends Controller
             }
             $akun->save();
 
-            if ($role === 'admin_sarana') {
-                StaffSarana::create([
-                    'nip' => $identity['nip'],
-                    'id_akun' => $akun->id_akun,
-                    'nama' => $akun->nama,
-                    'no_hp' => $akun->nomor_kontak,
-                ]);
-            } else {
-                $identity['profile']->id_akun = $akun->id_akun;
-                $identity['profile']->nama = $akun->nama;
-                $identity['profile']->email = $akun->email;
-                $identity['profile']->no_hp = $akun->nomor_kontak;
-                $identity['profile']->save();
-            }
+            $this->syncUserProfile($akun, $identity, $role);
         });
 
         if ($oldFotoPath) {
@@ -348,6 +322,33 @@ class AccountController extends Controller
         }
 
         return ['nis' => null, 'nip' => $profile->nip, 'profile' => $profile];
+    }
+
+    /**
+     * Menghubungkan akun ke profil (StaffSarana, Siswa, atau Pegawai)
+     * dan menyinkronkan data kontak serta identitas.
+     *
+     * @param  \App\Models\Akun  $akun
+     * @param  array  $identity
+     * @param  string  $role
+     * @return void
+     */
+    private function syncUserProfile(Akun $akun, array $identity, string $role): void
+    {
+        if ($role === 'admin_sarana') {
+            StaffSarana::create([
+                'nip' => $identity['nip'],
+                'id_akun' => $akun->id_akun,
+                'nama' => $akun->nama,
+                'no_hp' => $akun->nomor_kontak,
+            ]);
+        } else {
+            $identity['profile']->id_akun = $akun->id_akun;
+            $identity['profile']->nama = $akun->nama;
+            $identity['profile']->email = $akun->email;
+            $identity['profile']->no_hp = $akun->nomor_kontak;
+            $identity['profile']->save();
+        }
     }
 
     /**
