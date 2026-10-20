@@ -30,15 +30,9 @@
                 </a>
                 <p class="landing-login-hint">Gunakan NIS, NIP, atau username dan password akun Anda.</p>
             </div>
-            <div class="landing-hero-card" aria-label="Ringkasan alur peminjaman">
-                <div class="landing-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 48 48" fill="none"><rect x="7" y="10" width="34" height="29" rx="5" stroke="currentColor" stroke-width="2.5"/><path d="M16 10V7m16 3V7M7 19h34M17 27h6m-6 6h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-                </div>
-                <span class="landing-card-label">Alur Sarpras SMKN 11</span>
-                <strong>Ajukan secara online</strong>
-                <p>Staf sarana prasarana akan meninjau ketersediaan barang dan memproses pengajuan Anda.</p>
-                <div class="landing-card-status"><span></span> Status dapat dipantau langsung di akun Anda</div>
-            </div>
+            <figure class="landing-hero-logo">
+                <img src="{{ asset('assets/pictures/logo_smkn11.png') }}" alt="Logo SMK Negeri 11 Bandung">
+            </figure>
         </section>
 
         <section class="landing-guide" aria-labelledby="landing-guide-title">
