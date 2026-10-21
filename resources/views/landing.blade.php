@@ -108,79 +108,140 @@
                         <h2 class="landing-section-title">Sarana &amp; Fasilitas Siap Dipinjam</h2>
                         <p class="landing-section-subtitle">Peralatan dalam kondisi prima yang siap diajukan untuk kebutuhan pembelajaran dan kegiatan praktik.</p>
                     </div>
-                    <a href="{{ route('login') }}" class="landing-link-more">
-                        <span>Lihat Semua Sarana</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </a>
+                    <div class="landing-header-side">
+                        <span class="landing-marquee-hint">
+                            <span class="landing-hint-pulse"></span>
+                            Arahkan kursor untuk menjeda putaran
+                        </span>
+                        <a href="{{ route('login') }}" class="landing-link-more">
+                            <span>Lihat Semua Sarana</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </a>
+                    </div>
                 </div>
 
-                {{-- Grid Kartu Sarana --}}
-                <div class="landing-items-grid">
-                    @if(isset($featuredItems) && $featuredItems->isNotEmpty())
-                        @foreach($featuredItems as $item)
-                            <article class="landing-item-card">
-                                <div class="landing-card-thumb-wrap">
-                                    <img 
-                                        src="{{ $item->foto_url ?? asset('assets/pictures/projector_sample.jpg') }}" 
-                                        alt="{{ $item->nama_barang }}" 
-                                        class="landing-card-thumb"
-                                        onerror="this.src='{{ asset('assets/pictures/projector_sample.jpg') }}';"
-                                    >
-                                    <span class="landing-card-badge-cat">
-                                        {{ $item->kategori->nama_kategori ?? 'Umum' }}
-                                    </span>
-                                </div>
-                                <div class="landing-card-body">
-                                    <div class="landing-card-stock-pill">
-                                        <span class="landing-stock-indicator"></span>
-                                        <span>{{ $item->jumlah_baik }} Unit Tersedia</span>
+                {{-- Product Slide / Infinite Horizontal Slider --}}
+                <div class="landing-marquee-wrapper" id="katalog-marquee">
+                    <div class="landing-marquee-track">
+                        @if(isset($featuredItems) && $featuredItems->isNotEmpty())
+                            {{-- Set 1 of cards --}}
+                            @foreach($featuredItems as $item)
+                                <article class="landing-item-card">
+                                    <div class="landing-card-thumb-wrap">
+                                        <img 
+                                            src="{{ $item->foto_url ?? asset('assets/pictures/projector_sample.jpg') }}" 
+                                            alt="{{ $item->nama_barang }}" 
+                                            class="landing-card-thumb"
+                                            onerror="this.src='{{ asset('assets/pictures/projector_sample.jpg') }}';"
+                                        >
+                                        <span class="landing-card-badge-cat">
+                                            {{ $item->kategori->nama_kategori ?? 'Umum' }}
+                                        </span>
                                     </div>
-                                    <h3 class="landing-card-title">{{ $item->nama_barang }}</h3>
-                                    <p class="landing-card-desc">{{ $item->merk_model ?? 'Standar Fasilitas SMKN 11' }}</p>
-                                    <div class="landing-card-footer">
-                                        <a href="{{ route('login') }}" class="btn-card-borrow">
-                                            <span>Ajukan Pinjam</span>
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                                        </a>
+                                    <div class="landing-card-body">
+                                        <div class="landing-card-stock-pill">
+                                            <span class="landing-stock-indicator"></span>
+                                            <span>{{ $item->jumlah_baik }} Unit Tersedia</span>
+                                        </div>
+                                        <h3 class="landing-card-title">{{ $item->nama_barang }}</h3>
+                                        <p class="landing-card-desc">{{ $item->merk_model ?? 'Standar Fasilitas SMKN 11' }}</p>
+                                        <div class="landing-card-footer">
+                                            <a href="{{ route('login') }}" class="btn-card-borrow">
+                                                <span>Ajukan Pinjam</span>
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            </article>
-                        @endforeach
-                    @else
-                        {{-- Fallback Mockup Data --}}
-                        @php
-                            $mockItems = [
-                                ['nama' => 'Proyektor Epson EB-E500', 'kategori' => 'Proyektor', 'stok' => '5 Unit Tersedia', 'desc' => '3300 Lumens XGA, Port HDMI & VGA'],
-                                ['nama' => 'Kamera Sony Alpha A6400', 'kategori' => 'Multimedia', 'stok' => '3 Unit Tersedia', 'desc' => 'Lensa Kit 16-50mm, 4K Video, Baterai Cadangan'],
-                                ['nama' => 'Kabel Roll Terminal 15m', 'kategori' => 'Kabel & Daya', 'stok' => '8 Unit Tersedia', 'desc' => '4 Lubang Stop Kontak dengan Pengaman Sekring'],
-                                ['nama' => 'Speaker Portable Wireless', 'kategori' => 'Audio System', 'stok' => '4 Unit Tersedia', 'desc' => 'Include 2 Mic Wireless, Bluetooth & Aux Input'],
-                                ['nama' => 'Pointer Laser Presenter', 'kategori' => 'Aksesoris', 'stok' => '6 Unit Tersedia', 'desc' => 'Wireless 2.4GHz dengan Dongle USB'],
-                                ['nama' => 'Kabel HDMI High Speed 10m', 'kategori' => 'Kabel & Daya', 'stok' => '10 Unit Tersedia', 'desc' => 'Support Full HD 1080p & 4K Output'],
-                            ];
-                        @endphp
-                        @foreach($mockItems as $mock)
-                            <article class="landing-item-card">
-                                <div class="landing-card-thumb-wrap">
-                                    <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="{{ $mock['nama'] }}" class="landing-card-thumb">
-                                    <span class="landing-card-badge-cat">{{ $mock['kategori'] }}</span>
-                                </div>
-                                <div class="landing-card-body">
-                                    <div class="landing-card-stock-pill">
-                                        <span class="landing-stock-indicator"></span>
-                                        <span>{{ $mock['stok'] }}</span>
+                                </article>
+                            @endforeach
+                            {{-- Set 2 (Duplicate for Seamless Infinite Loop) --}}
+                            @foreach($featuredItems as $item)
+                                <article class="landing-item-card" aria-hidden="true">
+                                    <div class="landing-card-thumb-wrap">
+                                        <img 
+                                            src="{{ $item->foto_url ?? asset('assets/pictures/projector_sample.jpg') }}" 
+                                            alt="{{ $item->nama_barang }}" 
+                                            class="landing-card-thumb"
+                                            onerror="this.src='{{ asset('assets/pictures/projector_sample.jpg') }}';"
+                                        >
+                                        <span class="landing-card-badge-cat">
+                                            {{ $item->kategori->nama_kategori ?? 'Umum' }}
+                                        </span>
                                     </div>
-                                    <h3 class="landing-card-title">{{ $mock['nama'] }}</h3>
-                                    <p class="landing-card-desc">{{ $mock['desc'] }}</p>
-                                    <div class="landing-card-footer">
-                                        <a href="{{ route('login') }}" class="btn-card-borrow">
-                                            <span>Ajukan Pinjam</span>
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                                        </a>
+                                    <div class="landing-card-body">
+                                        <div class="landing-card-stock-pill">
+                                            <span class="landing-stock-indicator"></span>
+                                            <span>{{ $item->jumlah_baik }} Unit Tersedia</span>
+                                        </div>
+                                        <h3 class="landing-card-title">{{ $item->nama_barang }}</h3>
+                                        <p class="landing-card-desc">{{ $item->merk_model ?? 'Standar Fasilitas SMKN 11' }}</p>
+                                        <div class="landing-card-footer">
+                                            <a href="{{ route('login') }}" class="btn-card-borrow">
+                                                <span>Ajukan Pinjam</span>
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            </article>
-                        @endforeach
-                    @endif
+                                </article>
+                            @endforeach
+                        @else
+                            {{-- Fallback Mockup Data --}}
+                            @php
+                                $mockItems = [
+                                    ['nama' => 'Proyektor Epson EB-E500', 'kategori' => 'Proyektor', 'stok' => '5 Unit Tersedia', 'desc' => '3300 Lumens XGA, Port HDMI & VGA'],
+                                    ['nama' => 'Kamera Sony Alpha A6400', 'kategori' => 'Multimedia', 'stok' => '3 Unit Tersedia', 'desc' => 'Lensa Kit 16-50mm, 4K Video, Baterai Cadangan'],
+                                    ['nama' => 'Kabel Roll Terminal 15m', 'kategori' => 'Kabel & Daya', 'stok' => '8 Unit Tersedia', 'desc' => '4 Lubang Stop Kontak dengan Pengaman Sekring'],
+                                    ['nama' => 'Speaker Portable Wireless', 'kategori' => 'Audio System', 'stok' => '4 Unit Tersedia', 'desc' => 'Include 2 Mic Wireless, Bluetooth & Aux Input'],
+                                    ['nama' => 'Pointer Laser Presenter', 'kategori' => 'Aksesoris', 'stok' => '6 Unit Tersedia', 'desc' => 'Wireless 2.4GHz dengan Dongle USB'],
+                                    ['nama' => 'Kabel HDMI High Speed 10m', 'kategori' => 'Kabel & Daya', 'stok' => '10 Unit Tersedia', 'desc' => 'Support Full HD 1080p & 4K Output'],
+                                ];
+                            @endphp
+                            @foreach($mockItems as $mock)
+                                <article class="landing-item-card">
+                                    <div class="landing-card-thumb-wrap">
+                                        <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="{{ $mock['nama'] }}" class="landing-card-thumb">
+                                        <span class="landing-card-badge-cat">{{ $mock['kategori'] }}</span>
+                                    </div>
+                                    <div class="landing-card-body">
+                                        <div class="landing-card-stock-pill">
+                                            <span class="landing-stock-indicator"></span>
+                                            <span>{{ $mock['stok'] }}</span>
+                                        </div>
+                                        <h3 class="landing-card-title">{{ $mock['nama'] }}</h3>
+                                        <p class="landing-card-desc">{{ $mock['desc'] }}</p>
+                                        <div class="landing-card-footer">
+                                            <a href="{{ route('login') }}" class="btn-card-borrow">
+                                                <span>Ajukan Pinjam</span>
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                            @foreach($mockItems as $mock)
+                                <article class="landing-item-card" aria-hidden="true">
+                                    <div class="landing-card-thumb-wrap">
+                                        <img src="{{ asset('assets/pictures/projector_sample.jpg') }}" alt="{{ $mock['nama'] }}" class="landing-card-thumb">
+                                        <span class="landing-card-badge-cat">{{ $mock['kategori'] }}</span>
+                                    </div>
+                                    <div class="landing-card-body">
+                                        <div class="landing-card-stock-pill">
+                                            <span class="landing-stock-indicator"></span>
+                                            <span>{{ $mock['stok'] }}</span>
+                                        </div>
+                                        <h3 class="landing-card-title">{{ $mock['nama'] }}</h3>
+                                        <p class="landing-card-desc">{{ $mock['desc'] }}</p>
+                                        <div class="landing-card-footer">
+                                            <a href="{{ route('login') }}" class="btn-card-borrow">
+                                                <span>Ajukan Pinjam</span>
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

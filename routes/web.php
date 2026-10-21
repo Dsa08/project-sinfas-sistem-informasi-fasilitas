@@ -34,7 +34,7 @@ Route::get('/', function () {
         $categories = \App\Models\Kategori::orderBy('nama_kategori')->get();
         $featuredItems = \App\Models\Barang::with('kategori')
             ->where('jumlah_baik', '>', 0)
-            ->take(8)
+            ->take(12)
             ->get();
     } catch (\Throwable $e) {
         $categories = collect();
