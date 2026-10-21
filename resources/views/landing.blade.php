@@ -62,44 +62,36 @@
                 Cek ketersediaan proyektor, kamera, sound system, lab, dan peralatan sekolah secara realtime tanpa perlu datang hanya untuk mengecek ketersediaan fisik.
             </p>
 
-            {{-- Prominent Search Bar (Inspirasi RomsFun) --}}
-            <form action="{{ route('login') }}" method="GET" class="landing-search-card">
-                <div class="landing-search-input-wrap">
-                    <svg class="landing-search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.3-4.3"/>
-                    </svg>
-                    <input 
-                        type="text" 
-                        name="q" 
-                        class="landing-search-input" 
-                        placeholder="Cari sarana (contoh: Proyektor Epson, Kamera Sony, Kabel HDMI, Sound)..."
-                        autocomplete="off"
-                    >
-                </div>
-                <button type="submit" class="landing-search-btn">
-                    <span>Cari Alat</span>
+            {{-- Dual CTA Buttons (Aksi Mulai Pinjam & Jelajahi Katalog) --}}
+            <div class="landing-hero-actions">
+                <a href="{{ route('login') }}" class="btn-hero-primary">
+                    <span>Mulai Pinjam Sarana</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14"/>
                         <path d="m12 5 7 7-7 7"/>
                     </svg>
-                </button>
-            </form>
+                </a>
 
-            {{-- Quick Filter Chips / Pills --}}
-            <div class="landing-quick-chips">
-                <span class="landing-chips-label">Pencarian Populer:</span>
-                <a href="{{ route('login') }}" class="landing-chip landing-chip--active">Semua Sarana</a>
-                @if(isset($categories) && $categories->isNotEmpty())
-                    @foreach($categories->take(5) as $cat)
-                        <a href="{{ route('login') }}" class="landing-chip">{{ $cat->nama_kategori }}</a>
-                    @endforeach
-                @else
-                    <a href="{{ route('login') }}" class="landing-chip">Multimedia &amp; Kamera</a>
-                    <a href="{{ route('login') }}" class="landing-chip">Proyektor &amp; Layar</a>
-                    <a href="{{ route('login') }}" class="landing-chip">Audio &amp; Sound</a>
-                    <a href="{{ route('login') }}" class="landing-chip">Kabel &amp; Adaptor</a>
-                @endif
+                <a href="#katalog" class="btn-hero-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <span>Lihat Katalog Sarana</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                </a>
+            </div>
+
+            {{-- Indikator Gulir ke Bawah --}}
+            <div class="landing-scroll-cue">
+                <a href="#katalog" class="landing-scroll-link" aria-label="Gulir ke bawah untuk melihat katalog sarana">
+                    <span class="landing-scroll-mouse">
+                        <span class="landing-scroll-wheel"></span>
+                    </span>
+                    <span class="landing-scroll-text">Gulir ke bawah untuk eksplorasi</span>
+                </a>
             </div>
         </div>
     </section>
