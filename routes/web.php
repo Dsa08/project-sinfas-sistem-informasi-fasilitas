@@ -29,7 +29,19 @@ use Illuminate\Support\Facades\Storage;
 */
 
 // Landing page publik sebelum pengguna masuk
-Route::view('/', 'landing')->name('home');
+Route::get('/', function () {
+    try {
+        $categories = \App\Models\Kategori::orderBy('nama_kategori')->get();
+        $featuredItems = \App\Models\Barang::with('kategori')
+            ->where('jumlah_baik', '>', 0)
+            ->take(8)
+            ->get();
+    } catch (\Throwable $e) {
+        $categories = collect();
+        $featuredItems = collect();
+    }
+    return view('landing', compact('categories', 'featuredItems'));
+})->name('home');
 
 /*
 |--------------------------------------------------------------------------
