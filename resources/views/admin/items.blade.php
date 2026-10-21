@@ -10,12 +10,12 @@
 @extends('layouts.admin-sarana')
 
 @section('title', 'Kelola Data Alat - Admin Sarana SINFAS')
-@section('page_title', 'Kelola data alat')
+@section('page_title', 'Kelola Data Alat')
 
 @section('content')
 <div class="sarana-items-container">
     <div class="system-section-header">
-        <h2 class="system-section-heading">Kelola data alat</h2>
+        <h2 class="system-section-heading">Kelola Data Alat</h2>
         <p class="system-section-subtitle">Kelola alat dan kondisi inventaris</p>
     </div>
 
@@ -142,7 +142,7 @@
                     </th>
                     <th style="width: 14%;">
                         <a href="{{ $getSortUrl('waktu_ditambahkan') }}" class="th-content {{ request('sort') === 'waktu_ditambahkan' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('waktu_ditambahkan') }}">
-                            <span>Waktu ditambahkan</span>
+                            <span>Waktu Ditambahkan</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
                                 <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
                                 <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'waktu_ditambahkan' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
@@ -210,7 +210,7 @@
                     <td>
                         <div class="action-btn-group">
                             <button type="button" class="btn-table-outline-blue" onclick="openEditItemModal('{{ $item->kode_barang }}')">Ubah</button>
-                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirmAppForm(this, @js('Apakah Anda yakin ingin menghapus data barang ' . $item->nama_barang . '? Tindakan ini tidak dapat dibatalkan.'), {title: 'Hapus Barang', confirmText: 'Hapus', danger: true}, event)">
+                            <form action="{{ route('admin.items.destroy', $item->kode_barang) }}" method="POST" style="display:inline;" onsubmit="return confirmAppForm(this, @js('Apakah Anda yakin ingin menghapus data alat ' . $item->nama_barang . '? Tindakan ini tidak dapat dibatalkan.'), {title: 'Hapus Alat', confirmText: 'Hapus', danger: true}, event)">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-table-outline-red">Hapus</button>
@@ -228,12 +228,12 @@
                                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                                 </svg>
                             </div>
-                            <div class="system-empty-title">Tidak ada data sarana</div>
+                            <div class="system-empty-title">Tidak ada data alat</div>
                             <div class="system-empty-desc">
                                 @if(request('search') || request('kategori'))
-                                    Tidak ditemukan barang yang sesuai dengan kata kunci atau filter yang Anda terapkan.
+                                    Tidak ditemukan alat yang sesuai dengan kata kunci atau filter yang Anda terapkan.
                                 @else
-                                    Belum ada data barang sarana yang terdaftar di inventaris.
+                                    Belum ada data alat yang terdaftar di inventaris.
                                 @endif
                             </div>
                             @if(request('search') || request('kategori'))
@@ -284,7 +284,7 @@
 <div class="modal-overlay" id="itemModal">
     <div class="modal-card" style="max-width: 640px; width: 92%; text-align: left; padding: 1.75rem; max-height: 90vh; overflow-y: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 1px solid #f3f4f6;">
-            <h3 class="modal-title" id="itemModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Tambah Barang</h3>
+            <h3 class="modal-title" id="itemModalTitle" style="font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0;">Tambah Alat</h3>
             <button type="button" onclick="closeItemModal()" style="background: transparent; border: none; color: #9ca3af; font-size: 1.25rem; cursor: pointer; padding: 0.25rem;">&times;</button>
         </div>
 
@@ -303,16 +303,16 @@
             @csrf
             <input type="hidden" name="_method" id="itemFormMethod" value="POST">
 
-            {{-- Kode Barang (hanya tampil saat Add) --}}
+            {{-- Kode Alat (hanya tampil saat Add) --}}
             <div id="kodeBarangField" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kode Barang</label>
-                <input type="text" name="kode_barang" id="input_kode_barang" placeholder="Contoh: BRG-001" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kode Alat</label>
+                <input type="text" name="kode_barang" id="input_kode_barang" placeholder="Contoh: ALT-001" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
-            {{-- Nama Barang --}}
+            {{-- Nama Alat --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Nama Barang</label>
-                <input type="text" name="nama_barang" id="input_nama_barang" placeholder="Nama barang" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Nama Alat</label>
+                <input type="text" name="nama_barang" id="input_nama_barang" placeholder="Nama alat" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
             {{-- Kategori --}}
@@ -447,14 +447,14 @@
         const nameInput = document.getElementById('input_nama_barang');
         const itemName = nameInput ? nameInput.value.trim() : '';
         const msg = isEdit 
-            ? (itemName ? `Apakah Anda yakin ingin menyimpan perubahan data barang "${itemName}"?` : 'Apakah Anda yakin ingin menyimpan perubahan data barang ini?')
-            : (itemName ? `Apakah Anda yakin ingin menambahkan data barang baru "${itemName}"?` : 'Apakah Anda yakin ingin menambahkan data barang baru ini?');
+            ? (itemName ? `Apakah Anda yakin ingin menyimpan perubahan data alat "${itemName}"?` : 'Apakah Anda yakin ingin menyimpan perubahan data alat ini?')
+            : (itemName ? `Apakah Anda yakin ingin menambahkan data alat baru "${itemName}"?` : 'Apakah Anda yakin ingin menambahkan data alat baru ini?');
         const form = document.getElementById('itemForm');
-        return confirmAppForm(form, msg, {title: isEdit ? 'Ubah Data Barang' : 'Tambah Barang', confirmText: isEdit ? 'Simpan Perubahan' : 'Tambah Barang'}, event);
+        return confirmAppForm(form, msg, {title: isEdit ? 'Ubah Data Alat' : 'Tambah Alat', confirmText: isEdit ? 'Simpan Perubahan' : 'Tambah Alat'}, event);
     }
 
     function openAddItemModal() {
-        document.getElementById('itemModalTitle').textContent = 'Tambah Barang';
+        document.getElementById('itemModalTitle').textContent = 'Tambah Alat';
         document.getElementById('itemForm').action = '{{ route("admin.items.store") }}';
         document.getElementById('itemFormMethod').value = 'POST';
         document.getElementById('kodeBarangField').style.display = 'block';
@@ -467,7 +467,7 @@
     }
 
     function openEditItemModal(kode) {
-        document.getElementById('itemModalTitle').textContent = 'Ubah Data Barang';
+        document.getElementById('itemModalTitle').textContent = 'Ubah Data Alat';
         document.getElementById('itemFormMethod').value = 'PUT';
         document.getElementById('kodeBarangField').style.display = 'none';
 
@@ -491,7 +491,7 @@
                 resetItemImagePreview(data.foto);
                 document.getElementById('itemModal').classList.add('modal-overlay--active');
             })
-            .catch(err => window.showAppToast('Gagal memuat data barang.', {title: 'Data Barang Tidak Dapat Dimuat'}));
+            .catch(err => window.showAppToast('Gagal memuat data alat.', {title: 'Data Alat Tidak Dapat Dimuat'}));
     }
 
     function closeItemModal() {

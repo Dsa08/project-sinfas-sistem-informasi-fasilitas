@@ -17,7 +17,7 @@
     {{-- Header & Subtitle --}}
     <div class="system-section-header">
         <h2 class="system-section-heading">Kelola Kategori</h2>
-        <p class="system-section-subtitle">Kelola kategori aset dan jumlah barang</p>
+        <p class="system-section-subtitle">Kelola kategori aset dan jumlah alat</p>
     </div>
 
     {{-- Filter & Add Category Bar --}}
@@ -77,7 +77,7 @@
                     </th>
                     <th style="width: 30%;">
                         <a href="{{ $getSortUrl('barang_count') }}" class="th-content {{ request('sort') === 'barang_count' ? 'th-content--active' : '' }}" title="{{ $getSortTitle('barang_count') }}">
-                            <span>Jumlah Barang</span>
+                            <span>Jumlah Alat</span>
                             <svg width="11" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink: 0; vertical-align: middle;">
                                 <path d="M6 1L1.5 6.5H10.5L6 1Z" fill="{{ request('sort') === 'barang_count' && request('dir') === 'asc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'barang_count' && request('dir') === 'desc' ? '0.2' : '0.85' }}"/>
                                 <path d="M6 13L10.5 7.5H1.5L6 13Z" fill="{{ request('sort') === 'barang_count' && request('dir') === 'desc' ? '#1D67F2' : '#111827' }}" opacity="{{ request('sort') === 'barang_count' && request('dir') === 'asc' ? '0.2' : '0.85' }}"/>
@@ -92,7 +92,7 @@
                 <tr>
                     <td class="td-number">{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</td>
                     <td class="td-name">{{ $cat->nama_kategori }}</td>
-                    <td>{{ $cat->barang_count }} barang</td>
+                    <td>{{ $cat->barang_count }} alat</td>
                     <td class="td-actions">
                         <div style="display: flex; gap: 0.5rem; justify-content: center;">
                             <button type="button" class="btn-table-outline-blue" onclick="openEditCategoryModal({{ $cat->id_kategori }}, '{{ addslashes($cat->nama_kategori) }}')">Ubah</button>
@@ -115,7 +115,7 @@
                                 @if(request('search'))
                                     Tidak ditemukan kategori yang cocok dengan kata kunci pencarian Anda.
                                 @else
-                                    Belum ada kategori sarana yang terdaftar di sistem.
+                                    Belum ada kategori alat yang terdaftar di sistem.
                                 @endif
                             </div>
                             @if(request('search'))

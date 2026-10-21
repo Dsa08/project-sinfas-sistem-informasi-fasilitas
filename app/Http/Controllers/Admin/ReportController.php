@@ -52,10 +52,10 @@ class ReportController extends Controller
         ]);
 
         $types = [
-            'loan-trends' => 'Frekuensi & Tren Peminjaman Barang',
-            'damage-history' => 'Kerusakan & Riwayat Kondisi Barang',
-            'late-returns' => 'Keterlambatan Pengembalian Barang',
-            'stock-summary' => 'Rekapitulasi Stok & Status Inventaris',
+            'loan-trends' => 'Frekuensi & Tren Peminjaman Alat',
+            'damage-history' => 'Kerusakan & Riwayat Kondisi Alat',
+            'late-returns' => 'Keterlambatan Pengembalian Alat',
+            'stock-summary' => 'Rekapitulasi Stok & Status Inventaris Alat',
         ];
         $title = $types[$type];
         $columns = [];
@@ -88,15 +88,15 @@ class ReportController extends Controller
                 $item->nama_kategori ?? 'Tanpa kategori',
                 (int) $item->total_peminjaman,
             ]);
-            $columns = ['Kode barang', 'Nama barang', 'Kategori', 'Frekuensi dipinjam'];
-            $summary = ['Total transaksi' => (int) $itemCounts->sum('total_peminjaman'), 'Barang dipinjam' => $itemCounts->count()];
+            $columns = ['Kode Alat', 'Nama Alat', 'Kategori', 'Frekuensi Dipinjam'];
+            $summary = ['Total transaksi' => (int) $itemCounts->sum('total_peminjaman'), 'Alat dipinjam' => $itemCounts->count()];
             $chartIndexAxis = 'y';
             $chartItems = $itemCounts->take(10);
-            $chartTitle = '10 Barang Paling Sering Dipinjam';
+            $chartTitle = '10 Alat Paling Sering Dipinjam';
             $chartDescription = 'Peringkat frekuensi peminjaman pada rentang dan kategori yang dipilih.';
             $chartLabels = $chartItems->pluck('nama_barang')->all();
             $chartDatasets[] = [
-                'label' => 'Frekuensi dipinjam',
+                'label' => 'Frekuensi Dipinjam',
                 'data' => $chartItems->pluck('total_peminjaman')->map(fn ($count) => (int) $count)->all(),
                 'backgroundColor' => array_slice(['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6', '#eab308', '#6366f1', '#84cc16', '#06b6d4'], 0, $chartItems->count()),
                 'borderColor' => array_slice(['#c2410c', '#1d4ed8', '#047857', '#6d28d9', '#be185d', '#0f766e', '#a16207', '#4338ca', '#4d7c0f', '#0e7490'], 0, $chartItems->count()),
@@ -117,7 +117,7 @@ class ReportController extends Controller
                 ->orderByDesc('tanggal_pinjam')
                 ->get();
 
-            $columns = ['Kode pinjam', 'Tanggal kembali', 'NIS/NIP', 'Nama peminjam', 'Barang', 'Kategori', 'Kondisi', 'Catatan'];
+            $columns = ['Kode Pinjam', 'Tanggal Kembali', 'NIS/NIP', 'Nama Peminjam', 'Alat', 'Kategori', 'Kondisi', 'Catatan'];
             $rows = $loans->map(fn ($loan) => [
                 $loan->kode_pinjam,
                 optional($loan->pengembalian->tanggal_kembali)->format('d-m-Y'),
@@ -128,8 +128,8 @@ class ReportController extends Controller
                 $loan->pengembalian->kondisi_barang,
                 $loan->pengembalian->catatan ?: '-',
             ]);
-            $summary = ['Barang bermasalah dikembalikan' => $loans->count()];
-            $chartTitle = 'Barang Dikembalikan Berdasarkan Kondisi';
+            $summary = ['Alat bermasalah dikembalikan' => $loans->count()];
+            $chartTitle = 'Alat Dikembalikan Berdasarkan Kondisi';
             $chartDescription = 'Jumlah pengembalian bermasalah sesuai kategori dan periode yang dipilih.';
             $chartLabels = ['Kurang Baik', 'Rusak Berat'];
             $chartDatasets[] = [
@@ -157,7 +157,7 @@ class ReportController extends Controller
                 ->orderBy('peminjaman.tanggal_pinjam');
 
             $loans = $query->get();
-            $columns = ['Kode pinjam', 'NIS/NIP', 'Nama peminjam', 'Barang', 'Tanggal pinjam', 'Batas kembali', 'Tanggal kembali', 'Status', 'Terlambat (hari)'];
+            $columns = ['Kode Pinjam', 'NIS/NIP', 'Nama Peminjam', 'Alat', 'Tanggal Pinjam', 'Batas Kembali', 'Tanggal Kembali', 'Status', 'Terlambat (Hari)'];
             $rows = $loans->map(function ($loan) {
                 $dueDate = Carbon::parse($loan->tanggal_pinjam)->addDays(self::LOAN_DAYS);
                 $returnedDate = $loan->pengembalian?->tanggal_kembali
@@ -199,7 +199,7 @@ class ReportController extends Controller
                 ->orderBy('nama_barang')
                 ->get();
 
-            $columns = ['Kode barang', 'Nama barang', 'Kategori', 'Baik / tersedia', 'Kurang baik', 'Rusak berat', 'Total aset'];
+            $columns = ['Kode Alat', 'Nama Alat', 'Kategori', 'Baik / Tersedia', 'Kurang Baik', 'Rusak Berat', 'Total Aset'];
             $rows = $items->map(fn ($item) => [
                 $item->kode_barang,
                 $item->nama_barang,
@@ -210,17 +210,17 @@ class ReportController extends Controller
                 (int) $item->total_stok,
             ]);
             $summary = [
-                'Baik / tersedia' => (int) $items->sum('jumlah_baik'),
-                'Kurang baik' => (int) $items->sum('jumlah_kurang_baik'),
-                'Rusak berat' => (int) $items->sum('jumlah_rusak_berat'),
-                'Total aset' => (int) $rows->sum(fn ($row) => $row[6]),
+                'Baik / Tersedia' => (int) $items->sum('jumlah_baik'),
+                'Kurang Baik' => (int) $items->sum('jumlah_kurang_baik'),
+                'Rusak Berat' => (int) $items->sum('jumlah_rusak_berat'),
+                'Total Aset' => (int) $rows->sum(fn ($row) => $row[6]),
             ];
             $chartTitle = 'Komposisi Stok Inventaris';
-            $chartDescription = 'Jumlah stok menurut kondisi barang untuk kategori yang dipilih.';
-            $chartLabels = ['Baik / tersedia', 'Kurang baik', 'Rusak berat'];
+            $chartDescription = 'Jumlah stok menurut kondisi alat untuk kategori yang dipilih.';
+            $chartLabels = ['Baik / Tersedia', 'Kurang Baik', 'Rusak Berat'];
             $chartDatasets[] = [
                 'label' => 'Jumlah stok',
-                'data' => [$summary['Baik / tersedia'], $summary['Kurang baik'], $summary['Rusak berat']],
+                'data' => [$summary['Baik / Tersedia'], $summary['Kurang Baik'], $summary['Rusak Berat']],
                 'backgroundColor' => ['#22c55e', '#f59e0b', '#ef4444'],
                 'borderColor' => '#ffffff',
                 'borderWidth' => 2,

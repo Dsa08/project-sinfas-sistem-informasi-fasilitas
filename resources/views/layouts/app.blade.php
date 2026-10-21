@@ -35,15 +35,25 @@
     <nav class="navbar {{ request()->routeIs('dashboard') ? 'navbar--dashboard' : '' }}" id="main-navbar">
         <div class="navbar-main-row">
         <div class="navbar-left">
-            <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="navbar-logo-img">
-            <span class="navbar-brand">@yield('brand_name', 'SINFAS')</span>
+            @hasSection('back_url')
+                <a href="@yield('back_url')" class="navbar-back-btn" title="Kembali">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                    <span>Kembali</span>
+                </a>
+                @hasSection('navbar_title')
+                    <span class="navbar-page-title">@yield('navbar_title')</span>
+                @endif
+            @else
+                <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="navbar-logo-img">
+                <span class="navbar-brand">@yield('brand_name', 'SINFAS')</span>
+            @endif
         </div>
 
-        {{-- Navbar Center Title --}}
-        @hasSection('navbar_title')
-            <div class="navbar-center">
-                @yield('navbar_title')
-            </div>
+        {{-- Center: Search Bar on Dashboard (Shopee-style) --}}
+        @if(request()->routeIs('dashboard'))
+            @include('components.dashboard-search')
         @endif
 
         <div class="navbar-right">
@@ -112,9 +122,6 @@
             </form>
         </div>
         </div>
-        @if(request()->routeIs('dashboard'))
-            @include('components.dashboard-search')
-        @endif
     </nav>
 
     {{-- Logout Confirmation Modal --}}

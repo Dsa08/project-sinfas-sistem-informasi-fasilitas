@@ -671,10 +671,15 @@ class AdminSaranaController extends Controller
                 ->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')
                 ->select('peminjaman.*')
                 ->orderByRaw('COALESCE(siswa.nama, akun.nama) '.$activeDir);
-        } elseif ($activeSort === 'identitas') {
+        } elseif ($activeSort === 'status_peminjam') {
             $activeQuery->leftJoin('akun', 'peminjaman.id_akun', '=', 'akun.id_akun')
                 ->select('peminjaman.*')
-                ->orderByRaw('COALESCE(peminjaman.nis, akun.nip) '.$activeDir);
+                ->orderBy('akun.role', $activeDir);
+        } elseif ($activeSort === 'identitas') {
+            $activeQuery->leftJoin('akun', 'peminjaman.id_akun', '=', 'akun.id_akun')
+                ->leftJoin('pegawai', 'peminjaman.id_akun', '=', 'pegawai.id_akun')
+                ->select('peminjaman.*')
+                ->orderByRaw('COALESCE(peminjaman.nis, pegawai.nip) '.$activeDir);
         } elseif ($activeSort === 'nomor_kontak') {
             $activeQuery->leftJoin('akun', 'peminjaman.id_akun', '=', 'akun.id_akun')
                 ->leftJoin('siswa', 'peminjaman.nis', '=', 'siswa.nis')

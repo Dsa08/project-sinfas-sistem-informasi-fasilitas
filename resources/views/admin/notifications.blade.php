@@ -12,15 +12,15 @@
 @extends('layouts.admin-sarana')
 
 @section('title', 'Notifikasi Admin - SINFAS')
-@section('page_title', 'Pusat Notifikasi Admin')
+@section('page_title', 'Notifikasi')
 
 @section('content')
 <div class="admin-notifications-container" style="max-width: 1060px; margin: 0 auto; padding-bottom: 3rem;">
     {{-- Header & Aksi Cepat --}}
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
         <div>
-            <h2 style="font-size: 1.45rem; font-weight: 700; color: #0f172a; margin: 0 0 0.25rem 0;">Pemberitahuan Sistem</h2>
-            <p style="font-size: 0.88rem; color: #64748b; margin: 0;">Pantau antrean pengajuan peminjaman dan pengembalian sarana dari siswa.</p>
+            <h2 style="font-size: 1.45rem; font-weight: 700; color: #0f172a; margin: 0 0 0.25rem 0;">Pusat Notifikasi</h2>
+            <p style="font-size: 0.88rem; color: #64748b; margin: 0;">Pantau antrean pengajuan peminjaman dan pengembalian alat dari peminjam.</p>
         </div>
 
     </div>

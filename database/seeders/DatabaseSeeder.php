@@ -47,8 +47,6 @@ class DatabaseSeeder extends Seeder
         // Akun Siswa 1: Ahmad Fadli (Login via username: 'ahmad' atau NIS: '10223001', pass: 'password123')
         $akunAhmad = $this->seedAkun([
             'username'     => 'ahmad',
-            'nis'          => '10223001',
-            'nip'          => null,
             'nama'         => 'Ahmad Fadli',
             'email'        => 'ahmad.fadli@gmail.com',
             'nomor_kontak' => '081234567890',
@@ -60,8 +58,6 @@ class DatabaseSeeder extends Seeder
         // Akun Siswa 2: Siti Nurhaliza
         $akunSiti = $this->seedAkun([
             'username'     => 'siti',
-            'nis'          => '10223002',
-            'nip'          => null,
             'nama'         => 'Siti Nurhaliza',
             'email'        => 'siti.nurhaliza@gmail.com',
             'nomor_kontak' => '081234567891',
@@ -73,8 +69,6 @@ class DatabaseSeeder extends Seeder
         // Akun Siswa 3: Budi Santoso
         $akunBudi = $this->seedAkun([
             'username'     => 'budi',
-            'nis'          => '10223003',
-            'nip'          => null,
             'nama'         => 'Budi Santoso',
             'email'        => 'budi.santoso@gmail.com',
             'nomor_kontak' => '081234567892',
@@ -86,8 +80,6 @@ class DatabaseSeeder extends Seeder
         // Akun Siswa 4: Dewi Lestari
         $akunDewi = $this->seedAkun([
             'username'     => 'dewi',
-            'nis'          => '10223004',
-            'nip'          => null,
             'nama'         => 'Dewi Lestari',
             'email'        => 'dewi.lestari@gmail.com',
             'nomor_kontak' => '081234567893',
@@ -99,8 +91,6 @@ class DatabaseSeeder extends Seeder
         // Akun Pegawai (Guru): Bambang Pamungkas (Login via username: 'bambang' atau NIP: '199003032015031003', pass: 'password123')
         $akunBambang = $this->seedAkun([
             'username'     => 'bambang',
-            'nis'          => null,
-            'nip'          => '199003032015031003',
             'nama'         => 'Bambang Pamungkas',
             'email'        => 'bambang.guru@sinfas.sch.id',
             'nomor_kontak' => '081277665544',
@@ -112,8 +102,6 @@ class DatabaseSeeder extends Seeder
         // Akun Admin Sarana: Hendra Setiawan (Login via username: 'admin' atau NIP: '198501012010011001', pass: 'password123')
         $akunAdmin = $this->seedAkun([
             'username'     => 'admin',
-            'nis'          => null,
-            'nip'          => '198501012010011001',
             'nama'         => 'Hendra Setiawan',
             'email'        => 'hendra.setiawan@sinfas.sch.id',
             'nomor_kontak' => '081299887766',
@@ -125,8 +113,6 @@ class DatabaseSeeder extends Seeder
         // Akun Admin Sistem: Administrator IT (Login via username: 'adminsistem', pass: 'password123')
         $akunAdminSistem = $this->seedAkun([
             'username'     => 'adminsistem',
-            'nis'          => null,
-            'nip'          => null,
             'nama'         => 'Administrator Sistem',
             'email'        => 'adminsistem@sinfas.sch.id',
             'nomor_kontak' => '081299001122',
@@ -420,18 +406,8 @@ class DatabaseSeeder extends Seeder
      */
     private function seedAkun(array $attributes): Akun
     {
-        // Cari apakah akun sudah ada berdasarkan username atau identitas uniknya
+        // Cari apakah akun sudah ada berdasarkan username atau email
         $akun = Akun::where('username', $attributes['username'])->first();
-
-        if (! $akun && ! empty($attributes['nip'])) {
-            $akun = Akun::where('nip', $attributes['nip'])
-                ->where('role', $attributes['role'])
-                ->first();
-        }
-
-        if (! $akun && ! empty($attributes['nis'])) {
-            $akun = Akun::where('nis', $attributes['nis'])->first();
-        }
 
         if (! $akun && ! empty($attributes['email'])) {
             $akun = Akun::where('email', $attributes['email'])->first();

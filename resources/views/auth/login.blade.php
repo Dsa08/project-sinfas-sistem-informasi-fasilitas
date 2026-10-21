@@ -61,7 +61,6 @@
                 required
                 autocomplete="username"
             >
-            <small>Jika satu NIP terhubung ke dua akun, gunakan username akun yang ingin dibuka.</small>
         </div>
 
         <div class="form-group">

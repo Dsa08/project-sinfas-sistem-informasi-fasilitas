@@ -85,7 +85,7 @@
                     </div>
                     <div class="system-user-info">
                         <span class="system-user-name">{{ Auth::user()->nama ?? 'Admin Sistem' }}</span>
-                        <span class="system-user-role">Operator</span>
+                        <span class="system-user-role">Admin Sistem</span>
                     </div>
                 </div>
             </div>

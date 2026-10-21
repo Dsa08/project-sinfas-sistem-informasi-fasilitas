@@ -74,15 +74,19 @@ class AuthController extends Controller
             ])->onlyInput('email');
         }
 
-        // 3. Cari akun berdasarkan salah satu identitas unik (username, email, nis, atau nip)
+        // 3. Cari akun berdasarkan salah satu identitas unik (username, email, nis pada siswa, atau nip pada pegawai/staff)
         $akun = Akun::where(function ($query) use ($identifier) {
             $query->where('username', $identifier)
                 ->orWhere('email', $identifier)
-                ->orWhere('nis', $identifier);
+                ->orWhereHas('siswa', fn ($q) => $q->where('nis', $identifier));
         })->first();
 
         if (! $akun) {
-            $nipAccounts = Akun::where('nip', $identifier)->where('is_active', true)->limit(2)->get();
+            $nipAccounts = Akun::where(function ($query) use ($identifier) {
+                $query->whereHas('pegawai', fn ($q) => $q->where('nip', $identifier))
+                    ->orWhereHas('staffSarana', fn ($q) => $q->where('nip', $identifier));
+            })->where('is_active', true)->limit(2)->get();
+
             if ($nipAccounts->count() > 1) {
                 return back()->withErrors([
                     'email' => 'NIP ini memiliki lebih dari satu akun. Silakan masuk menggunakan username akun.',
@@ -184,14 +188,19 @@ class AuthController extends Controller
 
         $identifier = trim($request->email);
 
-        // 2. Pencarian akun pengguna melalui tabel akun maupun master siswa/pegawai
-        $akun = Akun::where('email', $identifier)
-            ->orWhere('username', $identifier)
-            ->orWhere('nis', $identifier)
-            ->first();
+        // 2. Pencarian akun pengguna melalui tabel akun maupun master siswa/pegawai (ERD 2)
+        $akun = Akun::where(function ($query) use ($identifier) {
+            $query->where('email', $identifier)
+                ->orWhere('username', $identifier)
+                ->orWhereHas('siswa', fn ($q) => $q->where('nis', $identifier));
+        })->first();
 
         if (! $akun) {
-            $nipAccounts = Akun::where('nip', $identifier)->where('is_active', true)->limit(2)->get();
+            $nipAccounts = Akun::where(function ($query) use ($identifier) {
+                $query->whereHas('pegawai', fn ($q) => $q->where('nip', $identifier))
+                    ->orWhereHas('staffSarana', fn ($q) => $q->where('nip', $identifier));
+            })->where('is_active', true)->limit(2)->get();
+
             if ($nipAccounts->count() > 1) {
                 return back()->with('status', $genericStatusMessage);
             }

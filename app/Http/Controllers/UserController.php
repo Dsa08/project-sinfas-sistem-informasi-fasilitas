@@ -288,7 +288,7 @@ class UserController extends Controller
             'kode_pinjam'           => $kodePinjam,
             'id_peminjaman'         => $kodePinjam,
             'id_akun'               => $user->id_akun,
-            'nis'                   => $user->nis,
+            'nis'                   => $user->siswa?->nis,
             'kode_barang'           => $kode,
             'tanggal_pinjam'        => $request->tanggal_pinjam,
             'lokasi_penggunaan'     => $request->lokasi_penggunaan,

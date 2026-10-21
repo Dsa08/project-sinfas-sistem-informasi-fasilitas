@@ -38,8 +38,6 @@ class Akun extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'nis',           // Nomor Induk Siswa (jika role siswa)
-        'nip',           // Nomor Induk Pegawai (jika role staf/guru/admin)
         'nama',          // Nama lengkap pengguna
         'nomor_kontak',  // Nomor WhatsApp / HP aktif untuk koordinasi
         'email',         // Alamat surel unik pengguna
@@ -196,12 +194,32 @@ class Akun extends Authenticatable
     }
 
     /**
-     * Accessor: Menghasilkan string NIS atau NIP tergantung data yang tersedia.
+     * Accessor: NIS siswa yang terhubung dengan akun ini (ERD 2).
+     *
+     * @return string|null
+     */
+    public function getNisAttribute(): ?string
+    {
+        return $this->siswa?->nis;
+    }
+
+    /**
+     * Accessor: NIP pegawai atau staff sarana yang terhubung dengan akun ini (ERD 2).
+     *
+     * @return string|null
+     */
+    public function getNipAttribute(): ?string
+    {
+        return $this->pegawai?->nip ?? $this->staffSarana?->nip;
+    }
+
+    /**
+     * Accessor: Menghasilkan string NIS atau NIP tergantung relasi profil data (ERD 2).
      *
      * @return string
      */
     public function getNisNipAttribute(): string
     {
-        return $this->nis ?? $this->nip ?? '-';
+        return $this->siswa?->nis ?? $this->pegawai?->nip ?? $this->staffSarana?->nip ?? '-';
     }
 }

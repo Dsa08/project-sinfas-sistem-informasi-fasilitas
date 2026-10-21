@@ -16,15 +16,10 @@
 @extends('layouts.app')
 
 @section('title', 'Pusat Notifikasi - SINFAS')
+@section('navbar_title', 'Notifikasi')
+@section('back_url', route('dashboard'))
 
 @section('content')
-<a href="{{ route('dashboard') }}" class="page-top-action">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m15 18-6-6 6-6"/>
-    </svg>
-    Kembali ke Beranda
-</a>
-
 <div class="notifications-page-container">
     {{-- Flash Messages --}}
     @if(session('success'))

@@ -15,7 +15,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/>
             </svg>
-            Export PDF
+            Cetak PDF
         </button>
     </div>
 
@@ -121,7 +121,7 @@
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th class="report-number-cell">No</th>
+                            <th class="report-number-cell">No.</th>
                             @foreach($columns as $column)
                                 <th>
                                     <button class="report-sort-button" type="button" data-sort-index="{{ $loop->index + 1 }}" data-sort-state="none" aria-label="Urutkan {{ $column }}" aria-sort="none">
@@ -142,8 +142,17 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="report-empty-cell" colspan="{{ count($columns) + 1 }}">
-                                    Tidak ada data yang cocok dengan filter laporan ini.
+                                <td class="report-empty-cell" colspan="{{ count($columns) + 1 }}" style="padding: 2.5rem 1rem; text-align: center;">
+                                    <div class="system-table-empty-state" style="padding: 1rem;">
+                                        <div class="system-empty-icon-box">
+                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="11" cy="11" r="8"></circle>
+                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="system-empty-title">Tidak ada data ditemukan</div>
+                                        <div class="system-empty-desc">Tidak ada data yang cocok dengan filter laporan ini.</div>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -152,10 +161,10 @@
                         <tfoot>
                             <tr>
                                 <th colspan="4">Total</th>
-                                <th>{{ number_format($summary['Baik / tersedia'], 0, ',', '.') }}</th>
-                                <th>{{ number_format($summary['Kurang baik'], 0, ',', '.') }}</th>
-                                <th>{{ number_format($summary['Rusak berat'], 0, ',', '.') }}</th>
-                                <th>{{ number_format($summary['Total aset'], 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Baik / Tersedia'] ?? $summary['Baik / tersedia'] ?? 0, 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Kurang Baik'] ?? $summary['Kurang baik'] ?? 0, 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Rusak Berat'] ?? $summary['Rusak berat'] ?? 0, 0, ',', '.') }}</th>
+                                <th>{{ number_format($summary['Total Aset'] ?? $summary['Total aset'] ?? 0, 0, ',', '.') }}</th>
                             </tr>
                         </tfoot>
                     @endif
@@ -196,15 +205,16 @@
     .report-button--pdf { background: #159447; }
     .report-button--pdf:hover { background: #11763a; }
     .report-filter-card, .report-chart-card, .report-table-card { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(15, 23, 42, .04); }
-    .report-filter-card { display: flex; align-items: end; flex-wrap: wrap; gap: .9rem; padding: 1rem; margin-bottom: 1.25rem; }
+    .report-filter-card { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; padding: 1.1rem; margin-bottom: 1.25rem; }
     .report-filter-field { display: flex; flex: 1 1 160px; flex-direction: column; gap: .4rem; min-width: 150px; }
-    .report-filter-field[hidden] { display: none; }
-    .report-filter-field--type { flex: 1.5 1 250px; }
-    .report-filter-field--date { flex: 1.5 1 330px; }
-    .report-filter-field label { color: #334155; font-size: .8rem; font-weight: 700; }
+    .report-filter-field[hidden] { display: none !important; }
+    .report-filter-field--type { flex: 1.4 1 240px; min-width: 220px; }
+    .report-filter-field--date { flex: 1 1 315px; min-width: 315px; }
+    .report-filter-field label { color: #334155; font-size: .8rem; font-weight: 700; white-space: nowrap; }
     .report-filter-field select, .report-filter-field input { box-sizing: border-box; width: 100%; min-height: 42px; padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: 7px; background: #fff; color: #1e293b; font: inherit; font-size: .88rem; }
-    .report-date-inputs { display: flex; align-items: center; gap: .45rem; }
-    .report-date-inputs span { color: #64748b; font-size: .8rem; }
+    .report-date-inputs { display: flex; align-items: center; gap: .5rem; width: 100%; }
+    .report-date-inputs input { width: auto; flex: 1 1 0; min-width: 120px; padding: .55rem .5rem; font-size: .84rem; }
+    .report-date-inputs span { flex: 0 0 auto; color: #64748b; font-size: .8rem; }
     .report-chart-card, .report-table-card { margin-bottom: 1.1rem; overflow: hidden; }
     .report-section-heading { padding: 1rem 1.1rem; }
     .report-section-heading h3 { margin: 0; color: #1e293b; font-size: 1rem; }

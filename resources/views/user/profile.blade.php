@@ -11,6 +11,7 @@
 @section('title', 'Profil Saya - SINFAS')
 
 @section('navbar_title', 'Profil Saya')
+@section('back_url', route('dashboard'))
 
 @section('content')
 <div class="profile-container">
@@ -88,16 +89,40 @@
                 </div>
 
                 <div class="profile-form-group">
-                    <label class="profile-form-label" for="nis-nip">NIS / NIP</label>
+                    <label class="profile-form-label" for="nis-nip">NIS/NIP</label>
                     <input
                         type="text"
                         class="profile-form-input"
                         id="nis-nip"
                         name="nis_nip"
-                        value="{{ $user->nis ?? $user->nip ?? '-' }}"
+                        value="{{ $user->nis_nip ?? '-' }}"
                         readonly
                     >
                 </div>
+
+                @if($user->siswa?->kelas)
+                <div class="profile-form-group">
+                    <label class="profile-form-label" for="kelas">Kelas</label>
+                    <input
+                        type="text"
+                        class="profile-form-input"
+                        id="kelas"
+                        value="{{ $user->siswa->kelas }}"
+                        readonly
+                    >
+                </div>
+                @elseif($user->pegawai?->jabatan)
+                <div class="profile-form-group">
+                    <label class="profile-form-label" for="jabatan">Jabatan</label>
+                    <input
+                        type="text"
+                        class="profile-form-input"
+                        id="jabatan"
+                        value="{{ $user->pegawai->jabatan }}"
+                        readonly
+                    >
+                </div>
+                @endif
 
                 @if($user->isPeminjam())
                 <div class="profile-form-group">

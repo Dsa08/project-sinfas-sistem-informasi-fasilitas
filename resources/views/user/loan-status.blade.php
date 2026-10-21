@@ -11,15 +11,11 @@
 @extends('layouts.app')
 
 @section('title', 'Status Pengajuan - SINFAS')
+@section('navbar_title', 'Status Pengajuan')
+@section('back_url', route('dashboard'))
 
 @section('content')
 <div class="loan-status-container">
-    <a href="{{ route('dashboard') }}" class="page-top-action loan-status-back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m15 18-6-6 6-6"/>
-        </svg>
-        Kembali ke Beranda
-    </a>
     {{-- Flash Messages --}}
     @if(session('success'))
         <div class="flash-msg flash-msg--success" id="flash-success">
@@ -47,8 +43,8 @@
             <div class="loan-status-card-left">
                 {{-- Item Image Placeholder --}}
                 <div class="loan-status-image">
-                    @if(!empty($loan->barang->foto) && file_exists(public_path($loan->barang->foto)))
-                        <img src="{{ asset($loan->barang->foto) }}" alt="{{ $loan->barang->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                    @if(!empty($loan->barang?->foto_url))
+                        <img src="{{ $loan->barang->foto_url }}" alt="{{ $loan->barang->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                     @else
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -62,9 +58,9 @@
 
                 {{-- Item Info --}}
                 <div class="loan-status-info">
-                    <h3 class="loan-status-item-name">{{ $loan->barang->nama_barang ?? 'Barang' }}</h3>
+                    <h3 class="loan-status-item-name">{{ $loan->barang->nama_barang ?? 'Alat' }}</h3>
                     <p class="loan-status-meta">
-                        Dipinjam: {{ $loan->tanggal_pinjam->format('d M Y') }} &nbsp;&bull;&nbsp; Kode: <span style="font-weight: 600; color: #1f2937;">{{ $loan->kode_pinjam }}</span>
+                        Dipinjam: {{ $loan->tanggal_pinjam->format('d M Y') }} &nbsp;&bull;&nbsp; Kode Pinjam: <span style="font-weight: 600; color: #1f2937;">{{ $loan->kode_pinjam }}</span>
                     </p>
                     
                     @if($loan->lokasi_penggunaan)
@@ -166,7 +162,7 @@
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
             </svg>
             <p style="color: #6b7280; font-size: 0.95rem; margin: 0 0 0.5rem;">Belum ada pengajuan peminjaman.</p>
-            <a href="{{ route('dashboard') }}" style="color: #1D67F2; font-size: 0.88rem; text-decoration: none; font-weight: 500;">Lihat Katalog Barang â†’</a>
+            <a href="{{ route('dashboard') }}" style="color: #1D67F2; font-size: 0.88rem; text-decoration: none; font-weight: 500;">Lihat Katalog Alat &rarr;</a>
         </div>
         @endforelse
     </div>
@@ -217,15 +213,15 @@
                     <input type="date" name="tanggal_kembali" id="modal_tanggal_kembali" class="loan-field-input" value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" required>
                 </div>
 
-                {{-- Catatan Kondisi Barang --}}
+                {{-- Catatan Kondisi Alat --}}
                 <div class="loan-field-group" style="margin-bottom: 1rem;">
-                    <label class="loan-field-label" for="modal_catatan">Catatan Kondisi Barang (Opsional)</label>
-                    <textarea name="catatan" id="modal_catatan" class="loan-field-textarea" placeholder="Contoh: Barang dalam kondisi lengkap dan bersih, berfungsi dengan baik..." rows="3"></textarea>
+                    <label class="loan-field-label" for="modal_catatan">Catatan Kondisi Alat (Opsional)</label>
+                    <textarea name="catatan" id="modal_catatan" class="loan-field-textarea" placeholder="Contoh: Alat dalam kondisi lengkap dan bersih, berfungsi dengan baik..." rows="3"></textarea>
                 </div>
 
                 {{-- Upload Bukti Foto / Video --}}
                 <div class="loan-field-group" style="margin-bottom: 1.25rem;">
-                    <label class="loan-field-label">Bukti Foto / Video Kondisi Barang (Opsional)</label>
+                    <label class="loan-field-label">Bukti Foto / Video Kondisi Alat (Opsional)</label>
                     <div class="return-dropzone" id="modalDropzoneBox" onclick="document.getElementById('modal_bukti_file').click()">
                         <input type="file" name="bukti_foto_video" id="modal_bukti_file" accept="image/jpeg,image/png,image/jpg,image/webp,video/mp4" style="display: none;">
                         
@@ -328,7 +324,7 @@
         currentItemTitle = namaBarang;
         modalReturnForm.action = `/loan-return/${kodePinjam}`;
         modalItemName.textContent = namaBarang;
-        modalItemMeta.textContent = `Kode: ${kodePinjam} â€¢ Kategori: ${kategori} â€¢ Dipinjam: ${tanggalPinjam}`;
+        modalItemMeta.textContent = `Kode: ${kodePinjam} • Kategori: ${kategori} • Dipinjam: ${tanggalPinjam}`;
 
         if (fotoUrl) {
             modalItemImg.src = fotoUrl;

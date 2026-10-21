@@ -43,8 +43,8 @@
     <div class="sarana-section">
         <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem;">
             <div>
-                <h2 class="sarana-section-heading" style="margin: 0 0 0.25rem;">Barang Paling Sering Dipinjam</h2>
-                <p style="margin: 0; color: #64748b; font-size: 0.85rem;">Peringkat 5 barang berdasarkan periode {{ $startDate->locale('id')->translatedFormat('d F Y') }} sampai {{ $endDate->locale('id')->translatedFormat('d F Y') }} dan kategori {{ $categoryName }}.</p>
+                <h2 class="sarana-section-heading" style="margin: 0 0 0.25rem;">Alat Paling Sering Dipinjam</h2>
+                <p style="margin: 0; color: #64748b; font-size: 0.85rem;">Peringkat 5 alat berdasarkan periode {{ $startDate->locale('id')->translatedFormat('d F Y') }} sampai {{ $endDate->locale('id')->translatedFormat('d F Y') }} dan kategori {{ $categoryName }}.</p>
             </div>
             <a href="{{ route('admin.reports') }}" style="color: #1e40af; font-size: 0.85rem; font-weight: 600; text-decoration: none;">Atur laporan</a>
         </div>
@@ -52,11 +52,11 @@
             <table class="system-table">
                 <thead>
                     <tr>
-                        <th class="th-number">Peringkat</th>
-                        <th>Kode barang</th>
-                        <th>Nama barang</th>
+                        <th class="th-number">No.</th>
+                        <th>Kode Alat</th>
+                        <th>Nama Alat</th>
                         <th>Kategori</th>
-                        <th>Frekuensi dipinjam</th>
+                        <th>Frekuensi Dipinjam</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,7 +109,7 @@
                     <path d="M12 22V12"/>
                 </svg>
             </div>
-            <div class="sarana-action-text">Kelola Barang</div>
+            <div class="sarana-action-text">Kelola Alat</div>
         </a>
 
         {{-- Card 2: History & Print Report --}}

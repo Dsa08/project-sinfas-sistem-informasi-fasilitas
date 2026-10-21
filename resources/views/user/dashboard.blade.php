@@ -1,11 +1,11 @@
 {{-- 
-  DASHBOARD PEMINJAM (KATALOG SARANA PRASARANA) â€” SINFAS
+  DASHBOARD PEMINJAM (KATALOG SARANA PRASARANA) — SINFAS
   File: resources/views/user/dashboard.blade.php
   Fitur Sesuai Desain Figma:
   - Hero banner sambutan: "Mau Pinjam Apa Hari Ini?"
   - Search bar & Filter dropdown interaktif.
-  - Navigasi Kategori Cepat (Kapsul/Chips): Tombol cepat sesuai kategori di database (ðŸŽ¤ Audio & Sound System, ðŸ’¡ Proyektor & Presentasi, ðŸ“· Kamera & Dokumentasi, ðŸ”Œ Kabel & Adapter, ðŸ’» Peralatan Lab & Multimedia).
-  - Carousel Kategori Horizontal (Pengganti Pagination di beranda utama) dengan tombol panah navigasi (< dan >) dan smooth horizontal scrolling.
+  - Navigasi Kategori Cepat (Kapsul/Chips).
+  - Carousel Kategori Horizontal dengan tombol panah navigasi (< dan >) dan smooth horizontal scrolling.
   - Tombol "Lihat Semua >" di setiap sudut kanan judul kategori untuk membuka seluruh inventaris secara penuh di halaman terpisah.
   - Detail & Feedback Visual:
     * Label "Category: [Nama Kategori]"
@@ -54,7 +54,7 @@
             <div class="dashboard-hero-tag">
                 <span class="dashboard-hero-tag-dot"></span> Selamat Datang di SINFAS
             </div>
-            <h2 class="dashboard-hero-text">Halo, {{ $firstName }}! ðŸ‘‹</h2>
+            <h2 class="dashboard-hero-text">Halo, {{ $firstName }}! &#128075;</h2>
             <p class="dashboard-hero-subtext">Mau pinjam sarana atau peralatan apa hari ini?</p>
         </div>
         <div class="dashboard-hero-ornament">
@@ -102,10 +102,10 @@
                             <span class="active-loan-pill active-loan-pill--approved">Sedang Dipinjam</span>
                         @endif
                     </div>
-                    <h4 class="active-loan-title">{{ $activeLoan->barang->nama_barang ?? 'Barang Sarana' }}</h4>
+                    <h4 class="active-loan-title">{{ $activeLoan->barang->nama_barang ?? 'Alat' }}</h4>
                     <p class="active-loan-desc">
                         @if($isPendingConfirmation)
-                            Pengembalian diajukan pada <strong>{{ $activeLoan->pengembalian->tanggal_kembali ? \Carbon\Carbon::parse($activeLoan->pengembalian->tanggal_kembali)->format('d M Y') : now()->format('d M Y') }}</strong> &bull; Kode: <code>{{ $activeLoan->kode_pinjam }}</code>
+                            Pengembalian diajukan pada <strong>{{ $activeLoan->pengembalian->tanggal_kembali ? \Carbon\Carbon::parse($activeLoan->pengembalian->tanggal_kembali)->format('d M Y') : now()->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
                         @else
                             Dipinjam sejak <strong>{{ $tglPinjam->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
                         @endif
@@ -146,7 +146,7 @@
                     <div class="active-loan-badge-row">
                         <span class="active-loan-pill active-loan-pill--pending">Menunggu Verifikasi Admin</span>
                     </div>
-                    <h4 class="active-loan-title">{{ $pendingLoan->barang->nama_barang ?? 'Barang Sarana' }}</h4>
+                    <h4 class="active-loan-title">{{ $pendingLoan->barang->nama_barang ?? 'Alat' }}</h4>
                     <p class="active-loan-desc">
                         Diajukan pada {{ $pendingLoan->created_at->format('d M Y, H:i') }} &bull; Kode Pinjam: <code>{{ $pendingLoan->kode_pinjam }}</code>
                     </p>
@@ -262,7 +262,7 @@
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.3-4.3"/>
                     </svg>
-                    <h4 style="color: #374151; font-size: 1rem; margin: 0 0 0.4rem 0;">Tidak Ada Sarana Ditemukan</h4>
+                    <h4 style="color: #374151; font-size: 1rem; margin: 0 0 0.4rem 0;">Tidak Ada Alat Ditemukan</h4>
                     <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 1rem 0;">Coba kata kunci lain atau pilih kategori berbeda.</p>
                     <a href="{{ route('dashboard') }}" class="shopee-btn-pinjam">Lihat Semua</a>
                 </div>
@@ -302,7 +302,7 @@
             <section class="category-section" id="category-popular" data-category-id="popular" data-category-name="Sering Dipinjam">
                 <div class="category-section-header">
                     <div class="category-title-wrap">
-                        <span style="font-size: 1.15rem; flex-shrink: 0;">ðŸ”¥</span>
+                        <span style="font-size: 1.15rem; flex-shrink: 0;">&#128293;</span>
                         <h3 class="category-title" title="Sering Dipinjam">Sering Dipinjam</h3>
                     </div>
                     <a href="{{ route('dashboard', ['kategori' => 'popular', 'view' => 'all']) }}" class="category-view-all" title="Buka seluruh alat sering dipinjam">
@@ -609,9 +609,9 @@
             controls.innerHTML = `
                 <span class="category-pagination-summary" aria-live="polite"></span>
                 <div class="category-pagination-controls">
-                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="-1" aria-label="Halaman sebelumnya">â€¹</button>
+                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="-1" aria-label="Halaman sebelumnya">&lsaquo;</button>
                     <div class="category-pagination-pages"></div>
-                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="1" aria-label="Halaman berikutnya">â€º</button>
+                    <button type="button" class="category-pagination-button category-pagination-button--arrow" data-page-step="1" aria-label="Halaman berikutnya">&rsaquo;</button>
                 </div>
             `;
             grid.insertAdjacentElement('afterend', controls);
@@ -654,7 +654,7 @@
             const addEllipsis = () => {
                 const ellipsis = document.createElement('span');
                 ellipsis.className = 'category-pagination-ellipsis';
-                ellipsis.textContent = 'â€¦';
+                ellipsis.textContent = '...';
                 ellipsis.setAttribute('aria-hidden', 'true');
                 pageList.append(ellipsis);
             };

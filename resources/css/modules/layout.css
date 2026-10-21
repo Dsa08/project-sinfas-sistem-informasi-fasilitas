@@ -40,6 +40,45 @@
     gap: 0.6rem;
 }
 
+.navbar-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.38rem 0.8rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1e40af 0%, #1d67f2 100%);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 12px -2px rgba(30, 64, 175, 0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    flex-shrink: 0;
+}
+
+.navbar-back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -2px rgba(30, 64, 175, 0.55);
+    filter: brightness(1.06);
+}
+
+.navbar-back-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    flex-shrink: 0;
+}
+
+.navbar-page-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-left: 0.35rem;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+}
+
 .navbar-logo-placeholder {
     display: flex;
     align-items: center;
@@ -85,41 +124,41 @@
 .page-top-action {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.55rem;
-    min-width: 200px;
-    max-width: fit-content;
-    padding: 0.75rem 1.2rem;
+    gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
     margin: 0 0 1.25rem 0;
-    border-radius: 12px;
-    border: 1px solid rgba(30, 64, 175, 0.2);
-    background: linear-gradient(135deg, #1e40af 0%, #1d67f2 100%);
-    color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 700;
-    box-shadow: 0 10px 24px -14px rgba(30, 64, 175, 0.8);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     line-height: 1.2;
+    align-self: flex-start;
+    width: fit-content;
 }
 
 .page-top-action:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 28px -14px rgba(30, 64, 175, 0.9);
-    filter: brightness(0.98);
+    background: #f8fafc;
+    color: #1e40af;
+    border-color: #cbd5e1;
+    transform: translateX(-3px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .page-top-action svg {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
     flex-shrink: 0;
+    stroke: currentColor;
+    transition: transform 0.15s ease;
 }
 
-@media (min-width: 769px) {
-    .page-top-action {
-        min-width: 220px;
-        padding: 0.8rem 1.35rem;
-    }
+.page-top-action:hover svg {
+    transform: translateX(-2px);
 }
 
 .navbar-icon-btn {

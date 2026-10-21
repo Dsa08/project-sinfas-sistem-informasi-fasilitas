@@ -54,7 +54,7 @@
                                 <path d="m3.3 7 8.7 5 8.7-5"/>
                                 <path d="M12 22V12"/>
                             </svg>
-                            <span>Kelola Barang</span>
+                            <span>Kelola Alat</span>
                         </a>
                     </li>
                     <li class="system-nav-item">

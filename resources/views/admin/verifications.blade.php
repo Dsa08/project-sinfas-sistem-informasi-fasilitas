@@ -15,6 +15,7 @@
 <style>
     .borrower-type-badge { display:inline-flex; align-items:center; padding:.25rem .6rem; border-radius:999px; font-size:.75rem; font-weight:700; line-height:1.2; white-space:nowrap; }
     .borrower-type-badge--student { color:#1d4ed8; background:#eff6ff; }
+    .borrower-type-badge--pegawai { color:#7c3aed; background:#f5f3ff; }
     .borrower-type-badge--active { color:#047857; background:#ecfdf5; }
     .sarana-tab-count { display:inline-flex; min-width:1.25rem; height:1.25rem; margin-left:.35rem; padding:0 .25rem; align-items:center; justify-content:center; border-radius:999px; background:rgba(255,255,255,.7); font-size:.72rem; }
     .loan-overdue-label { display:block; margin-top:.2rem; color:#b91c1c; font-size:.75rem; font-weight:700; }
@@ -30,10 +31,10 @@
     {{-- Tab Navigation Bar --}}
     <div class="sarana-tab-bar" id="verification-tabs">
         <button type="button" class="sarana-tab-btn {{ $activeTab === 'requests' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-requests" data-tab="requests">
-            Permintaan Peminjaman
+            Permintaan Peminjaman <span class="sarana-tab-count">{{ $pendingRequests->total() }}</span>
         </button>
         <button type="button" class="sarana-tab-btn {{ $activeTab === 'returns' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-returns" data-tab="returns">
-            Menunggu Pengembalian
+            Menunggu Pengembalian <span class="sarana-tab-count">{{ $pendingReturns->total() }}</span>
         </button>
         <button type="button" class="sarana-tab-btn {{ $activeTab === 'active' ? 'sarana-tab-btn--active' : '' }}" id="tab-btn-active" data-tab="active">
             Sedang Dipinjam <span class="sarana-tab-count">{{ $activeLoans->total() }}</span>
@@ -54,7 +55,7 @@
                         <th><x-sortable-table-heading label="Peminjam" column="siswa" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
                         <th><x-sortable-table-heading label="Status Peminjam" column="status_peminjam" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
                         <th><x-sortable-table-heading label="Nomor Telepon" column="nomor_kontak" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
-                        <th><x-sortable-table-heading label="Barang" column="barang" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
+                        <th><x-sortable-table-heading label="Alat" column="barang" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
                         <th><x-sortable-table-heading label="Lokasi" column="lokasi_penggunaan" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
                         <th><x-sortable-table-heading label="Keperluan" column="keterangan_penggunaan" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
                         <th><x-sortable-table-heading label="Tanggal Pinjam" column="tanggal_pinjam" sort-key="req_sort" dir-key="req_dir" page-key="req_page" tab="requests" /></th>
@@ -65,13 +66,16 @@
                     @forelse($pendingRequests as $req)
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingRequests->currentPage() - 1) * $pendingRequests->perPage() }}</td>
-                        <td class="td-name">{{ $req->peminjam_nama }}</td>
-                        <td><span class="borrower-type-badge borrower-type-badge--student">{{ $req->peminjam_status }}</span></td>
+                        <td class="td-name">
+                            <div>{{ $req->peminjam_nama }}</div>
+                            <small style="color: #64748b; font-size: 0.78rem;">{{ $req->akun?->nis_nip ?? $req->nis ?? '-' }}</small>
+                        </td>
+                        <td><span class="borrower-type-badge {{ strtolower($req->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $req->peminjam_status }}</span></td>
                         <td>{{ $req->akun?->nomor_kontak ?: ($req->siswa?->no_hp ?: '-') }}</td>
                         <td class="td-item">{{ $req->barang->nama_barang ?? '-' }}</td>
                         <td class="td-location">{{ $req->lokasi_penggunaan ?? '-' }}</td>
                         <td class="td-category" style="font-size: 0.82rem;">{{ Str::limit($req->keterangan_penggunaan, 30) ?? '-' }}</td>
-                        <td class="td-date">{{ $req->tanggal_pinjam->format('Y-m-d') }}</td>
+                        <td class="td-date">{{ $req->tanggal_pinjam->format('d M Y') }}</td>
                         <td>
                             <div class="action-btn-group">
                                 <button 
@@ -153,7 +157,7 @@
                         <th><x-sortable-table-heading label="Peminjam" column="siswa" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
                         <th><x-sortable-table-heading label="Status Peminjam" column="status_peminjam" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
                         <th><x-sortable-table-heading label="Nomor Telepon" column="nomor_kontak" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
-                        <th><x-sortable-table-heading label="Barang" column="barang" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
+                        <th><x-sortable-table-heading label="Alat" column="barang" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
                         <th><x-sortable-table-heading label="Tanggal Pinjam" column="tanggal_pinjam" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
                         <th><x-sortable-table-heading label="Tanggal Kembali" column="tanggal_kembali" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
                         <th style="width: 11%; text-align: center;"><x-sortable-table-heading label="Bukti" column="bukti" sort-key="ret_sort" dir-key="ret_dir" page-key="ret_page" tab="returns" /></th>
@@ -165,8 +169,11 @@
                     @forelse($pendingReturns as $ret)
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingReturns->currentPage() - 1) * $pendingReturns->perPage() }}</td>
-                        <td class="td-name">{{ $ret->peminjam_nama }}</td>
-                        <td><span class="borrower-type-badge borrower-type-badge--student">{{ $ret->peminjam_status }}</span></td>
+                        <td class="td-name">
+                            <div>{{ $ret->peminjam_nama }}</div>
+                            <small style="color: #64748b; font-size: 0.78rem;">{{ $ret->akun?->nis_nip ?? $ret->nis ?? '-' }}</small>
+                        </td>
+                        <td><span class="borrower-type-badge {{ strtolower($ret->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $ret->peminjam_status }}</span></td>
                         <td>{{ $ret->akun?->nomor_kontak ?: ($ret->siswa?->no_hp ?: '-') }}</td>
                         <td class="td-item">
                             {{ $ret->barang->nama_barang ?? '-' }}
@@ -176,8 +183,8 @@
                                 </div>
                             @endif
                         </td>
-                        <td class="td-date">{{ $ret->tanggal_pinjam ? $ret->tanggal_pinjam->format('Y-m-d') : '-' }}</td>
-                        <td class="td-date">{{ $ret->pengembalian->tanggal_kembali ? $ret->pengembalian->tanggal_kembali->format('Y-m-d') : '-' }}</td>
+                        <td class="td-date">{{ $ret->tanggal_pinjam ? $ret->tanggal_pinjam->format('d M Y') : '-' }}</td>
+                        <td class="td-date">{{ $ret->pengembalian->tanggal_kembali ? $ret->pengembalian->tanggal_kembali->format('d M Y') : '-' }}</td>
                         <td style="text-align: center;">
                             @if($ret->pengembalian->bukti_foto_video)
                                 @php
@@ -275,13 +282,13 @@
                     <tr>
                         <th class="th-number">No.</th>
                         <th><x-sortable-table-heading label="Peminjam" column="siswa" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
-                        <th><x-sortable-table-heading label="NIS/NIP" column="identitas" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Status Peminjam" column="status_peminjam" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
                         <th><x-sortable-table-heading label="Nomor Telepon" column="nomor_kontak" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
-                        <th><x-sortable-table-heading label="Waktu Peminjaman" column="tanggal_pinjam" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
-                        <th><x-sortable-table-heading label="Barang" column="barang" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Alat" column="barang" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
+                        <th><x-sortable-table-heading label="Tanggal Pinjam" column="tanggal_pinjam" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
                         <th><x-sortable-table-heading label="Lama Dipinjam" column="lama_dipinjam" sort-key="active_sort" dir-key="active_dir" page-key="active_page" tab="active" /></th>
                         <th>Status</th>
-                        <th>Detail</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -295,11 +302,14 @@
                         @endphp
                         <tr>
                             <td class="td-number">{{ $loop->iteration + ($activeLoans->currentPage() - 1) * $activeLoans->perPage() }}</td>
-                            <td class="td-name">{{ $borrowerName }}</td>
-                            <td>{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</td>
+                            <td class="td-name">
+                                <div>{{ $borrowerName }}</div>
+                                <small style="color: #64748b; font-size: 0.78rem;">{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</small>
+                            </td>
+                            <td><span class="borrower-type-badge {{ strtolower($loan->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $loan->peminjam_status }}</span></td>
                             <td>{{ $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: '-') }}</td>
+                            <td>{{ $loan->barang->nama_barang ?? 'Alat tidak ditemukan' }}</td>
                             <td class="td-date">{{ $loan->tanggal_pinjam?->format('d M Y') ?? '-' }}</td>
-                            <td>{{ $loan->barang->nama_barang ?? 'Barang tidak ditemukan' }}</td>
                             <td>
                                 <strong>{{ $daysBorrowed }} hari</strong>
                                 @if($lateDays > 0)
@@ -309,8 +319,8 @@
                             <td><span class="borrower-type-badge borrower-type-badge--active">Masih dipinjam</span></td>
                             <td>
                                 <button type="button" class="btn-active-loan-detail"
-                                    onclick="openActiveLoanDetail(@js($borrowerName), @js($loan->akun?->nis_nip ?? $loan->nis ?? '-'), @js($loan->barang->nama_barang ?? 'Barang tidak ditemukan'), @js($loan->tanggal_pinjam?->format('d M Y') ?? '-'), @js($loan->keterangan_penggunaan ?: '-'), @js($loan->lokasi_penggunaan ?: '-'))">
-                                    Lihat
+                                    onclick="openActiveLoanDetail(@js($borrowerName), @js($loan->akun?->nis_nip ?? $loan->nis ?? '-'), @js($loan->barang->nama_barang ?? 'Alat tidak ditemukan'), @js($loan->tanggal_pinjam?->format('d M Y') ?? '-'), @js($loan->keterangan_penggunaan ?: '-'), @js($loan->lokasi_penggunaan ?: '-'))">
+                                    Lihat Detail
                                 </button>
                             </td>
                         </tr>

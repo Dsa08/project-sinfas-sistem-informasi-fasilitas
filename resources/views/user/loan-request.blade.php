@@ -10,15 +10,10 @@
 @extends('layouts.app')
 
 @section('title', 'Pengajuan Pinjaman - ' . $item->nama_barang . ' - SINFAS')
+@section('navbar_title', 'Pengajuan Pinjam')
+@section('back_url', route('dashboard'))
 
 @section('content')
-<a href="{{ route('dashboard') }}" class="page-top-action">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m15 18-6-6 6-6"/>
-    </svg>
-    Kembali ke Beranda
-</a>
-
 <div class="loan-page-wrapper">
     {{-- Flash Messages --}}
     @if(session('error'))
@@ -31,7 +26,7 @@
         {{-- Left Column: Item Details --}}
         <div class="loan-item-column">
             <div class="loan-image-card">
-                @if(!empty($item->foto) && file_exists(public_path($item->foto)))
+                @if(!empty($item->foto_url))
                     <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                 @else
                     {{-- Placeholder abu-abu --}}

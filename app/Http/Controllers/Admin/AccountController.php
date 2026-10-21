@@ -44,28 +44,31 @@ class AccountController extends Controller
         // 1. Inisialisasi query: kecualikan akun bertipe admin sistem
         $query = Akun::where('role', '!=', 'admin_sistem');
 
-        // 2. Pencarian data akun berdasarkan nama, username, nis, nip, atau email
+        // 2. Pencarian data akun berdasarkan nama, username, email, atau NIS/NIP pada relasi profil
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
                     ->orWhere('username', 'like', "%{$search}%")
-                    ->orWhere('nis', 'like', "%{$search}%")
-                    ->orWhere('nip', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('siswa', fn ($sq) => $sq->where('nis', 'like', "%{$search}%"))
+                    ->orWhereHas('pegawai', fn ($pq) => $pq->where('nip', 'like', "%{$search}%"))
+                    ->orWhereHas('staffSarana', fn ($stq) => $stq->where('nip', 'like', "%{$search}%"));
             });
         }
 
-        // 3. Penyortiran kolom (Sort by field & direction): default data paling baru di atas (updated_at desc)
+        // 3. Penyortiran kolom: default data paling baru di atas (updated_at desc)
         $sortField = $request->input('sort');
         $sortDir = strtolower($request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $allowedSorts = ['nama', 'nis', 'nip', 'role', 'is_active', 'created_at', 'updated_at'];
+        $allowedSorts = ['nama', 'role', 'is_active', 'created_at', 'updated_at'];
 
-        if ($sortField === 'nis' || $sortField === 'nis_nip') {
-            $query->orderByRaw("COALESCE(nis, nip) {$sortDir}");
+        if (in_array($sortField, ['nis', 'nip', 'nis_nip'])) {
+            $query->leftJoin('siswa', 'akun.id_akun', '=', 'siswa.id_akun')
+                ->leftJoin('pegawai', 'akun.id_akun', '=', 'pegawai.id_akun')
+                ->select('akun.*')
+                ->orderByRaw("COALESCE(siswa.nis, pegawai.nip) {$sortDir}");
         } elseif ($sortField && in_array($sortField, $allowedSorts)) {
             $query->orderBy($sortField, $sortDir);
         } else {
-            // Default: data paling baru di atas
             $query->orderBy('updated_at', 'desc');
         }
 
@@ -119,11 +122,9 @@ class AccountController extends Controller
                 ->storeOnDisk($request->file('foto'), 'avatars', 'public_uploads', 'avatar');
         }
 
-        // 4. Eksekusi pembuatan akun baru
+        // 4. Eksekusi pembuatan akun baru (tanpa kolom nis/nip di akun sesuai ERD 2)
         DB::transaction(function () use ($request, $role, $identity, $fotoPath) {
             $akun = Akun::create([
-                'nis' => $identity['nis'],
-                'nip' => $identity['nip'],
                 'nama' => $request->nama,
                 'nomor_kontak' => $request->nomor_kontak,
                 'email' => $request->email,
@@ -178,8 +179,8 @@ class AccountController extends Controller
         return response()->json([
             'id_akun' => $akun->id_akun,
             'nama' => $akun->nama,
-            'nis' => $akun->nis,
-            'nip' => $akun->nip,
+            'nis' => $akun->siswa?->nis,
+            'nip' => $akun->pegawai?->nip ?? $akun->staffSarana?->nip,
             'nis_nip' => $akun->nis_nip,
             'role' => $akun->role,
             'role_label' => $akun->role_label,
@@ -241,8 +242,6 @@ class AccountController extends Controller
             Pegawai::where('id_akun', $akun->id_akun)->update(['id_akun' => null]);
             StaffSarana::where('id_akun', $akun->id_akun)->delete();
 
-            $akun->nis = $identity['nis'];
-            $akun->nip = $identity['nip'];
             $akun->nama = $request->nama;
             $akun->nomor_kontak = $request->nomor_kontak;
             $akun->email = $request->email;

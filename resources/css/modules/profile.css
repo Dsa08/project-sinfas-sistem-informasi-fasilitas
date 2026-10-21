@@ -2,14 +2,11 @@
    SINFAS - User Profile Page Styles
    ============================================ */
 
-/* --- Navbar Title (center) --- */
-.navbar-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+/* --- Navbar Title --- */
+.navbar-page-title {
     font-family: var(--sinfas-font);
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.05rem;
+    font-weight: 700;
     color: var(--sinfas-text);
     white-space: nowrap;
 }
@@ -20,6 +17,13 @@
     justify-content: center;
     padding: 2rem 1rem;
     width: 100%;
+}
+
+.profile-wrapper {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* --- Profile Card --- */
