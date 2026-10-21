@@ -18,7 +18,9 @@
         <header class="landing-header">
             <div class="landing-container landing-header-inner">
                 <a class="landing-brand" href="{{ route('home') }}" aria-label="SINFAS Beranda">
-                    <img src="{{ asset('assets/logo-sinfas.png') }}" alt="SINFAS Logo" class="landing-brand-logo">
+                    <img src="{{ asset('assets/pictures/logo_smkn11.png') }}" alt="Logo SMKN 11 Bandung" class="landing-brand-logo landing-brand-logo--school">
+                    <span class="landing-brand-divider" aria-hidden="true"></span>
+                    <img src="{{ asset('assets/logo-sinfas.png') }}" alt="Logo SINFAS" class="landing-brand-logo">
                     <div class="landing-brand-meta">
                         <span class="landing-brand-name">SINFAS</span>
                         <span class="landing-brand-sub">SMKN 11 BANDUNG</span>

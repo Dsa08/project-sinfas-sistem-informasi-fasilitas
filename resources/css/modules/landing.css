@@ -99,6 +99,17 @@
     object-fit: contain;
 }
 
+.landing-brand-logo--school {
+    height: 40px;
+}
+
+.landing-brand-divider {
+    width: 1px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.28);
+    margin: 0 0.15rem;
+}
+
 .landing-brand-name {
     font-family: var(--sinfas-font-brand, 'Poppins', sans-serif);
     font-size: 1.25rem;
@@ -838,7 +849,15 @@
     }
 
     .landing-brand-logo {
+        height: 30px;
+    }
+
+    .landing-brand-logo--school {
         height: 32px;
+    }
+
+    .landing-brand-divider {
+        height: 20px;
     }
 
     .landing-brand-name {
