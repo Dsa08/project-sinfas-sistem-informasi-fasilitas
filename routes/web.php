@@ -181,6 +181,7 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
 
         // --- Laporan operasional sarana dan prasarana ---
         Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports');
+        Route::post('/admin/reports/notify-overdue/{kode}', [ReportController::class, 'notifyOverdue'])->name('admin.reports.notify-overdue');
     });
 
     /*

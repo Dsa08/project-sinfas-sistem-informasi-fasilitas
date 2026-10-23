@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Peminjaman;
+use App\Services\NotifikasiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -171,16 +172,6 @@ class ReportController extends Controller
                 $kelasOrJabatan = $kelas ?: ($jabatan ?: ($isSiswa ? 'Siswa' : 'Pegawai'));
 
                 $kontak = $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: ($loan->akun?->pegawai?->no_hp ?: ''));
-                $cleanPhone = preg_replace('/[^0-9]/', '', $kontak);
-                if (str_starts_with($cleanPhone, '0')) {
-                    $cleanPhone = '62' . substr($cleanPhone, 1);
-                }
-
-                $waMessage = "Halo {$loan->peminjam_nama}, kami dari Petugas Sarana Prasarana SINFAS mengingatkan bahwa peminjaman " .
-                    ($loan->barang->nama_barang ?? 'alat') . " (Kode Pinjam: {$loan->kode_pinjam}) telah melewati batas waktu pengembalian (" .
-                    $dueDate->format('d-m-Y') . ") dan terlambat {$lateDays} hari. Mohon untuk segera mengembalikan fisik alat ke ruang sarpras. Terima kasih.";
-
-                $waUrl = $cleanPhone ? "https://wa.me/{$cleanPhone}?text=" . rawurlencode($waMessage) : null;
 
                 return [
                     'kode_pinjam' => $loan->kode_pinjam,
@@ -192,7 +183,6 @@ class ReportController extends Controller
                     'jabatan' => $jabatan,
                     'kelas_or_jabatan' => $kelasOrJabatan,
                     'kontak' => $kontak ?: '-',
-                    'wa_url' => $waUrl,
                     'barang' => $loan->barang->nama_barang ?? '-',
                     'kategori' => $loan->barang->kategori->nama_kategori ?? '-',
                     'tanggal_pinjam' => Carbon::parse($loan->tanggal_pinjam)->format('d-m-Y'),
@@ -207,7 +197,7 @@ class ReportController extends Controller
             // Grouping peminjam: urutkan data agar peminjam yang sama berkumpul bersama
             $lateLoans = $lateLoans->sortBy(fn ($item) => strtolower($item['nama_peminjam']))->values();
 
-            $columns = ['Kode Pinjam', 'NIS / NIP', 'Nama Peminjam', 'Kelas / Jabatan', 'Kontak (WA)', 'Alat', 'Tanggal Pinjam', 'Batas Kembali', 'Tanggal Kembali', 'Status', 'Terlambat (Hari)', 'Aksi'];
+            $columns = ['Kode Pinjam', 'NIS / NIP', 'Nama Peminjam', 'Kelas / Jabatan', 'Kontak', 'Alat', 'Tanggal Pinjam', 'Batas Kembali', 'Tanggal Kembali', 'Status', 'Terlambat (Hari)', 'Aksi'];
             $rows = $lateLoans->map(function ($item) {
                 return [
                     $item['kode_pinjam'],
@@ -221,7 +211,7 @@ class ReportController extends Controller
                     $item['tanggal_kembali'],
                     $item['status'],
                     $item['late_days'] . ' hari',
-                    $item['wa_url'] ? 'Hubungi WA' : '-',
+                    $item['is_returned'] ? '-' : 'Ingatkan In-App',
                 ];
             });
 
@@ -307,5 +297,48 @@ class ReportController extends Controller
             'chartLabels' => $chartLabels,
             'chartDatasets' => $chartDatasets,
         ]);
+    }
+
+    /**
+     * Mengirimkan notifikasi in-app pengingat keterlambatan kepada peminjam sarana.
+     *
+     * @param  string  $kode  Kode transaksi peminjaman
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function notifyOverdue(string $kode, Request $request)
+    {
+        $peminjaman = Peminjaman::with(['akun', 'barang', 'pengembalian'])
+            ->where('kode_pinjam', $kode)
+            ->firstOrFail();
+
+        if ($peminjaman->pengembalian && $peminjaman->pengembalian->tanggal_kembali) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Barang ini sudah dikembalikan.',
+                ], 422);
+            }
+
+            return back()->with('error', 'Barang ini sudah dikembalikan.');
+        }
+
+        $dueDate = Carbon::parse($peminjaman->tanggal_pinjam)->addDays(self::LOAN_DAYS);
+        $lateDays = max(0, (int) $dueDate->diffInDays(Carbon::today(), false));
+
+        // Kirim notifikasi in-app ke akun peminjam
+        NotifikasiService::peringatanBatasWaktu($peminjaman, $lateDays);
+
+        $borrowerName = $peminjaman->peminjam_nama;
+        $message = "Notifikasi pengingat in-app berhasil dikirim ke akun {$borrowerName}.";
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
     }
 }

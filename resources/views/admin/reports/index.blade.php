@@ -167,13 +167,19 @@
                                         </span>
                                     </td>
                                     <td class="report-col-action" style="white-space: nowrap; text-align: center;">
-                                        @if($item['wa_url'])
-                                            <a href="{{ $item['wa_url'] }}" target="_blank" rel="noopener noreferrer" class="report-wa-action-btn" title="Kirim pesan WhatsApp pengingat keterlambatan">
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.59c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.24-.75-.67-1.26-1.49-1.41-1.74-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.79 2.73 4.34 3.83.61.26 1.08.42 1.45.54.61.19 1.17.17 1.61.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3z"/>
+                                        @if(!$item['is_returned'])
+                                            <button type="button" 
+                                                    class="report-notif-action-btn" 
+                                                    data-kode="{{ $item['kode_pinjam'] }}" 
+                                                    data-nama="{{ $item['nama_peminjam'] }}" 
+                                                    onclick="sendOverdueNotification(this)"
+                                                    title="Kirim notifikasi in-app pengingat ke akun {{ $item['nama_peminjam'] }}">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                                                 </svg>
-                                                <span>Hubungi WA</span>
-                                            </a>
+                                                <span>Ingatkan</span>
+                                            </button>
                                         @else
                                             <span style="color: #94a3b8; font-size: 0.8rem;">—</span>
                                         @endif
@@ -308,8 +314,11 @@
     .late-days-badge--caution { background: #fef9c3; color: #854d0e; }
     .late-days-badge--warning { background: #ffedd5; color: #9a3412; }
     .late-days-badge--danger { background: #fee2e2; color: #b91c1c; }
-    .report-wa-action-btn { display: inline-flex; align-items: center; gap: 0.35rem; background: #25d366; color: #ffffff !important; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.76rem; font-weight: 700; text-decoration: none; transition: background 0.15s ease, transform 0.15s ease; white-space: nowrap; }
-    .report-wa-action-btn:hover { background: #1eb857; color: #ffffff !important; transform: translateY(-1px); }
+    .report-notif-action-btn { display: inline-flex; align-items: center; gap: 0.35rem; background: #eff6ff; color: #1d4ed8 !important; border: 1px solid #bfdbfe; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+    .report-notif-action-btn:hover:not(:disabled) { background: #1d4ed8; color: #ffffff !important; border-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 2px 6px rgba(29, 78, 216, 0.2); }
+    .report-notif-action-btn--sent, .report-notif-action-btn:disabled { background: #f0fdf4 !important; color: #166534 !important; border-color: #bbf7d0 !important; cursor: default !important; transform: none !important; box-shadow: none !important; }
+    .report-spinner { animation: report-spin 0.8s linear infinite; }
+    @keyframes report-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .report-row--unreturned { background-color: #fffdfd !important; }
     .report-print-header, .report-document-heading, .report-signatures, .report-document-footer { display: none; }
     @media (max-width: 900px) { .sarana-report-container { padding: 1rem; } .report-filter-card { align-items: stretch; } .report-button--show { flex: 1 1 100%; } .report-date-inputs input { min-width: 0; } }
@@ -334,7 +343,7 @@
         .report-table-card { margin: 0; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
         .report-table-heading, .report-print-meta { display: none !important; }
         .report-sort-indicator { display: none !important; }
-        .report-col-action, .report-wa-action-btn { display: none !important; }
+        .report-col-action, .report-notif-action-btn { display: none !important; }
         .report-table-heading h3 { font-size: 10px; }
         .report-table-heading p { font-size: 8px; }
         .report-table-wrap { overflow: visible; }
@@ -478,5 +487,59 @@
             });
         }
     });
+
+    window.sendOverdueNotification = function(button) {
+        if (button.disabled) return;
+        const kode = button.dataset.kode;
+        const nama = button.dataset.nama;
+
+        button.disabled = true;
+        const originalHtml = button.innerHTML;
+        button.innerHTML = `
+            <svg class="report-spinner" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25"></circle>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-linecap="round"></path>
+            </svg>
+            <span>Mengirim...</span>
+        `;
+
+        fetch(`{{ url('/admin/reports/notify-overdue') }}/${encodeURIComponent(kode)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                button.classList.add('report-notif-action-btn--sent');
+                button.innerHTML = `
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Terkirim</span>
+                `;
+                if (typeof window.showAdminSaranaToast === 'function') {
+                    window.showAdminSaranaToast('success', 'Notifikasi Terkirim', data.message || `Notifikasi in-app berhasil dikirim ke ${nama}.`);
+                }
+            } else {
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+                if (typeof window.showAdminSaranaToast === 'function') {
+                    window.showAdminSaranaToast('error', 'Gagal Mengirim', data.message || 'Gagal mengirim notifikasi.');
+                }
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            button.disabled = false;
+            button.innerHTML = originalHtml;
+            if (typeof window.showAdminSaranaToast === 'function') {
+                window.showAdminSaranaToast('error', 'Kesalahan Jaringan', 'Tidak dapat mengirim notifikasi saat ini.');
+            }
+        });
+    };
 </script>
 @endsection
