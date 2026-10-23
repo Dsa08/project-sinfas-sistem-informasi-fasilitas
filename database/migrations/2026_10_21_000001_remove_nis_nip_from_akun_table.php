@@ -9,7 +9,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Menghapus kolom nis dan nip dari tabel akun sesuai arsitektur ERD 2,
+     * Menghapus kolom nis dan nip dari tabel akun sesuai arsitektur normalisasi basis data,
      * sehingga relasi siswa, pegawai, dan staff_sarana terhubung sepenuhnya
      * melalui id_akun pada tabel masing-masing profil tanpa meninggalkan
      * kolom bernilai null (ghost data) pada tabel akun.

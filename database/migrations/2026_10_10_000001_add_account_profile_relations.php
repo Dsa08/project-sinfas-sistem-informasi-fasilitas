@@ -7,9 +7,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Menambahkan relasi akun terpusat ke profil Siswa, Pegawai, dan Staff Sarana,
+     * serta memperbarui struktur tabel peminjaman dan audit trail penyetujuan.
+     */
     public function up(): void
     {
-        // ERD2 is additive here: keep legacy identifiers so older records and code remain readable.
+        // Sesuaikan role akun agar mencakup seluruh hak akses pengguna sistem
         DB::statement("ALTER TABLE akun MODIFY role ENUM('siswa', 'pegawai', 'admin_sarana', 'admin_sistem') NOT NULL");
 
         if (! Schema::hasColumn('siswa', 'id_akun')) {
@@ -50,14 +54,14 @@ return new class extends Migration
             });
         }
 
-        // Keep the ERD2 ID as an alias of the established transaction code during transition.
+        // Sinkronisasi id_peminjaman dengan kode_pinjam pada data transaksi peminjaman
         DB::statement('UPDATE peminjaman SET id_peminjaman = kode_pinjam WHERE id_peminjaman IS NULL');
         DB::statement('ALTER TABLE peminjaman MODIFY id_peminjaman VARCHAR(30) NOT NULL');
         DB::statement('ALTER TABLE peminjaman MODIFY nis VARCHAR(20) NULL');
 
-        if (! $this->foreignKeyExists('pengembalian', 'pengembalian_peminjaman_erd2_fk')) {
+        if (! $this->foreignKeyExists('pengembalian', 'pengembalian_peminjaman_fk') && ! $this->foreignKeyExists('pengembalian', 'pengembalian_peminjaman_erd2_fk')) {
             Schema::table('pengembalian', function (Blueprint $table) {
-                $table->foreign('kode_pinjam', 'pengembalian_peminjaman_erd2_fk')
+                $table->foreign('kode_pinjam', 'pengembalian_peminjaman_fk')
                     ->references('id_peminjaman')->on('peminjaman');
             });
         }
@@ -105,8 +109,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        // This migration copies and links live records; a blind rollback could orphan that data.
-        throw new RuntimeException('ERD2 account migration is intentionally irreversible because it can contain new user and approval data. Restore a verified backup to roll it back.');
+        throw new RuntimeException('Migrasi relasi akun profil bersifat permanen karena menghubungkan data akun dan transaksi peminjaman aktif.');
     }
 
     private function foreignKeyExists(string $table, string $constraint): bool
