@@ -352,7 +352,7 @@
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Tahun Pembelian <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
-                    <input type="number" name="tahun_pembelian" id="input_tahun_pembelian" placeholder="2024" min="1901" max="{{ date('Y') + 1 }}" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                    <input type="number" name="tahun_pembelian" id="input_tahun_pembelian" placeholder="2024" min="1901" max="{{ date('Y') + 1 }}" step="1" inputmode="numeric" pattern="[0-9]*" onkeydown="if(['.', ',', 'e', 'E', '-', '+'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
 
@@ -360,15 +360,15 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah Baik <span style="color: #ef4444;">*</span></label>
-                    <input type="number" name="jumlah_baik" id="input_jumlah_baik" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                    <input type="number" name="jumlah_baik" id="input_jumlah_baik" value="0" min="0" step="1" inputmode="numeric" pattern="[0-9]*" required onkeydown="if(['.', ',', 'e', 'E', '-', '+'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah K. Baik <span style="color: #ef4444;">*</span></label>
-                    <input type="number" name="jumlah_kurang_baik" id="input_jumlah_kurang_baik" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                    <input type="number" name="jumlah_kurang_baik" id="input_jumlah_kurang_baik" value="0" min="0" step="1" inputmode="numeric" pattern="[0-9]*" required onkeydown="if(['.', ',', 'e', 'E', '-', '+'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah R. Berat <span style="color: #ef4444;">*</span></label>
-                    <input type="number" name="jumlah_rusak_berat" id="input_jumlah_rusak_berat" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
+                    <input type="number" name="jumlah_rusak_berat" id="input_jumlah_rusak_berat" value="0" min="0" step="1" inputmode="numeric" pattern="[0-9]*" required onkeydown="if(['.', ',', 'e', 'E', '-', '+'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
 

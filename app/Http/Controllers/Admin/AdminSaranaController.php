@@ -293,11 +293,24 @@ class AdminSaranaController extends Controller
             'nama_barang.required' => 'Nama barang wajib diisi.',
             'foto.image' => 'File harus berupa gambar.',
             'foto.max' => 'Ukuran gambar maksimal 2MB.',
+            'tahun_pembelian.integer' => 'Tahun pembelian harus berupa bilangan bulat asli (contoh: 2024).',
             'tahun_pembelian.min' => 'Tahun pembelian minimal 1901.',
             'tahun_pembelian.max' => 'Tahun pembelian tidak boleh melebihi tahun depan.',
+            'jumlah_baik.required' => 'Jumlah baik wajib diisi.',
+            'jumlah_baik.integer' => 'Jumlah baik harus berupa angka bulat asli (bukan desimal).',
+            'jumlah_baik.min' => 'Jumlah baik minimal bernilai 0.',
+            'jumlah_kurang_baik.required' => 'Jumlah kurang baik wajib diisi.',
+            'jumlah_kurang_baik.integer' => 'Jumlah kurang baik harus berupa angka bulat asli (bukan desimal).',
+            'jumlah_kurang_baik.min' => 'Jumlah kurang baik minimal bernilai 0.',
+            'jumlah_rusak_berat.required' => 'Jumlah rusak berat wajib diisi.',
+            'jumlah_rusak_berat.integer' => 'Jumlah rusak berat harus berupa angka bulat asli (bukan desimal).',
+            'jumlah_rusak_berat.min' => 'Jumlah rusak berat minimal bernilai 0.',
         ]);
 
         $data = $request->except(['foto']);
+        $data['jumlah_baik'] = (int) $data['jumlah_baik'];
+        $data['jumlah_kurang_baik'] = (int) $data['jumlah_kurang_baik'];
+        $data['jumlah_rusak_berat'] = (int) $data['jumlah_rusak_berat'];
         // Pastikan nilai tahun_pembelian yang kosong diubah menjadi NULL, bukan integer 0 atau string kosong
         $data['tahun_pembelian'] = ! empty($data['tahun_pembelian']) ? (int) $data['tahun_pembelian'] : null;
 
@@ -384,11 +397,24 @@ class AdminSaranaController extends Controller
             'nama_barang.required' => 'Nama barang wajib diisi.',
             'foto.image' => 'File harus berupa gambar.',
             'foto.max' => 'Ukuran gambar maksimal 2MB.',
+            'tahun_pembelian.integer' => 'Tahun pembelian harus berupa bilangan bulat asli (contoh: 2024).',
             'tahun_pembelian.min' => 'Tahun pembelian minimal 1901.',
             'tahun_pembelian.max' => 'Tahun pembelian tidak boleh melebihi tahun depan.',
+            'jumlah_baik.required' => 'Jumlah baik wajib diisi.',
+            'jumlah_baik.integer' => 'Jumlah baik harus berupa angka bulat asli (bukan desimal).',
+            'jumlah_baik.min' => 'Jumlah baik minimal bernilai 0.',
+            'jumlah_kurang_baik.required' => 'Jumlah kurang baik wajib diisi.',
+            'jumlah_kurang_baik.integer' => 'Jumlah kurang baik harus berupa angka bulat asli (bukan desimal).',
+            'jumlah_kurang_baik.min' => 'Jumlah kurang baik minimal bernilai 0.',
+            'jumlah_rusak_berat.required' => 'Jumlah rusak berat wajib diisi.',
+            'jumlah_rusak_berat.integer' => 'Jumlah rusak berat harus berupa angka bulat asli (bukan desimal).',
+            'jumlah_rusak_berat.min' => 'Jumlah rusak berat minimal bernilai 0.',
         ]);
 
         $data = $request->except(['kode_barang', 'foto']);
+        $data['jumlah_baik'] = (int) $data['jumlah_baik'];
+        $data['jumlah_kurang_baik'] = (int) $data['jumlah_kurang_baik'];
+        $data['jumlah_rusak_berat'] = (int) $data['jumlah_rusak_berat'];
         // Pastikan nilai tahun_pembelian yang kosong diubah menjadi NULL, bukan integer 0 atau string kosong
         $data['tahun_pembelian'] = ! empty($data['tahun_pembelian']) ? (int) $data['tahun_pembelian'] : null;
 

@@ -275,7 +275,7 @@
             <div class="account-form-row">
                 <div class="account-form-col">
                     <label class="account-form-label" for="add-nis-nip">NIS/NIP</label>
-                    <input type="text" id="add-nis-nip" name="nis_nip" class="account-form-input" placeholder="Masukkan NIS atau NIP" required value="{{ old('nis_nip') }}">
+                    <input type="text" id="add-nis-nip" name="nis_nip" class="account-form-input" placeholder="Masukkan NIS atau NIP" inputmode="numeric" pattern="[0-9]*" onkeydown="if(['.', ',', 'e', 'E', '-', '+'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required value="{{ old('nis_nip') }}">
                 </div>
                 <div class="account-form-col">
                     <label class="account-form-label" for="add-role">Peran</label>
@@ -290,7 +290,7 @@
 
             <div class="account-form-group">
                 <label class="account-form-label" for="add-kontak">Nomor Kontak</label>
-                <input type="text" id="add-kontak" name="nomor_kontak" class="account-form-input" placeholder="Contoh: 08123456789" value="{{ old('nomor_kontak') }}">
+                <input type="text" id="add-kontak" name="nomor_kontak" class="account-form-input" placeholder="Contoh: 08123456789" inputmode="tel" onkeydown="if(['.', ',', 'e', 'E'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" value="{{ old('nomor_kontak') }}">
             </div>
 
             <div class="account-form-group">
@@ -363,7 +363,7 @@
             <div class="account-form-row">
                 <div class="account-form-col">
                     <label class="account-form-label" for="edit-nis-nip">NIS/NIP</label>
-                    <input type="text" id="edit-nis-nip" name="nis_nip" class="account-form-input" placeholder="Masukkan NIS atau NIP" required>
+                    <input type="text" id="edit-nis-nip" name="nis_nip" class="account-form-input" placeholder="Masukkan NIS atau NIP" inputmode="numeric" pattern="[0-9]*" onkeydown="if(['.', ',', 'e', 'E', '-', '+'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                 </div>
                 <div class="account-form-col">
                     <label class="account-form-label" for="edit-role">Peran</label>
@@ -378,7 +378,7 @@
 
             <div class="account-form-group">
                 <label class="account-form-label" for="edit-kontak">Nomor Kontak</label>
-                <input type="text" id="edit-kontak" name="nomor_kontak" class="account-form-input" placeholder="Contoh: 08123456789">
+                <input type="text" id="edit-kontak" name="nomor_kontak" class="account-form-input" placeholder="Contoh: 08123456789" inputmode="tel" onkeydown="if(['.', ',', 'e', 'E'].includes(event.key)) event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
             </div>
 
             <div class="account-form-group">
