@@ -68,7 +68,7 @@
     left: 0;
     justify-content: flex-start;
     padding-left: 12px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.75) 45%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.98) 0%, rgba(239, 246, 255, 0.85) 45%, rgba(255, 255, 255, 0) 100%);
     transform: translateX(-12px);
 }
 
@@ -76,7 +76,7 @@
     right: 0;
     justify-content: flex-end;
     padding-right: 12px;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.75) 45%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.98) 0%, rgba(239, 246, 255, 0.85) 45%, rgba(255, 255, 255, 0) 100%);
     transform: translateX(12px);
 }
 
@@ -86,22 +86,22 @@
     transform: translateX(0);
 }
 
-/* Tombol Melayang Ber-aura Frosted Glass (Sesuai Referensi Gambar) */
+/* Tombol Melayang Ber-aura Frosted Glass (Tema Biru SINFAS) */
 .table-aura-btn {
     pointer-events: auto;
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(249, 115, 22, 0.45);
-    box-shadow: 0 4px 18px rgba(249, 115, 22, 0.32), 0 2px 8px rgba(15, 23, 42, 0.08);
+    border: 1.5px solid rgba(37, 99, 235, 0.45);
+    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.32), 0 2px 8px rgba(15, 23, 42, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #ea580c; /* Panah chevron oranye cerah */
+    color: #1d4ed8; /* Panah chevron biru cerah SINFAS */
     padding: 0;
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
@@ -109,13 +109,13 @@
     outline: none;
 }
 
-/* Efek Aura Gelombang Berdenyut Lembut */
+/* Efek Aura Gelombang Berdenyut Lembut Biru */
 .table-aura-btn::before {
     content: '';
     position: absolute;
     inset: -5px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(249, 115, 22, 0.4) 0%, rgba(249, 115, 22, 0) 70%);
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.38) 0%, rgba(37, 99, 235, 0) 70%);
     z-index: -1;
     animation: tableAuraPulse 2.2s infinite ease-in-out;
 }
@@ -134,14 +134,14 @@
 .table-aura-btn:hover {
     transform: scale(1.14);
     background: #ffffff;
-    border-color: #ea580c;
-    color: #c2410c;
-    box-shadow: 0 6px 24px rgba(249, 115, 22, 0.5), 0 0 16px rgba(249, 115, 22, 0.4);
+    border-color: #2563eb;
+    color: #1e40af;
+    box-shadow: 0 6px 24px rgba(37, 99, 235, 0.5), 0 0 16px rgba(59, 130, 246, 0.45);
 }
 
 .table-aura-btn:active {
     transform: scale(0.92);
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .table-aura-btn svg {

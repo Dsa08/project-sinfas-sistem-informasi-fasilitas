@@ -105,7 +105,7 @@
                     <h4 class="active-loan-title">{{ $activeLoan->barang->nama_barang ?? 'Alat' }}</h4>
                     <p class="active-loan-desc">
                         @if($isPendingConfirmation)
-                            Pengembalian diajukan pada <strong>{{ $activeLoan->pengembalian->tanggal_kembali ? \Carbon\Carbon::parse($activeLoan->pengembalian->tanggal_kembali)->format('d M Y') : now()->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
+                            Pengembalian dikonfirmasi pada <strong>{{ $activeLoan->pengembalian->tanggal_kembali ? \Carbon\Carbon::parse($activeLoan->pengembalian->tanggal_kembali)->format('d M Y') : now()->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
                         @else
                             Dipinjam sejak <strong>{{ $tglPinjam->format('d M Y') }}</strong> &bull; Kode Pinjam: <code>{{ $activeLoan->kode_pinjam }}</code>
                         @endif

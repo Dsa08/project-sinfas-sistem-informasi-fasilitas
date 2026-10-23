@@ -64,7 +64,7 @@
         {{-- Right Column: Return Form Card --}}
         <div class="loan-form-column">
             <div class="loan-form-card">
-                <h3 class="loan-form-title">Formulir Pengembalian Barang</h3>
+                <h3 class="loan-form-title">Formulir Konfirmasi Pengembalian Barang</h3>
 
                 @if($errors->any())
                     <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.82rem;">
@@ -131,12 +131,12 @@
 
                     {{-- Submit Button --}}
                     <button type="submit" id="btnSubmitReturn" class="loan-btn-submit" style="margin-top: 0.75rem;">
-                        Ajukan Pengembalian
+                        Konfirmasi Pengembalian
                     </button>
 
                     <p class="loan-form-note">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 0.2rem;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                        Setelah diajukan, Admin Sarana akan memeriksa kondisi fisik barang dan melakukan konfirmasi penerimaan.
+                        Setelah dikonfirmasi, Admin Sarana akan memeriksa kondisi fisik barang dan melakukan verifikasi penerimaan.
                     </p>
                 </form>
             </div>
@@ -246,7 +246,7 @@
     document.getElementById('loanReturnForm')?.addEventListener('submit', async function(e) {
         if (this.dataset.appConfirmed !== 'true') {
             e.preventDefault();
-            const confirmed = await window.showAppConfirm('Apakah Anda yakin ingin mengajukan pengembalian untuk alat "{{ addslashes($loan->barang->nama_barang ?? 'Barang') }}"?', {title: 'Ajukan Pengembalian', confirmText: 'Ajukan'});
+            const confirmed = await window.showAppConfirm('Apakah Anda yakin ingin mengonfirmasi pengembalian untuk alat "{{ addslashes($loan->barang->nama_barang ?? 'Barang') }}"?', {title: 'Konfirmasi Pengembalian', confirmText: 'Konfirmasi'});
             if (!confirmed) return;
             this.dataset.appConfirmed = 'true';
             this.requestSubmit();
@@ -256,7 +256,7 @@
         const btn = document.getElementById('btnSubmitReturn');
         if (btn) {
             btn.disabled = true;
-            btn.innerText = 'Mengirim Pengembalian...';
+            btn.innerText = 'Mengonfirmasi Pengembalian...';
             btn.style.opacity = '0.75';
             btn.style.cursor = 'not-allowed';
         }

@@ -79,7 +79,7 @@
                                 <span class="loan-status-detail-icon" aria-hidden="true">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                                 </span>
-                                <span>Pengembalian diajukan pada {{ $loan->pengembalian->tanggal_kembali->format('d M Y') }} (Menunggu verifikasi admin)</span>
+                                <span>Pengembalian dikonfirmasi pada {{ $loan->pengembalian->tanggal_kembali->format('d M Y') }} (Menunggu verifikasi admin)</span>
                             </p>
                         @else
                             <p class="loan-status-meta loan-status-detail" style="color: #059669; font-size: 0.78rem; margin-top: 0.2rem; font-weight: 500;">

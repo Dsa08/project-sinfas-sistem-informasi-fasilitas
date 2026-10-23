@@ -33,6 +33,28 @@ class WebpImageOptimizer
         return $file->storeAs($directory, $prefix . '_' . Str::uuid() . '.' . $this->originalImageExtension($file), $disk);
     }
 
+    /**
+     * Store an uploaded image directly at a filesystem directory path, converting to WebP if possible.
+     */
+    public function storeAt(UploadedFile $file, string $destinationPath, string $prefix = 'image'): string
+    {
+        if (!is_dir($destinationPath)) {
+            @mkdir($destinationPath, 0755, true);
+        }
+
+        $filename = $prefix . '_' . time() . '_' . Str::random(8) . '.webp';
+        $destination = rtrim($destinationPath, '/\\') . DIRECTORY_SEPARATOR . $filename;
+
+        if ($this->convert($file, $destination)) {
+            return $filename;
+        }
+
+        $fallbackName = $prefix . '_' . time() . '_' . Str::random(8) . '.' . $this->originalImageExtension($file);
+        $file->move($destinationPath, $fallbackName);
+
+        return $fallbackName;
+    }
+
     private function convert(UploadedFile $file, string $destination): bool
     {
         if (!function_exists('imagewebp') || !function_exists('imagecreatefromstring')) {

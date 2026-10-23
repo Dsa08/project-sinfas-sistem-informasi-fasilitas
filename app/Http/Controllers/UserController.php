@@ -368,23 +368,22 @@ class UserController extends Controller
             'bukti_foto_video.mimes'   => 'Format bukti harus berupa JPG, PNG, WEBP, atau MP4.',
         ]);
 
-        // 3. Simpan bukti langsung ke document root public_html agar dapat diakses browser.
+        // 3. Simpan bukti foto/video serah terima pengembalian
         $buktiPath = null;
         if ($request->hasFile('bukti_foto_video')) {
             $file = $request->file('bukti_foto_video');
-            $destinationPath = base_path('../public_html/uploads/returns');
+            $ext = strtolower($file->getClientOriginalExtension());
 
-            if (strtolower($file->getClientOriginalExtension()) === 'mp4') {
-                if (!is_dir($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
-                $fileName = 'return_' . time() . '_' . Str::random(8) . '.mp4';
-                $file->move($destinationPath, $fileName);
+            if ($ext === 'mp4') {
+                $filename = 'return_' . time() . '_' . Str::random(8) . '.mp4';
+                $buktiPath = app(\App\Services\PublicUploadStorage::class)
+                    ->storeFile($file, 'returns', $filename);
             } else {
-                $fileName = app(\App\Services\WebpImageOptimizer::class)
-                    ->storeAt($file, $destinationPath, 'return');
+                $stored = app(\App\Services\WebpImageOptimizer::class)
+                    ->storeOnDisk($file, 'returns', 'public_uploads', 'return');
+                $filename = basename($stored);
+                $buktiPath = 'uploads/returns/' . $filename;
             }
-            $buktiPath = 'uploads/returns/' . $fileName;
         }
 
         // 4. Generate kode kembali unik (contoh: 'KMB-2026-001')
@@ -411,6 +410,6 @@ class UserController extends Controller
         }
 
         return redirect()->route('loan.status')
-            ->with('success', 'Pengajuan pengembalian barang berhasil dikirim! Menunggu verifikasi admin sarana.');
+            ->with('success', 'Konfirmasi pengembalian barang berhasil dikirim! Menunggu verifikasi admin sarana.');
     }
 }
