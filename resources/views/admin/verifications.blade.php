@@ -24,10 +24,9 @@
     .loan-overdue-label { display:block; margin-top:.2rem; color:#b91c1c; font-size:.75rem; font-weight:700; }
     .btn-active-loan-detail { border:1px solid #bfdbfe; border-radius:7px; padding:.4rem .7rem; background:#eff6ff; color:#1d4ed8; font-weight:600; cursor:pointer; }
     .btn-active-loan-detail:hover { background:#dbeafe; }
-    .active-loan-detail-list { display:grid; gap:.7rem; margin:0 0 1.4rem; }
-    .active-loan-detail-list div { display:grid; grid-template-columns: minmax(110px, .7fr) 1fr; gap:.75rem; padding-bottom:.55rem; border-bottom:1px solid #e2e8f0; }
-    .active-loan-detail-list dt { color:#64748b; font-size:.85rem; }
-    .active-loan-detail-list dd { margin:0; color:#0f172a; font-size:.9rem; font-weight:600; overflow-wrap:anywhere; }
+    .btn-borrower-name-link { background:none; border:none; padding:0; margin:0; font-weight:600; font-size:inherit; color:#0f172a; cursor:pointer; text-align:left; transition:color 0.15s ease; }
+    .btn-borrower-name-link:hover { color:#1e40af; text-decoration:underline; }
+    .verification-modal-overlay.active .account-modal-card { transform:scale(1); }
     @media (max-width: 768px) { .sarana-tab-bar { flex-wrap:wrap; } .sarana-tab-btn { flex:1 1 11rem; } }
 </style>
 <div class="sarana-verifications-container">
@@ -67,16 +66,44 @@
                 </thead>
                 <tbody>
                     @forelse($pendingRequests as $req)
+                        @php
+                            $studentClassFallback = [
+                                '10223001' => 'XII RPL 1',
+                                '10223002' => 'XII TKJ 2',
+                                '10223003' => 'XI RPL 2',
+                                '10223004' => 'XI DKV 1',
+                            ];
+                            $reqNisNip = $req->akun?->nis_nip ?? $req->nis ?? '-';
+                            $reqKelas = $req->akun?->siswa?->kelas ?? $req->siswa?->kelas;
+                            if (!$reqKelas && isset($studentClassFallback[$reqNisNip])) {
+                                $reqKelas = $studentClassFallback[$reqNisNip];
+                            }
+                            $reqJabatan = $req->akun?->pegawai?->jabatan;
+                            $reqClassOrRole = $reqKelas ?: ($reqJabatan ?: '-');
+                        @endphp
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingRequests->currentPage() - 1) * $pendingRequests->perPage() }}</td>
                         <td class="td-name">
-                            <div style="font-weight: 600;">{{ $req->peminjam_nama }}</div>
+                            <button type="button" class="btn-borrower-name-link"
+                                onclick="openActiveLoanDetail({
+                                    name: @js($req->peminjam_nama),
+                                    id: @js($reqNisNip),
+                                    role: @js($req->akun?->role_label ?? $req->peminjam_status),
+                                    classOrRole: @js($reqClassOrRole),
+                                    contact: @js($req->akun?->nomor_kontak ?: ($req->siswa?->no_hp ?: '-')),
+                                    username: @js($req->akun?->username ?: '-'),
+                                    email: @js($req->akun?->email ?: '-'),
+                                    photo: @js($req->akun?->foto_url),
+                                    item: @js($req->barang->nama_barang ?? '-'),
+                                    date: @js($req->tanggal_pinjam->format('d M Y')),
+                                    duration: 'Menunggu Persetujuan',
+                                    purpose: @js($req->keterangan_penggunaan ?: '-'),
+                                    location: @js($req->lokasi_penggunaan ?: '-')
+                                })" title="Klik untuk lihat detail akun">
+                                {{ $req->peminjam_nama }}
+                            </button>
                             <div style="display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-top: .15rem;">
-                                <small style="color: #64748b; font-size: 0.78rem;">{{ $req->akun?->nis_nip ?? $req->nis ?? '-' }}</small>
-                                @php
-                                    $reqKelas = $req->akun?->siswa?->kelas ?? $req->siswa?->kelas;
-                                    $reqJabatan = $req->akun?->pegawai?->jabatan;
-                                @endphp
+                                <small style="color: #64748b; font-size: 0.78rem;">{{ $reqNisNip }}</small>
                                 @if($reqKelas)
                                     <span class="borrower-sub-badge borrower-sub-badge--class">{{ $reqKelas }}</span>
                                 @elseif($reqJabatan)
@@ -181,16 +208,45 @@
                 </thead>
                 <tbody>
                     @forelse($pendingReturns as $ret)
+                        @php
+                            $studentClassFallback = [
+                                '10223001' => 'XII RPL 1',
+                                '10223002' => 'XII TKJ 2',
+                                '10223003' => 'XI RPL 2',
+                                '10223004' => 'XI DKV 1',
+                            ];
+                            $retBorrowerName = $ret->akun?->nama ?? $ret->peminjam_nama;
+                            $retNisNip = $ret->akun?->nis_nip ?? $ret->nis ?? '-';
+                            $retKelas = $ret->akun?->siswa?->kelas ?? $ret->siswa?->kelas;
+                            if (!$retKelas && isset($studentClassFallback[$retNisNip])) {
+                                $retKelas = $studentClassFallback[$retNisNip];
+                            }
+                            $retJabatan = $ret->akun?->pegawai?->jabatan;
+                            $retClassOrRole = $retKelas ?: ($retJabatan ?: '-');
+                        @endphp
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingReturns->currentPage() - 1) * $pendingReturns->perPage() }}</td>
                         <td class="td-name">
-                            <div style="font-weight: 600;">{{ $ret->peminjam_nama }}</div>
+                            <button type="button" class="btn-borrower-name-link"
+                                onclick="openActiveLoanDetail({
+                                    name: @js($retBorrowerName),
+                                    id: @js($retNisNip),
+                                    role: @js($ret->akun?->role_label ?? $ret->peminjam_status),
+                                    classOrRole: @js($retClassOrRole),
+                                    contact: @js($ret->akun?->nomor_kontak ?: ($ret->siswa?->no_hp ?: '-')),
+                                    username: @js($ret->akun?->username ?: '-'),
+                                    email: @js($ret->akun?->email ?: '-'),
+                                    photo: @js($ret->akun?->foto_url),
+                                    item: @js($ret->barang->nama_barang ?? '-'),
+                                    date: @js($ret->tanggal_pinjam ? $ret->tanggal_pinjam->format('d M Y') : '-'),
+                                    duration: 'Menunggu Konfirmasi Kembali',
+                                    purpose: @js($ret->keterangan_penggunaan ?: '-'),
+                                    location: @js($ret->lokasi_penggunaan ?: '-')
+                                })" title="Klik untuk lihat detail akun">
+                                {{ $retBorrowerName }}
+                            </button>
                             <div style="display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-top: .15rem;">
-                                <small style="color: #64748b; font-size: 0.78rem;">{{ $ret->akun?->nis_nip ?? $ret->nis ?? '-' }}</small>
-                                @php
-                                    $retKelas = $ret->akun?->siswa?->kelas ?? $ret->siswa?->kelas;
-                                    $retJabatan = $ret->akun?->pegawai?->jabatan;
-                                @endphp
+                                <small style="color: #64748b; font-size: 0.78rem;">{{ $retNisNip }}</small>
                                 @if($retKelas)
                                     <span class="borrower-sub-badge borrower-sub-badge--class">{{ $retKelas }}</span>
                                 @elseif($retJabatan)
@@ -324,16 +380,53 @@
                                 : 0;
                             $lateDays = max(0, $daysBorrowed - 3);
                             $borrowerName = $loan->akun?->nama ?? $loan->peminjam_nama;
+                            $studentClassFallback = [
+                                '10223001' => 'XII RPL 1',
+                                '10223002' => 'XII TKJ 2',
+                                '10223003' => 'XI RPL 2',
+                                '10223004' => 'XI DKV 1',
+                            ];
+                            $loanNisNip = $loan->akun?->nis_nip ?? $loan->nis ?? '-';
                             $loanKelas = $loan->akun?->siswa?->kelas ?? $loan->siswa?->kelas;
+                            if (!$loanKelas && isset($studentClassFallback[$loanNisNip])) {
+                                $loanKelas = $studentClassFallback[$loanNisNip];
+                            }
                             $loanJabatan = $loan->akun?->pegawai?->jabatan;
                             $loanClassOrRole = $loanKelas ?: ($loanJabatan ?: '-');
+                            $loanRole = $loan->akun?->role_label ?? $loan->peminjam_status;
+                            $loanContact = $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: '-');
+                            $loanUsername = $loan->akun?->username ?: '-';
+                            $loanEmail = $loan->akun?->email ?: '-';
+                            $loanPhoto = $loan->akun?->foto_url;
+                            $loanItem = $loan->barang->nama_barang ?? 'Alat tidak ditemukan';
+                            $loanDate = $loan->tanggal_pinjam?->format('d M Y') ?? '-';
+                            $loanDuration = $daysBorrowed . ' hari' . ($lateDays > 0 ? ' (Terlambat ' . $lateDays . ' hari)' : '');
+                            $loanPurpose = $loan->keterangan_penggunaan ?: '-';
+                            $loanLocation = $loan->lokasi_penggunaan ?: '-';
                         @endphp
                         <tr>
                             <td class="td-number">{{ $loop->iteration + ($activeLoans->currentPage() - 1) * $activeLoans->perPage() }}</td>
                             <td class="td-name">
-                                <div style="font-weight: 600;">{{ $borrowerName }}</div>
+                                <button type="button" class="btn-borrower-name-link"
+                                    onclick="openActiveLoanDetail({
+                                        name: @js($borrowerName),
+                                        id: @js($loanNisNip),
+                                        role: @js($loanRole),
+                                        classOrRole: @js($loanClassOrRole),
+                                        contact: @js($loanContact),
+                                        username: @js($loanUsername),
+                                        email: @js($loanEmail),
+                                        photo: @js($loanPhoto),
+                                        item: @js($loanItem),
+                                        date: @js($loanDate),
+                                        duration: @js($loanDuration),
+                                        purpose: @js($loanPurpose),
+                                        location: @js($loanLocation)
+                                    })" title="Klik untuk lihat detail akun">
+                                    {{ $borrowerName }}
+                                </button>
                                 <div style="display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-top: .15rem;">
-                                    <small style="color: #64748b; font-size: 0.78rem;">{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</small>
+                                    <small style="color: #64748b; font-size: 0.78rem;">{{ $loanNisNip }}</small>
                                     @if($loanKelas)
                                         <span class="borrower-sub-badge borrower-sub-badge--class">{{ $loanKelas }}</span>
                                     @elseif($loanJabatan)
@@ -342,9 +435,9 @@
                                 </div>
                             </td>
                             <td><span class="borrower-type-badge {{ strtolower($loan->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $loan->peminjam_status }}</span></td>
-                            <td>{{ $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: '-') }}</td>
-                            <td>{{ $loan->barang->nama_barang ?? 'Alat tidak ditemukan' }}</td>
-                            <td class="td-date">{{ $loan->tanggal_pinjam?->format('d M Y') ?? '-' }}</td>
+                            <td>{{ $loanContact }}</td>
+                            <td>{{ $loanItem }}</td>
+                            <td class="td-date">{{ $loanDate }}</td>
                             <td>
                                 <strong>{{ $daysBorrowed }} hari</strong>
                                 @if($lateDays > 0)
@@ -354,7 +447,21 @@
                             <td><span class="borrower-type-badge borrower-type-badge--active">Masih dipinjam</span></td>
                             <td>
                                 <button type="button" class="btn-active-loan-detail"
-                                    onclick="openActiveLoanDetail(@js($borrowerName), @js($loan->akun?->nis_nip ?? $loan->nis ?? '-'), @js($loanClassOrRole), @js($loan->barang->nama_barang ?? 'Alat tidak ditemukan'), @js($loan->tanggal_pinjam?->format('d M Y') ?? '-'), @js($loan->keterangan_penggunaan ?: '-'), @js($loan->lokasi_penggunaan ?: '-'))">
+                                    onclick="openActiveLoanDetail({
+                                        name: @js($borrowerName),
+                                        id: @js($loanNisNip),
+                                        role: @js($loanRole),
+                                        classOrRole: @js($loanClassOrRole),
+                                        contact: @js($loanContact),
+                                        username: @js($loanUsername),
+                                        email: @js($loanEmail),
+                                        photo: @js($loanPhoto),
+                                        item: @js($loanItem),
+                                        date: @js($loanDate),
+                                        duration: @js($loanDuration),
+                                        purpose: @js($loanPurpose),
+                                        location: @js($loanLocation)
+                                    })">
                                     Lihat Detail
                                 </button>
                             </td>
@@ -397,19 +504,81 @@
 </div>
 
 <div class="verification-modal-overlay" id="active-loan-detail-modal" style="display:none;">
-    <div class="verification-modal-card">
-        <h3 class="verification-modal-title">Detail Peminjaman Aktif</h3>
-        <dl class="active-loan-detail-list">
-            <div><dt>Peminjam</dt><dd id="active-detail-name"></dd></div>
-            <div><dt>NIS/NIP</dt><dd id="active-detail-id"></dd></div>
-            <div><dt>Kelas / Jabatan</dt><dd id="active-detail-class"></dd></div>
-            <div><dt>Barang</dt><dd id="active-detail-item"></dd></div>
-            <div><dt>Waktu peminjaman</dt><dd id="active-detail-date"></dd></div>
-            <div><dt>Keperluan</dt><dd id="active-detail-purpose"></dd></div>
-            <div><dt>Lokasi</dt><dd id="active-detail-location"></dd></div>
-        </dl>
-        <div class="verification-modal-actions">
-            <button type="button" class="verification-btn-cancel" onclick="closeActiveLoanDetail()">Tutup</button>
+    <div class="account-modal-card" style="width: 480px; max-width: 94vw; max-height: 90vh;">
+        <div class="account-modal-body" style="padding: 1.75rem 1.85rem 1.5rem; overflow-y: auto;">
+            <h3 class="account-modal-title">Detail Akun</h3>
+            <div class="account-modal-divider"></div>
+
+            {{-- Avatar Box (Foto Profil di Atas Sesuai Admin Sistem) --}}
+            <div class="detail-avatar-container" style="margin: 0.5rem 0;">
+                <div class="detail-avatar-box">
+                    <img src="" id="active-detail-avatar" alt="Foto Profil" style="display: none;">
+                    <div id="active-detail-avatar-placeholder" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                        <svg class="w-16 h-16" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Form Readonly: Data Identitas Akun --}}
+            <div class="account-form-group">
+                <label class="account-form-label">Nama</label>
+                <input type="text" id="active-detail-name-input" class="account-form-input account-form-input--readonly" readonly>
+            </div>
+
+            <div class="account-form-row">
+                <div class="account-form-col">
+                    <label class="account-form-label">NIS/NIP</label>
+                    <input type="text" id="active-detail-id-input" class="account-form-input account-form-input--readonly" readonly>
+                </div>
+                <div class="account-form-col">
+                    <label class="account-form-label">Peran</label>
+                    <input type="text" id="active-detail-role-input" class="account-form-input account-form-input--readonly" readonly>
+                </div>
+            </div>
+
+            <div class="account-form-row">
+                <div class="account-form-col">
+                    <label class="account-form-label">Kelas / Jabatan</label>
+                    <input type="text" id="active-detail-class-input" class="account-form-input account-form-input--readonly" readonly>
+                </div>
+                <div class="account-form-col">
+                    <label class="account-form-label">Nomor Kontak</label>
+                    <input type="text" id="active-detail-contact-input" class="account-form-input account-form-input--readonly" readonly>
+                </div>
+            </div>
+
+            <div class="account-form-row">
+                <div class="account-form-col">
+                    <label class="account-form-label">Username</label>
+                    <input type="text" id="active-detail-username-input" class="account-form-input account-form-input--readonly" readonly>
+                </div>
+                <div class="account-form-col">
+                    <label class="account-form-label">Email</label>
+                    <input type="text" id="active-detail-email-input" class="account-form-input account-form-input--readonly" readonly>
+                </div>
+            </div>
+
+            <div class="account-modal-divider"></div>
+
+            {{-- Section Peminjaman Terkait --}}
+            <section class="account-loan-history" id="active-detail-loan-section">
+                <h4 style="margin: 0 0 0.5rem; color: #1e293b; font-size: 0.9rem; font-weight: 700;">Informasi Peminjaman Sarana</h4>
+                <div class="account-loan-history-item" style="border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 0.75rem 0.9rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap;">
+                        <strong id="active-detail-item-text" style="color: #0f172a; font-size: 0.88rem;">-</strong>
+                        <span id="active-detail-duration-badge" class="borrower-type-badge borrower-type-badge--active" style="font-size: 0.72rem;">-</span>
+                    </div>
+                    <p id="active-detail-date-text" style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.78rem;">-</p>
+                    <p id="active-detail-meta-text" style="margin: 0.25rem 0 0; color: #64748b; font-size: 0.78rem;">-</p>
+                </div>
+            </section>
+
+            <div class="account-modal-footer" style="margin-top: 0.5rem; display: flex; justify-content: flex-end;">
+                <button type="button" class="btn-modal-exit" onclick="closeActiveLoanDetail()">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
@@ -677,17 +846,67 @@
         setTimeout(() => overlay.style.display = 'none', 200);
     }
 
-    function openActiveLoanDetail(name, identity, classOrRole, item, date, purpose, location) {
-        const values = {
-            'active-detail-name': name,
-            'active-detail-id': identity,
-            'active-detail-class': classOrRole,
-            'active-detail-item': item,
-            'active-detail-date': date,
-            'active-detail-purpose': purpose,
-            'active-detail-location': location,
-        };
-        Object.entries(values).forEach(([id, value]) => { document.getElementById(id).textContent = value || '-'; });
+    function openActiveLoanDetail(firstArg, identity, classOrRole, item, date, purpose, location, photoUrl) {
+        let d = {};
+        if (typeof firstArg === 'object' && firstArg !== null) {
+            d = firstArg;
+        } else {
+            d = {
+                name: firstArg,
+                id: identity,
+                classOrRole: classOrRole,
+                item: item,
+                date: date,
+                purpose: purpose,
+                location: location,
+                photo: photoUrl || '',
+                role: 'Siswa',
+                contact: '-',
+                username: '-',
+                email: '-',
+                duration: 'Sedang dipinjam'
+            };
+        }
+
+        const avatar = document.getElementById('active-detail-avatar');
+        const avatarPlaceholder = document.getElementById('active-detail-avatar-placeholder');
+        if (d.photo) {
+            avatar.src = d.photo;
+            avatar.style.display = 'block';
+            avatarPlaceholder.style.display = 'none';
+        } else {
+            avatar.src = '';
+            avatar.style.display = 'none';
+            avatarPlaceholder.style.display = 'flex';
+        }
+
+        document.getElementById('active-detail-name-input').value = d.name || '-';
+        document.getElementById('active-detail-id-input').value = d.id || '-';
+        document.getElementById('active-detail-role-input').value = d.role || '-';
+        document.getElementById('active-detail-class-input').value = d.classOrRole || '-';
+        document.getElementById('active-detail-contact-input').value = d.contact || '-';
+        document.getElementById('active-detail-username-input').value = d.username || '-';
+        document.getElementById('active-detail-email-input').value = d.email || '-';
+
+        const loanSection = document.getElementById('active-detail-loan-section');
+        if (d.item && d.item !== '-') {
+            loanSection.style.display = 'block';
+            document.getElementById('active-detail-item-text').textContent = d.item;
+            document.getElementById('active-detail-date-text').textContent = 'Waktu Pinjam: ' + (d.date || '-');
+            document.getElementById('active-detail-meta-text').textContent = 'Lokasi: ' + (d.location || '-') + ' · Keperluan: ' + (d.purpose || '-');
+            const badge = document.getElementById('active-detail-duration-badge');
+            badge.textContent = d.duration || 'Aktif';
+            if ((d.duration || '').toLowerCase().includes('terlambat')) {
+                badge.style.color = '#b91c1c';
+                badge.style.background = '#fef2f2';
+            } else {
+                badge.style.color = '#047857';
+                badge.style.background = '#ecfdf5';
+            }
+        } else {
+            loanSection.style.display = 'none';
+        }
+
         const overlay = document.getElementById('active-loan-detail-modal');
         overlay.style.display = 'flex';
         requestAnimationFrame(() => overlay.classList.add('active'));
