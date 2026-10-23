@@ -318,23 +318,45 @@ Route::get('/build/{any}', function ($any) {
 | tanpa menghapus data barang maupun foto yang sudah ada.
 */
 Route::get('/hosting-migrate', function () {
+    $isFresh = request()->query('fresh') === 'yes';
+
     try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        if ($isFresh) {
+            \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
+                '--seed' => true,
+                '--force' => true,
+            ]);
+        } else {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        }
+
         $output = \Illuminate\Support\Facades\Artisan::output();
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 
+        $statusTitle = $isFresh 
+            ? '✅ Database Baru Berhasil Dibuat & Di-seed!' 
+            : '✅ Migrasi Database Berhasil!';
+        $statusDesc = $isFresh
+            ? 'Seluruh tabel lama telah dibersihkan dan dibuat ulang sesuai ERD 2 lengkap dengan akun demo (admin, adminsistem, ahmad, dll.).'
+            : 'Struktur database telah diperbarui ke ERD 2.';
+
         return "<div style='font-family:sans-serif;padding:2.5rem;max-width:750px;margin:3rem auto;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;box-shadow:0 10px 25px -5px rgba(0,0,0,0.05);'>
-            <h2 style='margin-top:0;font-size:1.6rem;'>✅ Migrasi Database Berhasil!</h2>
-            <p style='font-size:1rem;color:#15803d;margin-bottom:1.5rem;'>Struktur database telah diperbarui ke ERD 2. Seluruh data barang, foto, dan kategori <strong>tetap aman dan tidak terhapus</strong>.</p>
-            <div style='background:#0f172a;color:#38bdf8;padding:1.2rem;border-radius:10px;font-family:monospace;font-size:0.88rem;overflow-x:auto;white-space:pre-wrap;'>" . htmlspecialchars($output ?: 'Semua tabel dan migrasi sudah dalam kondisi terbaru.') . "</div>
-            <div style='margin-top:1.8rem;'>
+            <h2 style='margin-top:0;font-size:1.6rem;'>{$statusTitle}</h2>
+            <p style='font-size:1rem;color:#15803d;margin-bottom:1.5rem;'>{$statusDesc}</p>
+            <div style='background:#0f172a;color:#38bdf8;padding:1.2rem;border-radius:10px;font-family:monospace;font-size:0.88rem;overflow-x:auto;white-space:pre-wrap;'>" . htmlspecialchars($output ?: 'Berhasil dijalankan.') . "</div>
+            <div style='margin-top:1.8rem;display:flex;gap:1rem;'>
                 <a href='/login' style='display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:0.95rem;'>Menuju Halaman Login &rarr;</a>
             </div>
         </div>";
     } catch (\Throwable $e) {
+        $freshLink = url('/hosting-migrate?fresh=yes');
         return "<div style='font-family:sans-serif;padding:2.5rem;max-width:750px;margin:3rem auto;border-radius:16px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;box-shadow:0 10px 25px -5px rgba(0,0,0,0.05);'>
             <h2 style='margin-top:0;'>❌ Migrasi Gagal:</h2>
-            <p style='font-size:0.95rem;background:#fee2e2;padding:1rem;border-radius:8px;'>" . htmlspecialchars($e->getMessage()) . "</p>
+            <p style='font-size:0.95rem;background:#fee2e2;padding:1rem;border-radius:8px;line-height:1.5;'>" . htmlspecialchars($e->getMessage()) . "</p>
+            <div style='margin-top:1.5rem;'>
+                <p style='font-size:0.9rem;color:#7f1d1d;'>Jika struktur tabel lama Anda sudah sangat berbeda dan ingin ditimpa total dari nol:</p>
+                <a href='{$freshLink}' style='display:inline-block;padding:0.65rem 1.25rem;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:0.9rem;'>Reset & Buat Database Baru dari Nol (migrate:fresh --seed) &rarr;</a>
+            </div>
         </div>";
     }
 });
