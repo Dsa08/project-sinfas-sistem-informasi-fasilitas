@@ -123,7 +123,7 @@
                         <tr>
                             <th class="report-number-cell">No.</th>
                             @foreach($columns as $column)
-                                <th>
+                                <th class="{{ $column === 'Aksi' ? 'report-col-action' : '' }}">
                                     <button class="report-sort-button" type="button" data-sort-index="{{ $loop->index + 1 }}" data-sort-state="none" aria-label="Urutkan {{ $column }}" aria-sort="none">
                                         <span>{{ $column }}</span>
                                         <span class="report-sort-indicator" aria-hidden="true"></span>
@@ -133,29 +133,93 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($rows as $row)
-                            <tr>
-                                <td class="report-number-cell">{{ $loop->iteration }}</td>
-                                @foreach($row as $cell)
-                                    <td>{{ $cell === '' || $cell === null ? '—' : $cell }}</td>
-                                @endforeach
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="report-empty-cell" colspan="{{ count($columns) + 1 }}" style="padding: 2.5rem 1rem; text-align: center;">
-                                    <div class="system-table-empty-state" style="padding: 1rem;">
-                                        <div class="system-empty-icon-box">
-                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="11" cy="11" r="8"></circle>
-                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                            </svg>
+                        @if($type === 'late-returns' && isset($lateLoans))
+                            @forelse($lateLoans as $item)
+                                <tr class="{{ !$item['is_returned'] ? 'report-row--unreturned' : '' }}">
+                                    <td class="report-number-cell">{{ $loop->iteration }}</td>
+                                    <td><code style="font-size: 0.82rem; color: #1e3a8a; font-weight: 700;">{{ $item['kode_pinjam'] }}</code></td>
+                                    <td style="white-space: nowrap;">{{ $item['nis_nip'] }}</td>
+                                    <td>
+                                        <div style="font-weight: 600; color: #1e293b;">{{ $item['nama_peminjam'] }}</div>
+                                        <small style="color: #64748b; font-size: 0.76rem;">{{ $item['role_label'] }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="late-report-badge {{ $item['is_siswa'] ? 'late-report-badge--class' : 'late-report-badge--role' }}">
+                                            {{ $item['kelas_or_jabatan'] }}
+                                        </span>
+                                    </td>
+                                    <td style="white-space: nowrap;">{{ $item['kontak'] }}</td>
+                                    <td>
+                                        <div style="font-weight: 600; color: #1e293b;">{{ $item['barang'] }}</div>
+                                        <small style="color: #64748b; font-size: 0.76rem;">{{ $item['kategori'] }}</small>
+                                    </td>
+                                    <td style="white-space: nowrap;">{{ $item['tanggal_pinjam'] }}</td>
+                                    <td style="white-space: nowrap;">{{ $item['batas_kembali'] }}</td>
+                                    <td style="white-space: nowrap;">{{ $item['tanggal_kembali'] }}</td>
+                                    <td>
+                                        <span class="late-status-pill {{ $item['is_returned'] ? 'late-status-pill--returned' : 'late-status-pill--pending' }}">
+                                            {{ $item['status'] }}
+                                        </span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span class="late-days-badge {{ $item['late_days'] > 7 ? 'late-days-badge--danger' : ($item['late_days'] >= 4 ? 'late-days-badge--warning' : 'late-days-badge--caution') }}">
+                                            {{ $item['late_days'] }} hari
+                                        </span>
+                                    </td>
+                                    <td class="report-col-action" style="white-space: nowrap; text-align: center;">
+                                        @if($item['wa_url'])
+                                            <a href="{{ $item['wa_url'] }}" target="_blank" rel="noopener noreferrer" class="report-wa-action-btn" title="Kirim pesan WhatsApp pengingat keterlambatan">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.59c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.24-.75-.67-1.26-1.49-1.41-1.74-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.79 2.73 4.34 3.83.61.26 1.08.42 1.45.54.61.19 1.17.17 1.61.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3z"/>
+                                                </svg>
+                                                <span>Hubungi WA</span>
+                                            </a>
+                                        @else
+                                            <span style="color: #94a3b8; font-size: 0.8rem;">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="report-empty-cell" colspan="{{ count($columns) + 1 }}" style="padding: 2.5rem 1rem; text-align: center;">
+                                        <div class="system-table-empty-state" style="padding: 1rem;">
+                                            <div class="system-empty-icon-box">
+                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="11" cy="11" r="8"></circle>
+                                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                                </svg>
+                                            </div>
+                                            <div class="system-empty-title">Tidak ada data ditemukan</div>
+                                            <div class="system-empty-desc">Tidak ada data peminjaman yang melampaui batas waktu pada periode ini.</div>
                                         </div>
-                                        <div class="system-empty-title">Tidak ada data ditemukan</div>
-                                        <div class="system-empty-desc">Tidak ada data yang cocok dengan filter laporan ini.</div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @else
+                            @forelse($rows as $row)
+                                <tr>
+                                    <td class="report-number-cell">{{ $loop->iteration }}</td>
+                                    @foreach($row as $cell)
+                                        <td>{{ $cell === '' || $cell === null ? '—' : $cell }}</td>
+                                    @endforeach
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="report-empty-cell" colspan="{{ count($columns) + 1 }}" style="padding: 2.5rem 1rem; text-align: center;">
+                                        <div class="system-table-empty-state" style="padding: 1rem;">
+                                            <div class="system-empty-icon-box">
+                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="11" cy="11" r="8"></circle>
+                                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                                </svg>
+                                            </div>
+                                            <div class="system-empty-title">Tidak ada data ditemukan</div>
+                                            <div class="system-empty-desc">Tidak ada data yang cocok dengan filter laporan ini.</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @endif
                     </tbody>
                     @if($type === 'stock-summary')
                         <tfoot>
@@ -234,6 +298,19 @@
     .report-table tbody tr:hover { background: #eff6ff; }
     .report-number-cell { width: 1%; text-align: center !important; }
     .report-empty-cell { padding: 2rem !important; color: #64748b !important; text-align: center; }
+    .late-report-badge { display: inline-block; padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 4px; white-space: nowrap; }
+    .late-report-badge--class { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .late-report-badge--role { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .late-status-pill { display: inline-block; padding: 0.15rem 0.55rem; font-size: 0.72rem; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+    .late-status-pill--returned { background: #dcfce7; color: #166534; }
+    .late-status-pill--pending { background: #fee2e2; color: #991b1b; }
+    .late-days-badge { display: inline-block; padding: 0.15rem 0.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 4px; white-space: nowrap; }
+    .late-days-badge--caution { background: #fef9c3; color: #854d0e; }
+    .late-days-badge--warning { background: #ffedd5; color: #9a3412; }
+    .late-days-badge--danger { background: #fee2e2; color: #b91c1c; }
+    .report-wa-action-btn { display: inline-flex; align-items: center; gap: 0.35rem; background: #25d366; color: #ffffff !important; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.76rem; font-weight: 700; text-decoration: none; transition: background 0.15s ease, transform 0.15s ease; white-space: nowrap; }
+    .report-wa-action-btn:hover { background: #1eb857; color: #ffffff !important; transform: translateY(-1px); }
+    .report-row--unreturned { background-color: #fffdfd !important; }
     .report-print-header, .report-document-heading, .report-signatures, .report-document-footer { display: none; }
     @media (max-width: 900px) { .sarana-report-container { padding: 1rem; } .report-filter-card { align-items: stretch; } .report-button--show { flex: 1 1 100%; } .report-date-inputs input { min-width: 0; } }
     @media (max-width: 560px) { .report-screen-heading { align-items: flex-start; flex-direction: column; } .report-button--pdf { width: 100%; } .report-date-inputs { align-items: stretch; flex-direction: column; } .report-date-inputs span { display: none; } }
@@ -257,6 +334,7 @@
         .report-table-card { margin: 0; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
         .report-table-heading, .report-print-meta { display: none !important; }
         .report-sort-indicator { display: none !important; }
+        .report-col-action, .report-wa-action-btn { display: none !important; }
         .report-table-heading h3 { font-size: 10px; }
         .report-table-heading p { font-size: 8px; }
         .report-table-wrap { overflow: visible; }
@@ -309,6 +387,8 @@
 
             function sortValue(value) {
                 const trimmed = value.trim();
+                const daysMatch = trimmed.match(/^(\d+)\s*hari$/i);
+                if (daysMatch) return Number(daysMatch[1]);
                 const dateMatch = trimmed.match(/^(\d{2})-(\d{2})-(\d{4})$/);
                 if (dateMatch) return Date.UTC(Number(dateMatch[3]), Number(dateMatch[2]) - 1, Number(dateMatch[1]));
                 const isoDateMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);

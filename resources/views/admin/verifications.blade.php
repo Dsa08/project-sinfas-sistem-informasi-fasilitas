@@ -17,6 +17,9 @@
     .borrower-type-badge--student { color:#1d4ed8; background:#eff6ff; }
     .borrower-type-badge--pegawai { color:#7c3aed; background:#f5f3ff; }
     .borrower-type-badge--active { color:#047857; background:#ecfdf5; }
+    .borrower-sub-badge { display:inline-block; padding:.1rem .45rem; border-radius:4px; font-size:.72rem; font-weight:700; line-height:1.2; letter-spacing:.02em; }
+    .borrower-sub-badge--class { color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; }
+    .borrower-sub-badge--role { color:#047857; background:#ecfdf5; border:1px solid #a7f3d0; }
     .sarana-tab-count { display:inline-flex; min-width:1.25rem; height:1.25rem; margin-left:.35rem; padding:0 .25rem; align-items:center; justify-content:center; border-radius:999px; background:rgba(255,255,255,.7); font-size:.72rem; }
     .loan-overdue-label { display:block; margin-top:.2rem; color:#b91c1c; font-size:.75rem; font-weight:700; }
     .btn-active-loan-detail { border:1px solid #bfdbfe; border-radius:7px; padding:.4rem .7rem; background:#eff6ff; color:#1d4ed8; font-weight:600; cursor:pointer; }
@@ -67,8 +70,19 @@
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingRequests->currentPage() - 1) * $pendingRequests->perPage() }}</td>
                         <td class="td-name">
-                            <div>{{ $req->peminjam_nama }}</div>
-                            <small style="color: #64748b; font-size: 0.78rem;">{{ $req->akun?->nis_nip ?? $req->nis ?? '-' }}</small>
+                            <div style="font-weight: 600;">{{ $req->peminjam_nama }}</div>
+                            <div style="display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-top: .15rem;">
+                                <small style="color: #64748b; font-size: 0.78rem;">{{ $req->akun?->nis_nip ?? $req->nis ?? '-' }}</small>
+                                @php
+                                    $reqKelas = $req->akun?->siswa?->kelas ?? $req->siswa?->kelas;
+                                    $reqJabatan = $req->akun?->pegawai?->jabatan;
+                                @endphp
+                                @if($reqKelas)
+                                    <span class="borrower-sub-badge borrower-sub-badge--class">{{ $reqKelas }}</span>
+                                @elseif($reqJabatan)
+                                    <span class="borrower-sub-badge borrower-sub-badge--role">{{ $reqJabatan }}</span>
+                                @endif
+                            </div>
                         </td>
                         <td><span class="borrower-type-badge {{ strtolower($req->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $req->peminjam_status }}</span></td>
                         <td>{{ $req->akun?->nomor_kontak ?: ($req->siswa?->no_hp ?: '-') }}</td>
@@ -170,8 +184,19 @@
                     <tr>
                         <td class="td-number">{{ $loop->iteration + ($pendingReturns->currentPage() - 1) * $pendingReturns->perPage() }}</td>
                         <td class="td-name">
-                            <div>{{ $ret->peminjam_nama }}</div>
-                            <small style="color: #64748b; font-size: 0.78rem;">{{ $ret->akun?->nis_nip ?? $ret->nis ?? '-' }}</small>
+                            <div style="font-weight: 600;">{{ $ret->peminjam_nama }}</div>
+                            <div style="display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-top: .15rem;">
+                                <small style="color: #64748b; font-size: 0.78rem;">{{ $ret->akun?->nis_nip ?? $ret->nis ?? '-' }}</small>
+                                @php
+                                    $retKelas = $ret->akun?->siswa?->kelas ?? $ret->siswa?->kelas;
+                                    $retJabatan = $ret->akun?->pegawai?->jabatan;
+                                @endphp
+                                @if($retKelas)
+                                    <span class="borrower-sub-badge borrower-sub-badge--class">{{ $retKelas }}</span>
+                                @elseif($retJabatan)
+                                    <span class="borrower-sub-badge borrower-sub-badge--role">{{ $retJabatan }}</span>
+                                @endif
+                            </div>
                         </td>
                         <td><span class="borrower-type-badge {{ strtolower($ret->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $ret->peminjam_status }}</span></td>
                         <td>{{ $ret->akun?->nomor_kontak ?: ($ret->siswa?->no_hp ?: '-') }}</td>
@@ -299,12 +324,22 @@
                                 : 0;
                             $lateDays = max(0, $daysBorrowed - 3);
                             $borrowerName = $loan->akun?->nama ?? $loan->peminjam_nama;
+                            $loanKelas = $loan->akun?->siswa?->kelas ?? $loan->siswa?->kelas;
+                            $loanJabatan = $loan->akun?->pegawai?->jabatan;
+                            $loanClassOrRole = $loanKelas ?: ($loanJabatan ?: '-');
                         @endphp
                         <tr>
                             <td class="td-number">{{ $loop->iteration + ($activeLoans->currentPage() - 1) * $activeLoans->perPage() }}</td>
                             <td class="td-name">
-                                <div>{{ $borrowerName }}</div>
-                                <small style="color: #64748b; font-size: 0.78rem;">{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</small>
+                                <div style="font-weight: 600;">{{ $borrowerName }}</div>
+                                <div style="display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin-top: .15rem;">
+                                    <small style="color: #64748b; font-size: 0.78rem;">{{ $loan->akun?->nis_nip ?? $loan->nis ?? '-' }}</small>
+                                    @if($loanKelas)
+                                        <span class="borrower-sub-badge borrower-sub-badge--class">{{ $loanKelas }}</span>
+                                    @elseif($loanJabatan)
+                                        <span class="borrower-sub-badge borrower-sub-badge--role">{{ $loanJabatan }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td><span class="borrower-type-badge {{ strtolower($loan->peminjam_status) === 'pegawai' ? 'borrower-type-badge--pegawai' : 'borrower-type-badge--student' }}">{{ $loan->peminjam_status }}</span></td>
                             <td>{{ $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: '-') }}</td>
@@ -319,7 +354,7 @@
                             <td><span class="borrower-type-badge borrower-type-badge--active">Masih dipinjam</span></td>
                             <td>
                                 <button type="button" class="btn-active-loan-detail"
-                                    onclick="openActiveLoanDetail(@js($borrowerName), @js($loan->akun?->nis_nip ?? $loan->nis ?? '-'), @js($loan->barang->nama_barang ?? 'Alat tidak ditemukan'), @js($loan->tanggal_pinjam?->format('d M Y') ?? '-'), @js($loan->keterangan_penggunaan ?: '-'), @js($loan->lokasi_penggunaan ?: '-'))">
+                                    onclick="openActiveLoanDetail(@js($borrowerName), @js($loan->akun?->nis_nip ?? $loan->nis ?? '-'), @js($loanClassOrRole), @js($loan->barang->nama_barang ?? 'Alat tidak ditemukan'), @js($loan->tanggal_pinjam?->format('d M Y') ?? '-'), @js($loan->keterangan_penggunaan ?: '-'), @js($loan->lokasi_penggunaan ?: '-'))">
                                     Lihat Detail
                                 </button>
                             </td>
@@ -367,6 +402,7 @@
         <dl class="active-loan-detail-list">
             <div><dt>Peminjam</dt><dd id="active-detail-name"></dd></div>
             <div><dt>NIS/NIP</dt><dd id="active-detail-id"></dd></div>
+            <div><dt>Kelas / Jabatan</dt><dd id="active-detail-class"></dd></div>
             <div><dt>Barang</dt><dd id="active-detail-item"></dd></div>
             <div><dt>Waktu peminjaman</dt><dd id="active-detail-date"></dd></div>
             <div><dt>Keperluan</dt><dd id="active-detail-purpose"></dd></div>
@@ -641,10 +677,11 @@
         setTimeout(() => overlay.style.display = 'none', 200);
     }
 
-    function openActiveLoanDetail(name, identity, item, date, purpose, location) {
+    function openActiveLoanDetail(name, identity, classOrRole, item, date, purpose, location) {
         const values = {
             'active-detail-name': name,
             'active-detail-id': identity,
+            'active-detail-class': classOrRole,
             'active-detail-item': item,
             'active-detail-date': date,
             'active-detail-purpose': purpose,

@@ -147,7 +147,7 @@ class ReportController extends Controller
             $query = Peminjaman::query()
                 ->select('peminjaman.*')
                 ->leftJoin('pengembalian', 'peminjaman.kode_pinjam', '=', 'pengembalian.kode_pinjam')
-                ->with(['akun', 'siswa', 'barang.kategori', 'pengembalian'])
+                ->with(['akun.siswa', 'akun.pegawai', 'siswa', 'barang.kategori', 'pengembalian'])
                 ->where('peminjaman.status_pengajuan', 'disetujui')
                 ->whereBetween('peminjaman.tanggal_pinjam', [$startDate->toDateString(), $endDate->toDateString()])
                 ->whereRaw('DATEDIFF(COALESCE(pengembalian.tanggal_kembali, CURDATE()), DATE_ADD(peminjaman.tanggal_pinjam, INTERVAL ' . self::LOAN_DAYS . ' DAY)) > 0')
@@ -157,35 +157,92 @@ class ReportController extends Controller
                 ->orderBy('peminjaman.tanggal_pinjam');
 
             $loans = $query->get();
-            $columns = ['Kode Pinjam', 'NIS/NIP', 'Nama Peminjam', 'Alat', 'Tanggal Pinjam', 'Batas Kembali', 'Tanggal Kembali', 'Status', 'Terlambat (Hari)'];
-            $rows = $loans->map(function ($loan) {
+
+            $lateLoans = $loans->map(function ($loan) {
                 $dueDate = Carbon::parse($loan->tanggal_pinjam)->addDays(self::LOAN_DAYS);
                 $returnedDate = $loan->pengembalian?->tanggal_kembali
                     ? Carbon::parse($loan->pengembalian->tanggal_kembali)
                     : Carbon::today();
+                $lateDays = max(0, (int) $dueDate->diffInDays($returnedDate, false));
+
+                $isSiswa = $loan->akun?->isSiswa() || filled($loan->nis);
+                $kelas = $loan->akun?->siswa?->kelas ?? $loan->siswa?->kelas;
+                $jabatan = $loan->akun?->pegawai?->jabatan;
+                $kelasOrJabatan = $kelas ?: ($jabatan ?: ($isSiswa ? 'Siswa' : 'Pegawai'));
+
+                $kontak = $loan->akun?->nomor_kontak ?: ($loan->siswa?->no_hp ?: ($loan->akun?->pegawai?->no_hp ?: ''));
+                $cleanPhone = preg_replace('/[^0-9]/', '', $kontak);
+                if (str_starts_with($cleanPhone, '0')) {
+                    $cleanPhone = '62' . substr($cleanPhone, 1);
+                }
+
+                $waMessage = "Halo {$loan->peminjam_nama}, kami dari Petugas Sarana Prasarana SINFAS mengingatkan bahwa peminjaman " .
+                    ($loan->barang->nama_barang ?? 'alat') . " (Kode Pinjam: {$loan->kode_pinjam}) telah melewati batas waktu pengembalian (" .
+                    $dueDate->format('d-m-Y') . ") dan terlambat {$lateDays} hari. Mohon untuk segera mengembalikan fisik alat ke ruang sarpras. Terima kasih.";
+
+                $waUrl = $cleanPhone ? "https://wa.me/{$cleanPhone}?text=" . rawurlencode($waMessage) : null;
 
                 return [
-                    $loan->kode_pinjam,
-                    $loan->akun?->nis_nip ?? $loan->nis ?? '-',
-                    $loan->peminjam_nama,
-                    $loan->barang->nama_barang ?? '-',
-                    Carbon::parse($loan->tanggal_pinjam)->format('d-m-Y'),
-                    $dueDate->format('d-m-Y'),
-                    $loan->pengembalian?->tanggal_kembali ? $returnedDate->format('d-m-Y') : '-',
-                    $loan->pengembalian ? 'Sudah kembali' : 'Belum kembali',
-                    max(0, (int) $dueDate->diffInDays($returnedDate, false)),
+                    'kode_pinjam' => $loan->kode_pinjam,
+                    'nis_nip' => $loan->akun?->nis_nip ?? $loan->nis ?? '-',
+                    'nama_peminjam' => $loan->peminjam_nama,
+                    'role_label' => $loan->peminjam_status,
+                    'is_siswa' => $isSiswa,
+                    'kelas' => $kelas,
+                    'jabatan' => $jabatan,
+                    'kelas_or_jabatan' => $kelasOrJabatan,
+                    'kontak' => $kontak ?: '-',
+                    'wa_url' => $waUrl,
+                    'barang' => $loan->barang->nama_barang ?? '-',
+                    'kategori' => $loan->barang->kategori->nama_kategori ?? '-',
+                    'tanggal_pinjam' => Carbon::parse($loan->tanggal_pinjam)->format('d-m-Y'),
+                    'batas_kembali' => $dueDate->format('d-m-Y'),
+                    'tanggal_kembali' => $loan->pengembalian?->tanggal_kembali ? $returnedDate->format('d-m-Y') : '-',
+                    'status' => $loan->pengembalian ? 'Sudah kembali' : 'Belum kembali',
+                    'is_returned' => (bool) $loan->pengembalian,
+                    'late_days' => $lateDays,
                 ];
             });
-            $summary = ['Peminjaman terlambat' => $loans->count(), 'Total hari keterlambatan' => (int) $rows->sum(fn ($row) => $row[8])];
+
+            // Grouping peminjam: urutkan data agar peminjam yang sama berkumpul bersama
+            $lateLoans = $lateLoans->sortBy(fn ($item) => strtolower($item['nama_peminjam']))->values();
+
+            $columns = ['Kode Pinjam', 'NIS / NIP', 'Nama Peminjam', 'Kelas / Jabatan', 'Kontak (WA)', 'Alat', 'Tanggal Pinjam', 'Batas Kembali', 'Tanggal Kembali', 'Status', 'Terlambat (Hari)', 'Aksi'];
+            $rows = $lateLoans->map(function ($item) {
+                return [
+                    $item['kode_pinjam'],
+                    $item['nis_nip'],
+                    $item['nama_peminjam'],
+                    $item['kelas_or_jabatan'],
+                    $item['kontak'],
+                    $item['barang'],
+                    $item['tanggal_pinjam'],
+                    $item['batas_kembali'],
+                    $item['tanggal_kembali'],
+                    $item['status'],
+                    $item['late_days'] . ' hari',
+                    $item['wa_url'] ? 'Hubungi WA' : '-',
+                ];
+            });
+
+            $uniqueBorrowers = $lateLoans->pluck('nama_peminjam')->unique()->count();
+            $unreturnedCount = $lateLoans->where('is_returned', false)->count();
+            $summary = [
+                'Peminjam terlambat' => $uniqueBorrowers,
+                'Belum kembali' => $unreturnedCount,
+                'Total transaksi terlambat' => $lateLoans->count(),
+                'Total hari keterlambatan' => (int) $lateLoans->sum('late_days'),
+            ];
+
             $chartTitle = 'Kelompok Hari Keterlambatan';
             $chartDescription = 'Jumlah peminjaman berdasarkan lama keterlambatan pada data yang ditampilkan.';
             $chartLabels = ['1-3 hari', '4-7 hari', 'Lebih dari 7 hari'];
             $chartDatasets[] = [
                 'label' => 'Jumlah peminjaman',
                 'data' => [
-                    $rows->filter(fn ($row) => $row[8] >= 1 && $row[8] <= 3)->count(),
-                    $rows->filter(fn ($row) => $row[8] >= 4 && $row[8] <= 7)->count(),
-                    $rows->filter(fn ($row) => $row[8] > 7)->count(),
+                    $lateLoans->filter(fn ($item) => $item['late_days'] >= 1 && $item['late_days'] <= 3)->count(),
+                    $lateLoans->filter(fn ($item) => $item['late_days'] >= 4 && $item['late_days'] <= 7)->count(),
+                    $lateLoans->filter(fn ($item) => $item['late_days'] > 7)->count(),
                 ],
                 'backgroundColor' => ['#facc15', '#f97316', '#ef4444'],
                 'borderColor' => ['#ca8a04', '#c2410c', '#b91c1c'],
@@ -234,6 +291,7 @@ class ReportController extends Controller
             'title' => $title,
             'columns' => $columns,
             'rows' => $rows,
+            'lateLoans' => $lateLoans ?? null,
             'summary' => $summary,
             'categories' => Kategori::orderBy('nama_kategori')->get(),
             'categoryId' => $categoryId,

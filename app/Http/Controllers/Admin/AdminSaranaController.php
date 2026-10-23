@@ -608,7 +608,7 @@ class AdminSaranaController extends Controller
         // Tab 1: Pending Requests (status = menunggu)
         $reqSort = $request->input('req_sort');
         $reqDir = strtolower($request->input('req_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $reqQuery = Peminjaman::menunggu()->with(['siswa', 'barang', 'akun']);
+        $reqQuery = Peminjaman::menunggu()->with(['siswa', 'barang', 'akun.siswa', 'akun.pegawai']);
 
         if ($reqSort === 'siswa') {
             $reqQuery->leftJoin('akun', 'peminjaman.id_akun', '=', 'akun.id_akun')
@@ -645,7 +645,7 @@ class AdminSaranaController extends Controller
             ->whereHas('pengembalian', function ($q) {
                 $q->whereNull('kondisi_barang');
             })
-            ->with(['siswa', 'barang', 'pengembalian', 'akun']);
+            ->with(['siswa', 'barang', 'pengembalian', 'akun.siswa', 'akun.pegawai']);
 
         if ($retSort === 'siswa') {
             $retQuery->leftJoin('akun', 'peminjaman.id_akun', '=', 'akun.id_akun')
@@ -690,7 +690,7 @@ class AdminSaranaController extends Controller
         $activeDir = strtolower($request->input('active_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
         $activeQuery = Peminjaman::disetujui()
             ->whereDoesntHave('pengembalian')
-            ->with(['siswa', 'akun', 'barang']);
+            ->with(['siswa', 'akun.siswa', 'akun.pegawai', 'barang']);
 
         if ($activeSort === 'siswa') {
             $activeQuery->leftJoin('akun', 'peminjaman.id_akun', '=', 'akun.id_akun')
