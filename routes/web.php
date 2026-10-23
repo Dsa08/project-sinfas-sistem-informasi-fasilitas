@@ -309,3 +309,32 @@ Route::get('/build/{any}', function ($any) {
 
     abort(404);
 })->where('any', '.*');
+
+/*
+|--------------------------------------------------------------------------
+| Route Migrasi Web (Khusus Hosting Tanpa Akses Terminal / SSH)
+|--------------------------------------------------------------------------
+| Menjalankan migrasi database Laravel secara aman langsung via browser
+| tanpa menghapus data barang maupun foto yang sudah ada.
+*/
+Route::get('/hosting-migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+
+        return "<div style='font-family:sans-serif;padding:2.5rem;max-width:750px;margin:3rem auto;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;box-shadow:0 10px 25px -5px rgba(0,0,0,0.05);'>
+            <h2 style='margin-top:0;font-size:1.6rem;'>✅ Migrasi Database Berhasil!</h2>
+            <p style='font-size:1rem;color:#15803d;margin-bottom:1.5rem;'>Struktur database telah diperbarui ke ERD 2. Seluruh data barang, foto, dan kategori <strong>tetap aman dan tidak terhapus</strong>.</p>
+            <div style='background:#0f172a;color:#38bdf8;padding:1.2rem;border-radius:10px;font-family:monospace;font-size:0.88rem;overflow-x:auto;white-space:pre-wrap;'>" . htmlspecialchars($output ?: 'Semua tabel dan migrasi sudah dalam kondisi terbaru.') . "</div>
+            <div style='margin-top:1.8rem;'>
+                <a href='/login' style='display:inline-block;padding:0.75rem 1.5rem;background:#16a34a;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:0.95rem;'>Menuju Halaman Login &rarr;</a>
+            </div>
+        </div>";
+    } catch (\Throwable $e) {
+        return "<div style='font-family:sans-serif;padding:2.5rem;max-width:750px;margin:3rem auto;border-radius:16px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;box-shadow:0 10px 25px -5px rgba(0,0,0,0.05);'>
+            <h2 style='margin-top:0;'>❌ Migrasi Gagal:</h2>
+            <p style='font-size:0.95rem;background:#fee2e2;padding:1rem;border-radius:8px;'>" . htmlspecialchars($e->getMessage()) . "</p>
+        </div>";
+    }
+});
