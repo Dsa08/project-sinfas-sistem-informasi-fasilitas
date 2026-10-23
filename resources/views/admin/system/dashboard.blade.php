@@ -30,9 +30,9 @@
 
         {{-- Card 3: Backup Terakhir --}}
         <div class="system-stat-card">
-            <div class="system-stat-value">–</div>
+            <div class="system-stat-value" style="font-size: {{ $lastBackupAt !== '–' ? '1.35rem' : '2rem' }};">{{ $lastBackupAt }}</div>
             <div class="system-stat-label">Pencadangan Terakhir</div>
-            <div class="system-stat-subtext">Belum ada data cadangan</div>
+            <div class="system-stat-subtext">{{ $lastBackupSubtext }}</div>
         </div>
     </div>
 

@@ -145,6 +145,59 @@
         @csrf
     </form>
 
+    {{-- Modal Informasi Sistem & Bantuan --}}
+    <div class="modal-overlay" id="system-help-modal">
+        <div class="modal-card" style="max-width: 520px; text-align: left; padding: 1.75rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: #1d4ed8;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">Informasi &amp; Bantuan Sistem</h3>
+                </div>
+                <button type="button" id="system-help-close" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.84rem;">
+                    <span style="color: #64748b;">Aplikasi:</span>
+                    <strong style="color: #0f172a;">SINFAS (Sistem Informasi Fasilitas)</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.84rem;">
+                    <span style="color: #64748b;">Instansi:</span>
+                    <strong style="color: #0f172a;">SMK Negeri 11 Bandung</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.84rem;">
+                    <span style="color: #64748b;">Versi Sistem:</span>
+                    <span style="font-weight: 600; color: #166534; background: #dcfce7; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.78rem;">v1.2-stable</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.84rem;">
+                    <span style="color: #64748b;">Status Basis Data:</span>
+                    <span style="color: #166534; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #22c55e;"></span>
+                        MySQL Terhubung
+                    </span>
+                </div>
+            </div>
+
+            <div style="font-size: 0.84rem; color: #475569; line-height: 1.5; margin-bottom: 1.25rem;">
+                <strong style="display: block; color: #1e293b; margin-bottom: 0.35rem;">Kewenangan Administrator Sistem:</strong>
+                <ul style="margin: 0; padding-left: 1.2rem;">
+                    <li><strong>Kelola Akun:</strong> Menambah, mengubah hak akses, dan menonaktifkan pengguna.</li>
+                    <li><strong>Reset Sandi:</strong> Membuat sandi sementara saat pengguna lupa password.</li>
+                    <li><strong>Pencadangan Data:</strong> Mengunduh arsip database SQL dan memulihkan data saat dibutuhkan.</li>
+                    <li><strong>Jam Operasional:</strong> Mengatur batasan rentang waktu layanan fasilitas.</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" id="system-help-ok-btn" style="padding: 0.55rem 1.2rem; background: #1d4ed8; color: #fff; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const triggerBtn = document.getElementById('logout-trigger-btn');
@@ -174,6 +227,44 @@
                     if (e.target === modal) {
                         modal.classList.remove('modal-overlay--active');
                     }
+                });
+            }
+
+            // Topbar Notification Click Handler
+            const notifBtn = document.getElementById('system-notif-btn');
+            if (notifBtn) {
+                notifBtn.addEventListener('click', function () {
+                    if (window.showAppToast) {
+                        window.showAppToast('Layanan sistem, database, dan web server beroperasi normal tanpa peringatan.', {
+                            title: 'Status Sistem Normal',
+                            type: 'info'
+                        });
+                    } else {
+                        alert('Status Sistem Normal: Semua layanan beroperasi optimal.');
+                    }
+                });
+            }
+
+            // Topbar Help Modal Handler
+            const helpBtn = document.getElementById('system-help-btn');
+            const helpModal = document.getElementById('system-help-modal');
+            const helpCloseBtn = document.getElementById('system-help-close');
+            const helpOkBtn = document.getElementById('system-help-ok-btn');
+
+            if (helpBtn && helpModal) {
+                helpBtn.addEventListener('click', function () {
+                    helpModal.classList.add('modal-overlay--active');
+                });
+
+                const closeHelp = function () {
+                    helpModal.classList.remove('modal-overlay--active');
+                };
+
+                if (helpCloseBtn) helpCloseBtn.addEventListener('click', closeHelp);
+                if (helpOkBtn) helpOkBtn.addEventListener('click', closeHelp);
+
+                helpModal.addEventListener('click', function (e) {
+                    if (e.target === helpModal) closeHelp();
                 });
             }
         });

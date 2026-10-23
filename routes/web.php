@@ -194,6 +194,9 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
         Route::get('/dashboard', [AdminSistemController::class, 'dashboard'])->name('admin.sistem.dashboard');
         // Halaman pengaturan umum dan konfigurasi aplikasi
         Route::get('/settings', [AdminSistemController::class, 'settings'])->name('admin.sistem.settings');
+        Route::post('/settings/hours', [AdminSistemController::class, 'updateHours'])->name('admin.sistem.settings.hours');
+        Route::post('/settings/backup', [AdminSistemController::class, 'backup'])->name('admin.sistem.settings.backup');
+        Route::post('/settings/restore', [AdminSistemController::class, 'restore'])->name('admin.sistem.settings.restore');
 
         // --- Manajemen Master Akun Pengguna (CRUD Accounts) ---
         Route::get('/accounts', [AccountController::class, 'index'])->name('admin.sistem.accounts');
