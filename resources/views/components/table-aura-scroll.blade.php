@@ -37,16 +37,49 @@
     height: 0 !important;
 }
 
-/* Pastikan kolom tabel tidak gepeng di resolusi layar kecil */
-.system-table,
-.report-table {
-    min-width: 960px !important;
+/* Pastikan kolom tabel tidak gepeng di resolusi layar kecil (hanya saat tampil di layar) */
+@media screen {
+    .system-table,
+    .report-table {
+        min-width: 960px !important;
+    }
+
+    .system-table th:last-child,
+    .system-table td:last-child,
+    .system-table .td-actions {
+        white-space: nowrap !important;
+    }
 }
 
-.system-table th:last-child,
-.system-table td:last-child,
-.system-table .td-actions {
-    white-space: nowrap !important;
+/* Pastikan saat cetak PDF / Print, tombol aura dan scroll cue hilang total dan tabel fit ke kertas */
+@media print {
+    .table-aura-edge,
+    .table-aura-btn {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    .table-aura-card,
+    .system-table-card,
+    .report-table-card,
+    .report-table-wrap {
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+    }
+    .table-aura-viewport {
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        scroll-behavior: auto !important;
+    }
+    .system-table,
+    .report-table {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
 }
 
 /* Aura Glow Overlays di Ujung Kiri & Kanan */
@@ -164,7 +197,7 @@
 <script>
 (() => {
     function initTableAuraScroll() {
-        const tableCards = document.querySelectorAll('.system-table-card, .report-table-wrap, .report-table-card, .account-table-wrapper');
+        const tableCards = document.querySelectorAll('.system-table-card, .report-table-wrap, .account-table-wrapper');
         
         tableCards.forEach((card) => {
             if (card.dataset.tableAuraReady === 'true') return;
@@ -305,6 +338,13 @@
                 initTableAuraScroll();
             }, 100);
         }
+    });
+
+    // Reset scroll horizontal ke ujung kiri (0) saat mencetak agar tidak terpotong di PDF
+    window.addEventListener('beforeprint', () => {
+        document.querySelectorAll('.table-aura-viewport, .report-table-wrap').forEach((vp) => {
+            vp.scrollLeft = 0;
+        });
     });
 
     window.refreshTableAuraScroll = initTableAuraScroll;
