@@ -14,8 +14,10 @@ return new class extends Migration
 
         if (! Schema::hasColumn('siswa', 'id_akun')) {
             Schema::table('siswa', function (Blueprint $table) {
-                $table->unsignedBigInteger('id_akun')->nullable()->after('nis');
-                $table->string('kelas', 50)->nullable()->after('email');
+                $table->unsignedBigInteger('id_akun')->nullable();
+                if (! Schema::hasColumn('siswa', 'kelas')) {
+                    $table->string('kelas', 50)->nullable();
+                }
                 $table->unique('id_akun', 'siswa_id_akun_unique');
                 $table->foreign('id_akun', 'siswa_akun_fk')->references('id_akun')->on('akun');
             });
@@ -23,8 +25,16 @@ return new class extends Migration
 
         if (! Schema::hasColumn('pegawai', 'id_akun')) {
             Schema::table('pegawai', function (Blueprint $table) {
-                $table->unsignedBigInteger('id_akun')->nullable()->after('nip');
-                $table->string('jabatan', 100)->nullable()->after('email');
+                $table->unsignedBigInteger('id_akun')->nullable();
+                if (! Schema::hasColumn('pegawai', 'email')) {
+                    $table->string('email')->nullable();
+                }
+                if (! Schema::hasColumn('pegawai', 'jabatan')) {
+                    $table->string('jabatan', 100)->nullable();
+                }
+                if (! Schema::hasColumn('pegawai', 'no_hp')) {
+                    $table->string('no_hp', 20)->nullable();
+                }
                 $table->unique('id_akun', 'pegawai_id_akun_unique');
                 $table->foreign('id_akun', 'pegawai_akun_fk')->references('id_akun')->on('akun');
             });
@@ -32,8 +42,8 @@ return new class extends Migration
 
         if (! Schema::hasColumn('peminjaman', 'id_peminjaman')) {
             Schema::table('peminjaman', function (Blueprint $table) {
-                $table->string('id_peminjaman', 30)->nullable()->after('kode_pinjam');
-                $table->unsignedBigInteger('id_akun')->nullable()->after('nis');
+                $table->string('id_peminjaman', 30)->nullable();
+                $table->unsignedBigInteger('id_akun')->nullable();
                 $table->unique('id_peminjaman', 'peminjaman_id_peminjaman_unique');
                 $table->index('id_akun', 'peminjaman_id_akun_index');
                 $table->foreign('id_akun', 'peminjaman_akun_fk')->references('id_akun')->on('akun');
