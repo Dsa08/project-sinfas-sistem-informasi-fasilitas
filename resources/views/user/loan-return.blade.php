@@ -27,7 +27,7 @@
         <div class="loan-item-column">
             <div class="loan-image-card">
                 @if(!empty($loan->barang?->foto_url))
-                    <img src="{{ $loan->barang->foto_url }}" alt="{{ $loan->barang->nama_barang }}" style="width: 100%; height: 100%; max-height: 380px; object-fit: contain; border-radius: 8px;">
+                    <img src="{{ $loan->barang->foto_url }}" alt="{{ $loan->barang->nama_barang }}" class="loan-product-image">
                 @else
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; color: #9ca3af;">
                         <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
@@ -64,7 +64,7 @@
         {{-- Right Column: Return Form Card --}}
         <div class="loan-form-column">
             <div class="loan-form-card">
-                <h3 class="loan-form-title">Form Pengembalian Barang</h3>
+                <h3 class="loan-form-title">Formulir Pengembalian Barang</h3>
 
                 @if($errors->any())
                     <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.82rem;">
