@@ -305,19 +305,19 @@
 
             {{-- Kode Alat (hanya tampil saat Add) --}}
             <div id="kodeBarangField" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kode Alat</label>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kode Alat <span style="color: #ef4444;">*</span></label>
                 <input type="text" name="kode_barang" id="input_kode_barang" placeholder="Contoh: ALT-001" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
             {{-- Nama Alat --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Nama Alat</label>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Nama Alat <span style="color: #ef4444;">*</span></label>
                 <input type="text" name="nama_barang" id="input_nama_barang" placeholder="Nama alat" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
             {{-- Kategori --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kategori</label>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Kategori <span style="color: #ef4444;">*</span></label>
                 <select name="id_kategori" id="input_id_kategori" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none; background: #fff;">
                     <option value="">-- Pilih Kategori --</option>
                     @foreach($categories as $cat)
@@ -328,18 +328,18 @@
 
             {{-- Merk / Model --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Merk / Model</label>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Merk / Model <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                 <input type="text" name="merk_model" id="input_merk_model" placeholder="Merk atau model" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
             </div>
 
             {{-- 2-column row: No Seri & Dimensi --}}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">No Seri Pabrik</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">No Seri Pabrik <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                     <input type="text" name="no_seri_pabrik" id="input_no_seri_pabrik" placeholder="No. seri" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Ukuran / Dimensi</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Ukuran / Dimensi <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                     <input type="text" name="ukuran_dimensi" id="input_ukuran_dimensi" placeholder="Dimensi" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
@@ -347,11 +347,11 @@
             {{-- 2-column row: Bahan & Tahun Pembelian --}}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Bahan</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Bahan <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                     <input type="text" name="bahan" id="input_bahan" placeholder="Bahan material" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Tahun Pembelian</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Tahun Pembelian <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                     <input type="number" name="tahun_pembelian" id="input_tahun_pembelian" placeholder="2024" min="1901" max="{{ date('Y') + 1 }}" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
@@ -359,28 +359,28 @@
             {{-- 3-column row: Jumlah Baik / Kurang Baik / Rusak Berat --}}
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah Baik</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah Baik <span style="color: #ef4444;">*</span></label>
                     <input type="number" name="jumlah_baik" id="input_jumlah_baik" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah K. Baik</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah K. Baik <span style="color: #ef4444;">*</span></label>
                     <input type="number" name="jumlah_kurang_baik" id="input_jumlah_kurang_baik" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah R. Berat</label>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Jumlah R. Berat <span style="color: #ef4444;">*</span></label>
                     <input type="number" name="jumlah_rusak_berat" id="input_jumlah_rusak_berat" value="0" min="0" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none;">
                 </div>
             </div>
 
             {{-- Keterangan --}}
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Keterangan</label>
+                <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem;">Keterangan <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                 <textarea name="keterangan" id="input_keterangan" rows="3" placeholder="Catatan tambahan..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.88rem; outline: none; resize: vertical;"></textarea>
             </div>
 
             {{-- Picture Upload (Sesuai Desain Mockup) --}}
             <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-size: 0.88rem; font-weight: 500; color: #475569; margin-bottom: 0.4rem;">Foto Barang</label>
+                <label style="display: block; font-size: 0.88rem; font-weight: 500; color: #475569; margin-bottom: 0.4rem;">Foto Barang <span style="font-size: 0.76rem; font-weight: 400; color: #94a3b8; margin-left: 0.25rem;">(Opsional)</span></label>
                 
                 {{-- Preview Box --}}
                 <div id="itemPicturePreviewBox" style="width: 100%; height: 180px; border: 1.5px solid #cbd5e1; border-radius: 12px; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 0.65rem; overflow: hidden; position: relative;">
