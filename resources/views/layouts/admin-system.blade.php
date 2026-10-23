@@ -270,5 +270,6 @@
         });
     </script>
     @include('components.app-dialogs')
+    @include('components.table-aura-scroll')
 </body>
 </html>

@@ -609,5 +609,6 @@
             }
         </script>
     @endif
+    @include('components.table-aura-scroll')
 </body>
 </html>
