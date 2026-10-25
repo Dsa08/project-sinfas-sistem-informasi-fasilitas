@@ -47,8 +47,14 @@
             <div class="notif-card {{ $isUnread ? 'notif-card--unread' : '' }}" style="background: #ffffff; border: 1px solid {{ $isUnread ? '#bfdbfe' : '#e2e8f0' }}; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-start; gap: 1.25rem; transition: all 0.2s ease;">
                 <div style="display: flex; gap: 1.15rem; flex: 1; min-width: 0;">
                     {{-- Thumbnail Icon --}}
-                    <div style="width: 48px; height: 48px; border-radius: 10px; background: {{ $item->tipe === 'pengajuan_baru' ? '#eff6ff' : ($item->tipe === 'pengembalian_diajukan' ? '#f0fdf4' : '#f8fafc') }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        @if($item->tipe === 'pengajuan_baru')
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: {{ $item->tipe === 'pengajuan_baru' ? ($loan && $loan->status_pengajuan === 'dibatalkan' ? '#f1f5f9' : '#eff6ff') : ($item->tipe === 'pengembalian_diajukan' ? '#f0fdf4' : ($item->tipe === 'pengajuan_dibatalkan' ? '#ffe4e6' : '#f8fafc')) }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        @if($item->tipe === 'pengajuan_dibatalkan' || ($loan && $loan->status_pengajuan === 'dibatalkan'))
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        @elseif($item->tipe === 'pengajuan_baru')
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
@@ -95,7 +101,12 @@
 
                         {{-- Tombol Aksi Langsung ke Tab Verifikasi --}}
                         <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                            @if($item->tipe === 'pengajuan_baru')
+                            @if($loan && $loan->status_pengajuan === 'dibatalkan')
+                                <span style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; padding: 0.45rem 0.85rem; border-radius: 6px; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    Permohonan Dibatalkan Siswa
+                                </span>
+                            @elseif($item->tipe === 'pengajuan_baru')
                                 <a href="{{ route('admin.verifications') }}" class="btn-notif-action-admin" style="background-color: #1D67F2; color: #ffffff; padding: 0.45rem 0.95rem; border-radius: 6px; font-size: 0.82rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
                                     Buka Antrean Verifikasi &rarr;
                                 </a>
@@ -119,7 +130,9 @@
 
                 {{-- Status Tag --}}
                 <div>
-                    @if($item->tipe === 'pengajuan_baru')
+                    @if($item->tipe === 'pengajuan_dibatalkan' || ($loan && $loan->status_pengajuan === 'dibatalkan'))
+                        <span style="background: #ffe4e6; color: #be123c; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600;">Dibatalkan Siswa</span>
+                    @elseif($item->tipe === 'pengajuan_baru')
                         <span style="background: #fef3c7; color: #b45309; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600;">Permohonan Baru</span>
                     @elseif($item->tipe === 'pengembalian_diajukan')
                         <span style="background: #dcfce7; color: #15803d; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600;">Konfirmasi Pengembalian</span>

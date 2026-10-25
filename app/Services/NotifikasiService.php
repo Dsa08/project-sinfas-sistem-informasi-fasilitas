@@ -94,6 +94,40 @@ class NotifikasiService
     }
 
     /**
+     * Notifikasi saat peminjam membatalkan pengajuan pinjaman yang masih berstatus menunggu.
+     * Dikirimkan ke semua akun Admin Sarana aktif.
+     */
+    public static function pengajuanDibatalkan(Peminjaman $peminjaman): void
+    {
+        $peminjaman->loadMissing(['akun', 'siswa', 'barang']);
+        $namaPeminjam = $peminjaman->peminjam_nama;
+        $namaBarang = $peminjaman->barang->nama_barang ?? 'Sarana';
+
+        $judul = "Pengajuan Dibatalkan: {$namaBarang}";
+        $pesan = "{$namaPeminjam} telah membatalkan permohonan peminjaman {$namaBarang} (Kode: {$peminjaman->kode_pinjam}).";
+
+        $adminSaranaList = Akun::where('role', 'admin_sarana')->active()->get();
+
+        foreach ($adminSaranaList as $admin) {
+            self::kirim(
+                $admin,
+                'pengajuan_dibatalkan',
+                $judul,
+                $pesan,
+                $peminjaman->kode_pinjam,
+                [
+                    'id_akun'      => $peminjaman->id_akun,
+                    'nama_siswa'   => $namaPeminjam,
+                    'nama_barang'  => $namaBarang,
+                    'kode_pinjam'  => $peminjaman->kode_pinjam,
+                    'status'       => 'dibatalkan',
+                    'action_url'   => route('admin.notifications'),
+                ]
+            );
+        }
+    }
+
+    /**
      * Notifikasi saat admin sarana menyetujui peminjaman.
      * Dikirimkan ke akun peminjam.
      */

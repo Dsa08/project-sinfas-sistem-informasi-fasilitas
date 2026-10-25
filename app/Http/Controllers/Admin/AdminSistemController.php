@@ -254,6 +254,7 @@ class AdminSistemController extends Controller
             $statusText = match ($loan->status_pengajuan) {
                 'disetujui' => 'disetujui',
                 'ditolak' => 'ditolak',
+                'dibatalkan' => 'dibatalkan oleh peminjam',
                 default => 'diajukan (menunggu)',
             };
 

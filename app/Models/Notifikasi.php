@@ -168,6 +168,7 @@ class Notifikasi extends Model
         return match ($this->tipe) {
             'pengajuan_disetujui'        => 'Disetujui',
             'pengajuan_ditolak'          => 'Ditolak',
+            'pengajuan_dibatalkan'       => 'Dibatalkan',
             'batas_waktu'                => 'Peringatan Batas Waktu',
             'pengajuan_baru'             => 'Pengajuan Baru',
             'pengembalian_diajukan'      => 'Pengembalian Diajukan',

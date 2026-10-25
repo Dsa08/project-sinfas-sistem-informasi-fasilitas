@@ -159,4 +159,15 @@ class Peminjaman extends Model
     {
         return $query->where('status_pengajuan', 'disetujui');
     }
+
+    /**
+     * Query Scope: Menyaring transaksi yang dibatalkan oleh peminjam.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDibatalkan($query)
+    {
+        return $query->where('status_pengajuan', 'dibatalkan');
+    }
 }

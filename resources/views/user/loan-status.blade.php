@@ -119,6 +119,8 @@
                         </form>
                     @elseif($loan->status_pengajuan === 'ditolak')
                         <span class="loan-status-badge loan-badge--rejected">Ditolak</span>
+                    @elseif($loan->status_pengajuan === 'dibatalkan')
+                        <span class="loan-status-badge" style="background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1;">Dibatalkan</span>
                     @elseif($loan->status_pengajuan === 'disetujui')
                         @if(!$loan->pengembalian)
                             {{-- Sedang Dipinjam + Tombol Pengembalian --}}

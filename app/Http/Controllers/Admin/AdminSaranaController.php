@@ -830,10 +830,15 @@ class AdminSaranaController extends Controller
     /** Samakan respons ketika pengajuan tidak ditemukan atau formulirnya sudah kedaluwarsa. */
     private function approvalUnavailable(string $kode, string $title)
     {
+        $existing = Peminjaman::find($kode);
+        $message = ($existing && $existing->status_pengajuan === 'dibatalkan')
+            ? "Pengajuan peminjaman ({$kode}) telah dibatalkan oleh peminjam bersangkutan."
+            : "Pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses. Muat ulang halaman, lalu coba lagi.";
+
         return redirect()->route('admin.verifications')
             ->with('toast_type', 'error')
             ->with('toast_title', $title)
-            ->with('toast_message', "Pengajuan peminjaman ({$kode}) tidak ditemukan atau sudah diproses. Muat ulang halaman, lalu coba lagi.")
+            ->with('toast_message', $message)
             ->with('error', $title);
     }
 

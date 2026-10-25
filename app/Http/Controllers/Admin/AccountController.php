@@ -168,6 +168,7 @@ class AccountController extends Controller
                             'disetujui' => 'Sedang dipinjam',
                             'menunggu' => 'Menunggu persetujuan',
                             'ditolak' => 'Ditolak',
+                            'dibatalkan' => 'Dibatalkan peminjam',
                             default => ucfirst($loan->status_pengajuan),
                         },
                     'return_date' => $loan->pengembalian?->tanggal_kembali?->format('d M Y'),

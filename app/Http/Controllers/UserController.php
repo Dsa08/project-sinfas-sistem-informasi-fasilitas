@@ -180,7 +180,16 @@ class UserController extends Controller
             ->where('status_pengajuan', 'menunggu')
             ->firstOrFail();
 
-        $loan->delete();
+        $loan->update([
+            'status_pengajuan' => 'dibatalkan',
+            'alasan_penolakan' => 'Dibatalkan oleh peminjam.',
+        ]);
+
+        try {
+            NotifikasiService::pengajuanDibatalkan($loan);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal mengirim notifikasi pembatalan pinjaman: ' . $e->getMessage());
+        }
 
         return redirect()->route('loan.status')
             ->with('success', 'Pengajuan peminjaman berhasil dibatalkan.');
