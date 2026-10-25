@@ -13,6 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SINFAS - Panel Admin Sarana & Fasilitas">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Sarana - SINFAS')</title>
     {{-- Favicon --}}
     <link rel="icon" type="image/png" href="{{ asset('assets/logo-sinfas.png') }}">
@@ -276,6 +277,21 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
         }
+        .sarana-toast-card--info {
+            border-left: 4px solid #3b82f6;
+        }
+        .sarana-toast-icon-circle--info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        .sarana-toast-card--clickable {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .sarana-toast-card--clickable:hover {
+            transform: translateX(-4px) scale(1.02);
+            box-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.18), 0 8px 16px -2px rgba(0, 0, 0, 0.08);
+        }
         .sarana-toast-icon-circle--error {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
@@ -313,6 +329,14 @@
         .sarana-toast-close:hover {
             color: #374151;
         }
+        .pulse-badge {
+            animation: sinfasPulse 1.8s infinite;
+        }
+        @keyframes sinfasPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
     </style>
 
     <script>
@@ -323,7 +347,57 @@
             setTimeout(() => { card.remove(); }, 300);
         }
 
-        window.showAdminSaranaToast = function(type, title, message) {
+        // Web Audio Chime Sound (Melodic notification cue without external assets)
+        function playNotificationChime() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                // Harmonic two-tone: E5 (659.25Hz) -> G#5 (830.61Hz)
+                osc.frequency.setValueAtTime(659.25, now);
+                osc.frequency.setValueAtTime(830.61, now + 0.12);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } catch (_) {}
+        }
+
+        // Native Desktop Notification API
+        function sendDesktopNotification(title, body, url) {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'granted') {
+                try {
+                    const notif = new Notification(title, {
+                        body: body,
+                        icon: '{{ asset("assets/logo-sinfas.png") }}',
+                        badge: '{{ asset("assets/logo-sinfas.png") }}',
+                        data: { url: url || '{{ route("admin.verifications") }}' },
+                        tag: 'sinfas-admin-notif'
+                    });
+                    notif.onclick = function(e) {
+                        e.preventDefault();
+                        window.focus();
+                        if (url) window.location.href = url;
+                    };
+                } catch (_) {}
+            }
+        }
+
+        window.showAdminSaranaToast = function(type, title, message, url) {
             let container = document.getElementById('sarana-toast-container');
             if (!container) {
                 container = document.createElement('div');
@@ -333,24 +407,38 @@
             }
 
             const isSuccess = type === 'success';
+            const isInfo = type === 'info' || type === 'notification';
             const card = document.createElement('div');
-            card.className = `sarana-toast-card sarana-toast-card--${isSuccess ? 'success' : 'error'}`;
+            card.className = `sarana-toast-card sarana-toast-card--${isSuccess ? 'success' : (isInfo ? 'info' : 'error')} ${url ? 'sarana-toast-card--clickable' : ''}`;
             card.style.pointerEvents = 'auto';
 
-            const iconSvg = isSuccess 
-                ? `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-                : `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+            let iconSvg = '';
+            if (isSuccess) {
+                iconSvg = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+            } else if (isInfo) {
+                iconSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+            } else {
+                iconSvg = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+            }
 
             card.innerHTML = `
-                <div class="sarana-toast-icon-circle sarana-toast-icon-circle--${isSuccess ? 'success' : 'error'}">
+                <div class="sarana-toast-icon-circle sarana-toast-icon-circle--${isSuccess ? 'success' : (isInfo ? 'info' : 'error')}">
                     ${iconSvg}
                 </div>
                 <div class="sarana-toast-content">
-                    <div class="sarana-toast-title">${title || (isSuccess ? 'Aksi berhasil' : 'Terjadi kendala')}</div>
+                    <div class="sarana-toast-title">${title || (isSuccess ? 'Aksi berhasil' : 'Informasi')}</div>
                     ${message ? `<div class="sarana-toast-desc">${message}</div>` : ''}
+                    ${url ? `<div style="margin-top: 0.35rem; font-size: 0.78rem; font-weight: 700; color: #2563eb; display: inline-flex; align-items: center; gap: 4px;">Lihat Selengkapnya &rarr;</div>` : ''}
                 </div>
-                <button type="button" class="sarana-toast-close" onclick="closeAdminSaranaToast(this)">&times;</button>
+                <button type="button" class="sarana-toast-close" onclick="event.stopPropagation(); closeAdminSaranaToast(this)">&times;</button>
             `;
+
+            if (url) {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.sarana-toast-close')) return;
+                    window.location.href = url;
+                });
+            }
 
             container.appendChild(card);
 
@@ -358,7 +446,7 @@
                 if (card.parentElement) {
                     closeAdminSaranaToast(card);
                 }
-            }, 4500);
+            }, 6000);
         };
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -403,7 +491,48 @@
                 });
             }
 
-            // Notification Badge Polling for Admin Sarana
+            // Web Push & Service Worker Setup for Admin Sarana
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('{{ asset("sw.js") }}').then(async (reg) => {
+                    const vapidPublicKey = @json(config('services.webpush.public_key'));
+                    if (vapidPublicKey && 'PushManager' in window && Notification.permission === 'granted') {
+                        try {
+                            const sub = await reg.pushManager.getSubscription();
+                            if (!sub) {
+                                const padding = '='.repeat((4 - vapidPublicKey.length % 4) % 4);
+                                const base64 = (vapidPublicKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+                                const appServerKey = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                                const newSub = await reg.pushManager.subscribe({
+                                    userVisibleOnly: true,
+                                    applicationServerKey: appServerKey
+                                });
+                                fetch('{{ route("push.subscriptions.store") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                    },
+                                    body: JSON.stringify(newSub.toJSON())
+                                });
+                            }
+                        } catch (_) {}
+                    }
+                }).catch(() => {});
+            }
+
+            // Notification Permission: Request permission on user's first interaction
+            function tryRequestNotificationPermission() {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            }
+            document.addEventListener('click', tryRequestNotificationPermission, { once: true });
+
+            // Real-time Push Notification Engine for Admin Sarana
+            let lastKnownNotifId = parseInt(sessionStorage.getItem('sinfas_last_admin_notif_id') || '0', 10);
+            let notifInitialized = sessionStorage.getItem('sinfas_admin_notif_initialized') === 'true';
+
             function refreshAdminNotifications() {
                 fetch('{{ route("notifications.count") }}', {
                     headers: { 'Accept': 'application/json' }
@@ -419,8 +548,10 @@
                         if (count > 0) {
                             topbarBadge.textContent = text;
                             topbarBadge.style.display = 'flex';
+                            topbarBadge.classList.add('pulse-badge');
                         } else {
                             topbarBadge.style.display = 'none';
+                            topbarBadge.classList.remove('pulse-badge');
                         }
                     }
 
@@ -432,12 +563,66 @@
                             sidebarBadge.style.display = 'none';
                         }
                     }
+
+                    // Check for new incoming notifications
+                    const recent = Array.isArray(data.recent) ? data.recent : [];
+                    if (recent.length > 0) {
+                        const currentMaxId = Math.max(...recent.map(r => r.id_notifikasi || 0));
+
+                        if (!notifInitialized) {
+                            // On initial session load, record baseline without re-alerting past notifications
+                            lastKnownNotifId = currentMaxId;
+                            sessionStorage.setItem('sinfas_last_admin_notif_id', lastKnownNotifId);
+                            sessionStorage.setItem('sinfas_admin_notif_initialized', 'true');
+                            notifInitialized = true;
+                        } else if (currentMaxId > lastKnownNotifId) {
+                            // Find all brand new unread notifications
+                            const newNotifs = recent.filter(r => (r.id_notifikasi || 0) > lastKnownNotifId && !r.status_baca);
+                            
+                            if (newNotifs.length > 0) {
+                                lastKnownNotifId = currentMaxId;
+                                sessionStorage.setItem('sinfas_last_admin_notif_id', lastKnownNotifId);
+
+                                // Play pleasant audio chime
+                                playNotificationChime();
+
+                                newNotifs.forEach(item => {
+                                    const actionUrl = '{{ route("admin.verifications") }}';
+                                    
+                                    // 1. Pop In-App Toast
+                                    window.showAdminSaranaToast('info', item.judul, item.pesan, actionUrl);
+
+                                    // 2. Desktop OS Notification
+                                    sendDesktopNotification(item.judul, item.pesan, actionUrl);
+
+                                    // 3. Dispatch window event for open verification pages
+                                    window.dispatchEvent(new CustomEvent('sinfas:new-notification', { detail: item }));
+                                });
+                            }
+                        }
+                    }
                 })
                 .catch(() => {});
             }
 
+            // Fast polling: 5 seconds when active, 15 seconds when blurred/backgrounded
+            let pollTimer = null;
+            function startPolling(intervalMs) {
+                if (pollTimer) clearInterval(pollTimer);
+                pollTimer = setInterval(refreshAdminNotifications, intervalMs);
+            }
+
             refreshAdminNotifications();
-            setInterval(refreshAdminNotifications, 45000);
+            startPolling(5000);
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    refreshAdminNotifications();
+                    startPolling(5000);
+                } else {
+                    startPolling(15000);
+                }
+            });
         });
     </script>
     @include('components.app-dialogs')

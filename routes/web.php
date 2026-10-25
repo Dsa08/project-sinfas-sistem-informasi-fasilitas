@@ -100,6 +100,11 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
     Route::post('/notifications/read-all', [NotifikasiController::class, 'tandaiSemuaDibaca'])->name('notifications.readAll');
     Route::get('/notifications/unread-count', [NotifikasiController::class, 'hitungBelumDibaca'])->name('notifications.count');
 
+    // Langganan Web Push (Peminjam & Admin Sarana)
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscriptions.store');
+    Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.subscriptions.destroy');
+    Route::post('/push-notifications/test', [PushSubscriptionController::class, 'test'])->name('push.notifications.test');
+
     /*
     |----------------------------------------------------------------------
     | 3. Fitur Siswa (Role: 'siswa')
@@ -107,10 +112,6 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
     | Mengatur fitur operasional peminjaman dan pengembalian sarana prasarana.
     */
     Route::middleware('role:siswa,pegawai')->group(function () {
-        Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscriptions.store');
-        Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.subscriptions.destroy');
-        Route::post('/push-notifications/test', [PushSubscriptionController::class, 'test'])->name('push.notifications.test');
-
         // Dashboard Siswa: Menampilkan katalog sarana yang siap dipinjam & filter pencarian
         Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 

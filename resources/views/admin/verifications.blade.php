@@ -43,6 +43,25 @@
         </button>
     </div>
 
+    {{-- Live Real-time Alert Banner --}}
+    <div id="live-new-loan-banner" style="display: none; margin-bottom: 1.25rem; padding: 0.9rem 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #dbeafe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+            </div>
+            <div>
+                <strong id="live-new-loan-title" style="color: #1e40af; font-size: 0.92rem; display: block;">Ada permohonan baru yang baru saja masuk!</strong>
+                <span id="live-new-loan-desc" style="color: #3b82f6; font-size: 0.82rem;">Data pada tabel perlu dimuat ulang agar pengajuan terbaru tampil.</span>
+            </div>
+        </div>
+        <button type="button" onclick="location.reload()" style="background: #2563eb; color: #ffffff; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.15s ease; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);">
+            Muat Ulang Sekarang
+        </button>
+    </div>
+
     {{-- Tab 1: Pending Requests Section --}}
     <div class="sarana-tab-content {{ $activeTab === 'requests' ? 'sarana-tab-content--active' : '' }}" id="tab-content-requests">
         <div class="system-section-header">
@@ -931,6 +950,21 @@
             closeRejectModal();
             closeConfirmReturnModal();
             closeActiveLoanDetail();
+        }
+    });
+
+    // Handle real-time push notification alert banner
+    window.addEventListener('sinfas:new-notification', function (e) {
+        const banner = document.getElementById('live-new-loan-banner');
+        if (banner) {
+            const item = e.detail;
+            if (item && item.judul) {
+                const titleEl = document.getElementById('live-new-loan-title');
+                const descEl = document.getElementById('live-new-loan-desc');
+                if (titleEl) titleEl.textContent = item.judul;
+                if (descEl) descEl.textContent = item.pesan || 'Ada permohonan baru yang menunggu diverifikasi.';
+            }
+            banner.style.display = 'flex';
         }
     });
 </script>

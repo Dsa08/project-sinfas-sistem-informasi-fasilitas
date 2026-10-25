@@ -13,7 +13,7 @@ class WebPushService
 {
     public function sendToUser(Akun $akun, string $title, string $body, string $url = '/dashboard'): int
     {
-        if (!$akun->isPeminjam()) {
+        if (!$akun->isPeminjam() && !$akun->isAdminSarana()) {
             return 0;
         }
 
@@ -56,7 +56,7 @@ class WebPushService
                     json_encode([
                         'title' => $title,
                         'body' => $body,
-                        'url' => $this->safeUrl($url),
+                        'url' => $this->safeUrl($url, $akun),
                     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
                 );
             }
@@ -93,18 +93,19 @@ class WebPushService
         }
     }
 
-    private function safeUrl(string $url): string
+    private function safeUrl(string $url, ?Akun $akun = null): string
     {
+        $defaultFallback = ($akun && $akun->isAdminSarana()) ? '/admin/verifications' : '/dashboard';
         $parts = parse_url($url);
         $path = $parts['path'] ?? '';
         if (!str_starts_with($path, '/') || str_starts_with($path, '//')) {
-            return '/dashboard';
+            return $defaultFallback;
         }
 
         if (isset($parts['host'])) {
             $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
             if (!$appHost || strcasecmp($parts['host'], $appHost) !== 0) {
-                return '/dashboard';
+                return $defaultFallback;
             }
         }
 

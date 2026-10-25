@@ -33,6 +33,7 @@ class NotifikasiService
     public static function kirim($akun, string $tipe, string $judul, string $pesan, ?string $kodePinjam = null, ?array $dataTambahan = null): Notifikasi
     {
         $idAkun = $akun instanceof Akun ? $akun->id_akun : $akun;
+        $akunModel = $akun instanceof Akun ? $akun : Akun::find($idAkun);
 
         $notifikasi = Notifikasi::create([
             'id_akun'       => $idAkun,
@@ -44,12 +45,13 @@ class NotifikasiService
             'status_baca'   => false,
         ]);
 
-        if ($akun instanceof Akun && $akun->isPeminjam()) {
+        if ($akunModel && ($akunModel->isPeminjam() || $akunModel->isAdminSarana())) {
+            $defaultUrl = $akunModel->isAdminSarana() ? route('admin.verifications') : route('loan.status');
             app(WebPushService::class)->sendToUser(
-                $akun,
+                $akunModel,
                 $judul,
                 $pesan,
-                $dataTambahan['action_url'] ?? route('loan.status')
+                $dataTambahan['action_url'] ?? $defaultUrl
             );
         }
 
@@ -74,7 +76,7 @@ class NotifikasiService
 
         foreach ($adminSaranaList as $admin) {
             self::kirim(
-                $admin->id_akun,
+                $admin,
                 'pengajuan_baru',
                 $judul,
                 $pesan,
@@ -172,7 +174,7 @@ class NotifikasiService
 
         foreach ($adminSaranaList as $admin) {
             self::kirim(
-                $admin->id_akun,
+                $admin,
                 'pengembalian_diajukan',
                 $judul,
                 $pesan,
