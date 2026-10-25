@@ -240,6 +240,30 @@
                     @endif
                 </table>
             </div>
+
+            {{-- Table Footer (Per-Page Selector + Entries Info + Pagination) Sama Seperti Halaman Sarana Lainnya --}}
+            <div class="system-table-footer" id="report-table-footer" style="padding: 0.85rem 1.15rem; border-top: 1px solid #f1f5f9; margin-top: 0; background: #fff;">
+                <div class="system-table-meta">
+                    <div class="system-per-page-wrapper">
+                        <span>Tampilkan</span>
+                        <select class="system-per-page-select" id="report-per-page-select">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>data per halaman</span>
+                    </div>
+                    <span class="system-table-meta-dot">&bull;</span>
+                    <div class="system-table-entries-info" id="report-entries-info">
+                        Menampilkan <strong id="report-page-start">1</strong> - <strong id="report-page-end">10</strong> dari <strong id="report-total-rows">0</strong> data
+                    </div>
+                </div>
+
+                <div class="system-pagination-bar" id="report-pagination-nav">
+                    {{-- Diisi secara dinamis oleh JavaScript --}}
+                </div>
+            </div>
         </section>
 
         <footer class="report-signatures">
@@ -342,10 +366,11 @@
         .report-document-heading h2 { margin: 3px 0; font-size: 13px; }
         .report-period { margin: 2px 0 6px; font-size: 9px; }
         .report-table-card { margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; width: 100% !important; }
-        .report-table-heading, .report-print-meta { display: none !important; }
+        .report-table-heading, .report-print-meta, .system-table-footer, #report-table-footer { display: none !important; }
         .report-sort-indicator { display: none !important; }
         .report-col-action, .report-notif-action-btn { display: none !important; }
         .report-table-wrap, .table-aura-viewport { overflow: visible !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; scroll-behavior: auto !important; }
+        .report-table tbody tr { display: table-row !important; }
         .report-table { 
             width: 100% !important; 
             min-width: 0 !important; 
@@ -436,14 +461,157 @@
         syncReportFilters();
 
         const reportTable = document.querySelector('.report-table');
+        let refreshReportPagination = null;
+
         if (reportTable) {
             const tbody = reportTable.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr')).filter(function (row) {
+            let rows = Array.from(tbody.querySelectorAll('tr')).filter(function (row) {
                 return !row.querySelector('.report-empty-cell');
             });
             const originalOrder = new Map(rows.map(function (row, index) { return [row, index]; }));
             const sortButtons = reportTable.querySelectorAll('.report-sort-button');
             let activeButton = null;
+
+            // --- State Pagination ---
+            let currentPage = 1;
+            let perPage = 10;
+            const perPageSelect = document.getElementById('report-per-page-select');
+            const pageStartEl = document.getElementById('report-page-start');
+            const pageEndEl = document.getElementById('report-page-end');
+            const totalRowsEl = document.getElementById('report-total-rows');
+            const paginationNav = document.getElementById('report-pagination-nav');
+            const footerEl = document.getElementById('report-table-footer');
+
+            function renderPagination() {
+                const totalRows = rows.length;
+                if (!footerEl) return;
+
+                if (totalRows === 0) {
+                    footerEl.style.display = 'none';
+                    return;
+                }
+                footerEl.style.display = 'flex';
+
+                const totalPages = Math.max(1, Math.ceil(totalRows / perPage));
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+
+                const startIdx = (currentPage - 1) * perPage;
+                const endIdx = Math.min(startIdx + perPage, totalRows);
+
+                if (pageStartEl) pageStartEl.textContent = String(startIdx + 1);
+                if (pageEndEl) pageEndEl.textContent = String(endIdx);
+                if (totalRowsEl) totalRowsEl.textContent = String(totalRows);
+
+                rows.forEach(function (row, idx) {
+                    if (idx >= startIdx && idx < endIdx) {
+                        row.style.display = '';
+                        row.cells[0].textContent = String(idx + 1);
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (paginationNav) {
+                    paginationNav.innerHTML = '';
+                    if (totalPages <= 1) return;
+
+                    const navWrap = document.createElement('div');
+                    navWrap.style.cssText = 'display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem;';
+
+                    // Tombol Sebelumnya
+                    if (currentPage === 1) {
+                        const prevSpan = document.createElement('span');
+                        prevSpan.className = 'pagination-btn pagination-btn--disabled';
+                        prevSpan.textContent = 'Sebelumnya';
+                        navWrap.appendChild(prevSpan);
+                    } else {
+                        const prevBtn = document.createElement('button');
+                        prevBtn.type = 'button';
+                        prevBtn.className = 'pagination-btn';
+                        prevBtn.textContent = 'Sebelumnya';
+                        prevBtn.addEventListener('click', function () {
+                            currentPage--;
+                            renderPagination();
+                            if (window.refreshTableAuraScroll) window.refreshTableAuraScroll();
+                        });
+                        navWrap.appendChild(prevBtn);
+                    }
+
+                    // Generator nomor halaman dengan ellipsis (...)
+                    const getPageNumbers = () => {
+                        if (totalPages <= 7) {
+                            return Array.from({ length: totalPages }, (_, i) => i + 1);
+                        }
+                        if (currentPage <= 4) {
+                            return [1, 2, 3, 4, 5, '...', totalPages];
+                        }
+                        if (currentPage >= totalPages - 3) {
+                            return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                        }
+                        return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                    };
+
+                    getPageNumbers().forEach(function (p) {
+                        if (p === '...') {
+                            const ellipsis = document.createElement('span');
+                            ellipsis.className = 'pagination-btn pagination-btn--disabled';
+                            ellipsis.textContent = '...';
+                            navWrap.appendChild(ellipsis);
+                        } else if (p === currentPage) {
+                            const activeSpan = document.createElement('span');
+                            activeSpan.className = 'pagination-btn pagination-btn--active';
+                            activeSpan.textContent = String(p);
+                            navWrap.appendChild(activeSpan);
+                        } else {
+                            const pageBtn = document.createElement('button');
+                            pageBtn.type = 'button';
+                            pageBtn.className = 'pagination-btn';
+                            pageBtn.textContent = String(p);
+                            pageBtn.addEventListener('click', function () {
+                                currentPage = Number(p);
+                                renderPagination();
+                                if (window.refreshTableAuraScroll) window.refreshTableAuraScroll();
+                            });
+                            navWrap.appendChild(pageBtn);
+                        }
+                    });
+
+                    // Tombol Berikutnya
+                    if (currentPage === totalPages) {
+                        const nextSpan = document.createElement('span');
+                        nextSpan.className = 'pagination-btn pagination-btn--disabled';
+                        nextSpan.textContent = 'Berikutnya';
+                        navWrap.appendChild(nextSpan);
+                    } else {
+                        const nextBtn = document.createElement('button');
+                        nextBtn.type = 'button';
+                        nextBtn.className = 'pagination-btn';
+                        nextBtn.textContent = 'Berikutnya';
+                        nextBtn.addEventListener('click', function () {
+                            currentPage++;
+                            renderPagination();
+                            if (window.refreshTableAuraScroll) window.refreshTableAuraScroll();
+                        });
+                        navWrap.appendChild(nextBtn);
+                    }
+
+                    paginationNav.appendChild(navWrap);
+                }
+            }
+
+            refreshReportPagination = renderPagination;
+
+            if (perPageSelect) {
+                perPageSelect.addEventListener('change', function () {
+                    perPage = parseInt(this.value, 10) || 10;
+                    currentPage = 1;
+                    renderPagination();
+                    if (window.refreshTableAuraScroll) window.refreshTableAuraScroll();
+                });
+            }
+
+            renderPagination();
 
             function sortValue(value) {
                 const trimmed = value.trim();
@@ -469,7 +637,6 @@
                         const isActive = otherButton === activeButton;
                         otherButton.dataset.sortState = isActive ? nextState : 'none';
                         otherButton.setAttribute('aria-sort', isActive ? nextState : 'none');
-
                     });
 
                     const sortIndex = Number(button.dataset.sortIndex);
@@ -483,10 +650,12 @@
                         return nextState === 'ascending' ? comparison : -comparison;
                     });
 
-                    sortedRows.forEach(function (row, index) {
+                    sortedRows.forEach(function (row) {
                         tbody.appendChild(row);
-                        row.cells[0].textContent = String(index + 1);
                     });
+                    rows = sortedRows;
+                    currentPage = 1;
+                    renderPagination();
                 });
             });
         }
@@ -494,6 +663,10 @@
         function resetTableScrolls() {
             document.querySelectorAll('.table-aura-viewport, .report-table-wrap').forEach(function (el) {
                 el.scrollLeft = 0;
+            });
+            // Tampilkan semua baris data agar cetakan PDF menangkap seluruh data utuh
+            document.querySelectorAll('.report-table tbody tr').forEach(function (r) {
+                r.style.display = '';
             });
         }
 
@@ -510,6 +683,9 @@
             window.addEventListener('afterprint', function restoreTitle() {
                 document.title = originalTitle;
                 window.removeEventListener('afterprint', restoreTitle);
+                if (typeof refreshReportPagination === 'function') {
+                    refreshReportPagination();
+                }
             });
             window.print();
         });
