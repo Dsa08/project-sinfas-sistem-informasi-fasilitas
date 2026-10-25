@@ -172,7 +172,14 @@ class UserController extends Controller
         return view('user.loan-status', compact('loans'));
     }
 
-    /** Batalkan pengajuan yang masih menunggu verifikasi dan milik pengguna yang login. */
+    /**
+     * Membatalkan permohonan peminjaman yang masih berstatus 'menunggu' oleh peminjam yang sedang login.
+     * Menggunakan soft status 'dibatalkan' (bukan hard delete) untuk menjaga integritas jejak audit,
+     * serta mengirimkan notifikasi info pembatalan ke Admin Sarana.
+     *
+     * @param  string  $kode  Kode unik transaksi peminjaman (kode_pinjam)
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function cancelLoanRequest($kode)
     {
         $loan = Peminjaman::ownedBy(auth()->user())

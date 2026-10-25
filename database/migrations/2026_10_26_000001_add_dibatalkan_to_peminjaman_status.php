@@ -3,6 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Migration: Tambahkan nilai 'dibatalkan' pada enum status_pengajuan tabel peminjaman.
+ * 
+ * Memungkinkan sistem mencatat status pembatalan mandiri oleh peminjam (soft status)
+ * tanpa menghapus baris transaksi agar integritas riwayat dan jejak audit tetap terjaga.
+ */
 return new class extends Migration
 {
     /**

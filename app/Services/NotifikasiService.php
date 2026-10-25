@@ -14,7 +14,7 @@ use Carbon\Carbon;
  * 
  * Pusat logika pembuatan dan pengiriman notifikasi otomatis pada sistem SINFAS.
  * Menghandle:
- * - Pengajuan baru -> notifikasi ke Admin Sarana
+ * - Pengajuan baru & pembatalan -> notifikasi ke Admin Sarana
  * - Hasil verifikasi dan pengingat -> notifikasi ke akun peminjam
  */
 class NotifikasiService

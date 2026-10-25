@@ -9,10 +9,28 @@ use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
 use Throwable;
 
+/**
+ * Service WebPushService
+ * 
+ * Mengelola pengiriman Web Push Notification standar VAPID ke browser perangkat pengguna.
+ * Mendukung pengiriman ke:
+ * - Peminjam (Siswa & Pegawai) untuk status persetujuan / pengembalian.
+ * - Admin Sarana untuk informasi permohonan baru dan pembatalan real-time.
+ */
 class WebPushService
 {
+    /**
+     * Mengirim notifikasi web push ke seluruh langganan browser aktif milik akun pengguna.
+     *
+     * @param  Akun    $akun   Model akun penerima notifikasi
+     * @param  string  $title  Judul notifikasi
+     * @param  string  $body   Isi pesan notifikasi
+     * @param  string  $url    URL target saat notifikasi diklik
+     * @return int             Jumlah notifikasi yang berhasil terkirim
+     */
     public function sendToUser(Akun $akun, string $title, string $body, string $url = '/dashboard'): int
     {
+        // Validasi: hanya peminjam atau admin sarana yang didukung menerima Web Push
         if (!$akun->isPeminjam() && !$akun->isAdminSarana()) {
             return 0;
         }
@@ -93,6 +111,10 @@ class WebPushService
         }
     }
 
+    /**
+     * Memvalidasi dan membersihkan URL target notifikasi push agar aman dari open-redirect.
+     * Mengarahkan ke fallback spesifik per role (admin verifications atau dashboard siswa).
+     */
     private function safeUrl(string $url, ?Akun $akun = null): string
     {
         $defaultFallback = ($akun && $akun->isAdminSarana()) ? '/admin/verifications' : '/dashboard';
