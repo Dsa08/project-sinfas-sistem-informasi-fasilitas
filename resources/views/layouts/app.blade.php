@@ -89,6 +89,9 @@
                         <a href="{{ route('notifications') }}" class="btn-navbar-notif-all">Buka Pusat Notifikasi &rarr;</a>
                     </div>
                 </div>
+
+                {{-- Mobile Backdrop Scrim --}}
+                <div class="navbar-notif-backdrop" id="navbar-notif-backdrop" onclick="toggleNotifDropdown(event)"></div>
             </div>
 
             {{-- User Profile Icon --}}
@@ -593,7 +596,7 @@
                 }
             }
 
-            // Notification Dropdown Logic â€” buka dropdown + langsung mark-all-read
+            // Notification Dropdown Logic — buka dropdown + sinkronisasi backdrop mobile
             window.toggleNotifDropdown = function(e) {
                 if (e) e.stopPropagation();
                 const dropdown = document.getElementById('navbar-notif-dropdown');
@@ -601,6 +604,12 @@
 
                 const isOpening = !dropdown.classList.contains('navbar-notif-dropdown--active');
                 dropdown.classList.toggle('navbar-notif-dropdown--active');
+
+                // Sinkronkan backdrop scrim pada perangkat mobile
+                const backdrop = document.getElementById('navbar-notif-backdrop');
+                if (backdrop) {
+                    backdrop.classList.toggle('navbar-notif-backdrop--active', isOpening);
+                }
 
                 // Jika baru dibuka dan ada badge merah, langsung mark-all-read via AJAX
                 if (isOpening) {
@@ -631,8 +640,10 @@
             document.addEventListener('click', function(e) {
                 const wrapper = document.querySelector('.navbar-notif-wrapper');
                 const dropdown = document.getElementById('navbar-notif-dropdown');
+                const backdrop = document.getElementById('navbar-notif-backdrop');
                 if (wrapper && dropdown && !wrapper.contains(e.target)) {
                     dropdown.classList.remove('navbar-notif-dropdown--active');
+                    if (backdrop) backdrop.classList.remove('navbar-notif-backdrop--active');
                 }
             });
 
