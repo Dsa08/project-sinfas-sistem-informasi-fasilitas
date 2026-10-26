@@ -81,7 +81,7 @@
             window.setTimeout(() => toast.remove(), options.duration || 5000);
         };
 
-        window.formatNotificationTimestamp = (value) => {
+        window.formatNotificationTimestamp = (value, compact = false) => {
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return '';
 
@@ -95,6 +95,9 @@
                         ? [Math.round(seconds / 3600), 'hour']
                         : [Math.round(seconds / 86400), 'day'];
             const relative = new Intl.RelativeTimeFormat('id-ID', {numeric: 'auto'}).format(amount, unit);
+            if (compact) {
+                return relative;
+            }
             const datePart = new Intl.DateTimeFormat('id-ID', {day: '2-digit', month: 'short', year: 'numeric'}).format(date);
             const timePart = new Intl.DateTimeFormat('en-GB', {hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(date);
             return `${relative} (${datePart}, ${timePart})`;

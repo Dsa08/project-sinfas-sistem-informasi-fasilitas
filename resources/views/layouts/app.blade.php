@@ -727,7 +727,7 @@
                                         <div style="flex:1;min-width:0;">
                                             <div class="navbar-notif-item-header">
                                                 <span class="navbar-notif-item-title">${n.judul}</span>
-                                                <span class="navbar-notif-item-time">${window.formatNotificationTimestamp(n.created_at_iso)}</span>
+                                                <span class="navbar-notif-item-time" title="${window.formatNotificationTimestamp(n.created_at_iso, false)}">${window.formatNotificationTimestamp(n.created_at_iso, true)}</span>
                                             </div>
                                             <p class="navbar-notif-item-desc">${n.pesan}</p>
                                             ${n.hari_berlalu ? `<span class="badge-duration-mini badge-duration--${n.warna_durasi}">${n.hari_berlalu} hari</span>` : ''}
