@@ -187,10 +187,24 @@ class UserController extends Controller
             ->where('status_pengajuan', 'menunggu')
             ->firstOrFail();
 
-        $loan->update([
-            'status_pengajuan' => 'dibatalkan',
-            'alasan_penolakan' => 'Dibatalkan oleh peminjam.',
-        ]);
+        try {
+            $loan->update([
+                'status_pengajuan' => 'dibatalkan',
+                'alasan_penolakan' => 'Dibatalkan oleh peminjam.',
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Self-healing database: Jika server hosting belum mengeksekusi 'php artisan migrate',
+            // otomatis lakukan ALTER TABLE pada ENUM status_pengajuan agar nilai 'dibatalkan' valid.
+            if (str_contains($e->getMessage(), '1265') || str_contains($e->getMessage(), 'Data truncated')) {
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE peminjaman MODIFY COLUMN status_pengajuan ENUM('menunggu', 'disetujui', 'ditolak', 'dibatalkan') NOT NULL DEFAULT 'menunggu'");
+                $loan->update([
+                    'status_pengajuan' => 'dibatalkan',
+                    'alasan_penolakan' => 'Dibatalkan oleh peminjam.',
+                ]);
+            } else {
+                throw $e;
+            }
+        }
 
         try {
             NotifikasiService::pengajuanDibatalkan($loan);
