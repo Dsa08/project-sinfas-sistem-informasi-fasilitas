@@ -38,21 +38,25 @@
     </div>
 
     {{-- Live Real-time Status Alert Banner --}}
-    <div id="live-user-loan-banner" style="display: none; margin-bottom: 1.5rem; padding: 0.9rem 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: #dbeafe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <div id="live-user-loan-banner" class="live-loan-alert-card" style="display: none;">
+        <div class="live-loan-alert-header">
+            <div class="live-loan-alert-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
             </div>
-            <div>
-                <strong id="live-user-loan-title" style="color: #1e40af; font-size: 0.92rem; display: block;">Ada pembaruan status peminjaman Anda!</strong>
-                <span id="live-user-loan-desc" style="color: #3b82f6; font-size: 0.82rem;">Status peminjaman telah diperbarui oleh Admin Sarana. Muat ulang untuk melihat rincian terbaru.</span>
+            <div class="live-loan-alert-text">
+                <strong id="live-user-loan-title" class="live-loan-alert-title">Status Peminjaman Diperbarui</strong>
+                <span id="live-user-loan-desc" class="live-loan-alert-desc">Status peminjaman telah diperbarui oleh Admin Sarana. Muat ulang untuk melihat rincian terbaru.</span>
             </div>
+            <button type="button" class="live-loan-alert-close" onclick="document.getElementById('live-user-loan-banner').style.display='none'" title="Tutup">&times;</button>
         </div>
-        <button type="button" onclick="location.reload()" style="background: #2563eb; color: #ffffff; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.15s ease; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);">
-            Muat Ulang Sekarang
+        <button type="button" onclick="location.reload()" class="live-loan-alert-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span>Muat Ulang Sekarang</span>
         </button>
     </div>
 

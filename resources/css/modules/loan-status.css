@@ -282,6 +282,7 @@
     .loan-status-container {
         width: 100%;
         min-width: 0;
+        margin-top: 0.5rem;
     }
 
     .loan-status-card {
@@ -337,5 +338,151 @@
     .btn-loan-return,
     .btn-loan-cancel {
         min-height: 40px;
+    }
+}
+
+/* ==========================================================================
+   LIVE REAL-TIME LOAN STATUS ALERT BANNER
+   ========================================================================== */
+.live-loan-alert-card {
+    display: none;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: #f0f7ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+    animation: slideDownFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.live-loan-alert-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.live-loan-alert-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #dbeafe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #1d4ed8;
+}
+
+.live-loan-alert-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.live-loan-alert-title {
+    color: #1e40af;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    display: block;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.live-loan-alert-desc {
+    color: #3b82f6;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    display: block;
+    word-break: break-word;
+}
+
+.live-loan-alert-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.live-loan-alert-close:hover {
+    color: #1e293b;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.live-loan-alert-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    flex-shrink: 0;
+}
+
+.live-loan-alert-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Desktop layout (>= 641px): Horizontal row with button on right */
+@media (min-width: 641px) {
+    .live-loan-alert-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.25rem;
+    }
+
+    .live-loan-alert-header {
+        align-items: center;
+    }
+}
+
+/* Mobile layout (<= 640px): Full-width stacked vertical flow */
+@media (max-width: 640px) {
+    .live-loan-alert-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.85rem !important;
+        padding: 0.95rem 1rem !important;
+    }
+
+    .live-loan-alert-header {
+        width: 100%;
+    }
+
+    .live-loan-alert-btn {
+        width: 100% !important;
+        padding: 0.7rem 1rem !important;
+        font-size: 0.9rem !important;
+        min-height: 42px;
     }
 }
