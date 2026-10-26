@@ -266,9 +266,245 @@
                 width: 100%;
             }
         }
+        /* SINFAS In-App Floating Toast Engine */
+        .sinfas-user-toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+        }
+        .sinfas-user-toast-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.15rem;
+            background: #ffffff;
+            min-width: 320px;
+            max-width: 440px;
+            padding: 1.1rem 1.35rem;
+            border-radius: 16px;
+            box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+            border: 1px solid #edf2f7;
+            animation: userToastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+        }
+        .sinfas-user-toast-card--clickable {
+            cursor: pointer;
+        }
+        .sinfas-user-toast-card--clickable:hover {
+            transform: translateX(-4px) scale(1.02);
+            box-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.18), 0 8px 16px -2px rgba(0, 0, 0, 0.08);
+        }
+        .sinfas-user-toast-card.toast--hiding {
+            opacity: 0;
+            transform: translateX(40px) scale(0.95);
+        }
+        @keyframes userToastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px) scale(0.92);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        .sinfas-user-toast-card--success { border-left: 4px solid #10b981; }
+        .sinfas-user-toast-card--error { border-left: 4px solid #ef4444; }
+        .sinfas-user-toast-card--info { border-left: 4px solid #3b82f6; }
+        .sinfas-user-toast-card--warning { border-left: 4px solid #f59e0b; }
+
+        .sinfas-user-toast-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sinfas-user-toast-icon--success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+        .sinfas-user-toast-icon--error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+        }
+        .sinfas-user-toast-icon--info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        .sinfas-user-toast-icon--warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+        .sinfas-user-toast-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .sinfas-user-toast-title {
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.35;
+        }
+        .sinfas-user-toast-desc {
+            font-size: 0.84rem;
+            color: #4b5563;
+            margin-top: 0.25rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .sinfas-user-toast-link {
+            margin-top: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #2563eb;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .sinfas-user-toast-close {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.35rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 6px;
+            transition: color 0.15s ease;
+            margin-left: -0.25rem;
+            align-self: flex-start;
+        }
+        .sinfas-user-toast-close:hover {
+            color: #374151;
+        }
+        .pulse-badge {
+            animation: sinfasPulse 1.8s infinite;
+        }
+        @keyframes sinfasPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
     </style>
 
     <script>
+        function closeUserToast(btnOrEl) {
+            const card = btnOrEl.closest('.sinfas-user-toast-card');
+            if (!card) return;
+            card.classList.add('toast--hiding');
+            setTimeout(() => { card.remove(); }, 300);
+        }
+
+        // Web Audio Chime Sound (Melodic notification cue for students)
+        function playUserNotificationChime() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                // Harmonic two-tone chime: E5 (659.25Hz) -> G#5 (830.61Hz)
+                osc.frequency.setValueAtTime(659.25, now);
+                osc.frequency.setValueAtTime(830.61, now + 0.12);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } catch (_) {}
+        }
+
+        // Desktop OS Notification API
+        function sendUserDesktopNotification(title, body, url) {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'granted') {
+                try {
+                    const notif = new Notification(title, {
+                        body: body,
+                        icon: '{{ asset("assets/logo-sinfas.png") }}',
+                        badge: '{{ asset("assets/logo-sinfas.png") }}',
+                        data: { url: url || '{{ route("loan.status") }}' },
+                        tag: 'sinfas-user-notif'
+                    });
+                    notif.onclick = function(e) {
+                        e.preventDefault();
+                        window.focus();
+                        if (url) window.location.href = url;
+                    };
+                } catch (_) {}
+            }
+        }
+
+        window.showUserToast = function(type, title, message, url) {
+            let container = document.getElementById('user-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'user-toast-container';
+                container.className = 'sinfas-user-toast-container';
+                document.body.appendChild(container);
+            }
+
+            const card = document.createElement('div');
+            card.className = `sinfas-user-toast-card sinfas-user-toast-card--${type} ${url ? 'sinfas-user-toast-card--clickable' : ''}`;
+
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+            } else if (type === 'error') {
+                iconSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+            } else if (type === 'warning') {
+                iconSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+            } else {
+                iconSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+            }
+
+            card.innerHTML = `
+                <div class="sinfas-user-toast-icon sinfas-user-toast-icon--${type}">
+                    ${iconSvg}
+                </div>
+                <div class="sinfas-user-toast-content">
+                    <div class="sinfas-user-toast-title">${title || 'Informasi Notifikasi'}</div>
+                    ${message ? `<div class="sinfas-user-toast-desc">${message}</div>` : ''}
+                    ${url ? `<div class="sinfas-user-toast-link">Lihat Status &rarr;</div>` : ''}
+                </div>
+                <button type="button" class="sinfas-user-toast-close" onclick="event.stopPropagation(); closeUserToast(this)">&times;</button>
+            `;
+
+            if (url) {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.sinfas-user-toast-close')) return;
+                    window.location.href = url;
+                });
+            }
+
+            container.appendChild(card);
+
+            setTimeout(() => {
+                if (card.parentElement) {
+                    closeUserToast(card);
+                }
+            }, 6000);
+        };
+
         window.openWaitingApprovalModal = function() {
             const modal = document.getElementById('waiting-approval-modal');
             if (modal) {
@@ -400,6 +636,48 @@
                 }
             });
 
+            // Web Push & Service Worker Setup for Siswa/Pegawai (User)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('{{ asset("sw.js") }}').then(async (reg) => {
+                    const vapidPublicKey = @json(config('services.webpush.public_key'));
+                    if (vapidPublicKey && 'PushManager' in window && Notification.permission === 'granted') {
+                        try {
+                            const sub = await reg.pushManager.getSubscription();
+                            if (!sub) {
+                                const padding = '='.repeat((4 - vapidPublicKey.length % 4) % 4);
+                                const base64 = (vapidPublicKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+                                const appServerKey = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                                const newSub = await reg.pushManager.subscribe({
+                                    userVisibleOnly: true,
+                                    applicationServerKey: appServerKey
+                                });
+                                fetch('{{ route("push.subscriptions.store") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                    },
+                                    body: JSON.stringify(newSub.toJSON())
+                                });
+                            }
+                        } catch (_) {}
+                    }
+                }).catch(() => {});
+            }
+
+            // Notification Permission: Request permission on user's first interaction
+            function tryRequestNotificationPermission() {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            }
+            document.addEventListener('click', tryRequestNotificationPermission, { once: true });
+
+            // Real-time Push Notification Engine for User (Siswa/Pegawai)
+            let lastKnownUserNotifId = parseInt(sessionStorage.getItem('sinfas_last_user_notif_id') || '0', 10);
+            let userNotifInitialized = sessionStorage.getItem('sinfas_user_notif_initialized') === 'true';
+
             // Fetch and update notification count and preview
             // updateBadge=true untuk refresh angka badge, false untuk hanya update list item
             function refreshNotifications(updateBadge = true) {
@@ -408,24 +686,28 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (updateBadge) {
-                        const badge = document.getElementById('navbar-notif-badge');
-                        if (badge) {
-                            if (data.unread_count > 0) {
-                                badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
-                                badge.style.display = 'flex';
-                            } else {
-                                badge.style.display = 'none';
-                            }
+                    const badge = document.getElementById('navbar-notif-badge');
+                    const count = data.unread_count || 0;
+                    const text = count > 99 ? '99+' : count;
+
+                    if (updateBadge && badge) {
+                        if (count > 0) {
+                            badge.textContent = text;
+                            badge.style.display = 'flex';
+                            badge.classList.add('pulse-badge');
+                        } else {
+                            badge.style.display = 'none';
+                            badge.classList.remove('pulse-badge');
                         }
                     }
 
                     const body = document.getElementById('navbar-notif-dropdown-body');
-                    if (body && data.recent) {
-                        if (data.recent.length === 0) {
+                    const recent = Array.isArray(data.recent) ? data.recent : [];
+                    if (body && recent) {
+                        if (recent.length === 0) {
                             body.innerHTML = '<div class="navbar-notif-empty">Tidak ada notifikasi</div>';
                         } else {
-                            body.innerHTML = data.recent.map(n => {
+                            body.innerHTML = recent.map(n => {
                                 const iconHtml = getNotifIcon(n.tipe);
                                 return `
                                 <a href="{{ route('notifications') }}" class="navbar-notif-item ${!n.status_baca ? 'navbar-notif-item--unread' : ''}">
@@ -444,13 +726,75 @@
                             }).join('');
                         }
                     }
+
+                    // Deteksi notifikasi baru yang masuk secara real-time
+                    if (recent.length > 0) {
+                        const currentMaxId = Math.max(...recent.map(r => r.id_notifikasi || 0));
+
+                        if (!userNotifInitialized) {
+                            // Sesi pertama dibuka: catat ID tertinggi tanpa memunculkan toast spam untuk notifikasi lama
+                            lastKnownUserNotifId = currentMaxId;
+                            sessionStorage.setItem('sinfas_last_user_notif_id', lastKnownUserNotifId);
+                            sessionStorage.setItem('sinfas_user_notif_initialized', 'true');
+                            userNotifInitialized = true;
+                        } else if (currentMaxId > lastKnownUserNotifId) {
+                            // Temukan notifikasi baru yang belum dibaca
+                            const newNotifs = recent.filter(r => (r.id_notifikasi || 0) > lastKnownUserNotifId && !r.status_baca);
+
+                            if (newNotifs.length > 0) {
+                                lastKnownUserNotifId = currentMaxId;
+                                sessionStorage.setItem('sinfas_last_user_notif_id', lastKnownUserNotifId);
+
+                                // Mainkan nada lonceng Web Audio API
+                                playUserNotificationChime();
+
+                                newNotifs.forEach(item => {
+                                    // Tentukan tipe toast dan link aksi
+                                    let toastType = 'info';
+                                    if (item.tipe === 'ditolak') {
+                                        toastType = 'error';
+                                    } else if (item.tipe === 'disetujui' || item.tipe === 'pengembalian_dikonfirmasi') {
+                                        toastType = 'success';
+                                    } else if (item.tipe === 'batas_waktu') {
+                                        toastType = 'warning';
+                                    }
+
+                                    const actionUrl = '{{ route("loan.status") }}';
+
+                                    // 1. Munculkan In-App Floating Toast
+                                    window.showUserToast(toastType, item.judul, item.pesan, actionUrl);
+
+                                    // 2. Kirim Notifikasi Desktop OS
+                                    sendUserDesktopNotification(item.judul, item.pesan, actionUrl);
+
+                                    // 3. Dispatch event agar halaman aktif (seperti status peminjaman) bisa merespons seketika
+                                    window.dispatchEvent(new CustomEvent('sinfas:user-notification', { detail: item }));
+                                });
+                            }
+                        }
+                    }
                 })
                 .catch(() => {});
             }
 
+            // Polling adaptif: 5 detik saat tab aktif, 15 detik saat tab di latar belakang
+            let userPollTimer = null;
+            function startUserPolling(intervalMs) {
+                if (userPollTimer) clearInterval(userPollTimer);
+                userPollTimer = setInterval(refreshNotifications, intervalMs);
+            }
+
             refreshNotifications();
-            // Refresh setiap 45 detik
-            setInterval(refreshNotifications, 45000);
+            startUserPolling(5000);
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    refreshNotifications();
+                    startUserPolling(5000);
+                } else {
+                    startUserPolling(15000);
+                }
+            });
         });
     </script>
 
