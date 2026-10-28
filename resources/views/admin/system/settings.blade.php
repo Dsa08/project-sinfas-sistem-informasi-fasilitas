@@ -134,6 +134,76 @@
             </table>
         </div>
     </div>
+
+    {{-- Card 4: Audit Log Percobaan Login Pengguna --}}
+    <div class="system-card mt-3">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <h3 class="system-card-title no-border" style="margin: 0;">Audit Log Percobaan Login</h3>
+            </div>
+            <span style="font-size: 0.78rem; color: #64748b;">10 Percobaan Otentikasi Terakhir</span>
+        </div>
+        <div class="system-table-card no-border mt-2">
+            <table class="system-table">
+                <thead>
+                    <tr>
+                        <th class="th-number">No.</th>
+                        <th style="width: 20%;">Identitas Pengguna</th>
+                        <th style="width: 24%;">Alamat IP & Perangkat</th>
+                        <th style="width: 20%;">Status</th>
+                        <th style="width: 22%;">Keterangan</th>
+                        <th style="width: 14%;">Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($loginLogs as $idx => $llog)
+                        <tr>
+                            <td class="td-number">{{ $idx + 1 }}</td>
+                            <td>
+                                <strong style="color: #0f172a; display: block;">{{ $llog->akun->nama ?? $llog->identifier }}</strong>
+                                @if($llog->akun)
+                                    <span style="font-size: 0.75rem; color: #64748b;">{{ $llog->akun->username }} ({{ ucfirst($llog->akun->role) }})</span>
+                                @else
+                                    <span style="font-size: 0.75rem; color: #ef4444;">(Tidak terdaftar)</span>
+                                @endif
+                            </td>
+                            <td>
+                                <code style="font-size: 0.78rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #0f172a;">{{ $llog->ip_address }}</code>
+                                <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">{{ $llog->device_summary }}</div>
+                            </td>
+                            <td>
+                                @if($llog->status === 'sukses')
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 0.2rem 0.55rem; border-radius: 6px;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                        {{ $llog->status_label }}
+                                    </span>
+                                @else
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 700; color: #dc2626; background: #fee2e2; padding: 0.2rem 0.55rem; border-radius: 6px;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        {{ $llog->status_label }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td style="font-size: 0.8rem; color: #475569;">{{ $llog->keterangan ?? '-' }}</td>
+                            <td style="font-size: 0.78rem; color: #64748b; white-space: nowrap;">
+                                {{ $llog->login_at ? $llog->login_at->translatedFormat('d M Y, H:i') : '-' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                Belum ada riwayat percobaan login yang tercatat.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 {{-- Modal Pulihkan Database --}}

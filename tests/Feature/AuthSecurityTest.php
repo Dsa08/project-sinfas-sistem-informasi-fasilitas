@@ -54,7 +54,24 @@ class AuthSecurityTest extends TestCase
         $response->assertSessionHasErrors('email');
         $errors = session('errors')->get('email');
         $this->assertStringContainsString('Terlalu banyak percobaan login', $errors[0]);
+
+        // Verifikasi bahwa percobaan login tercatat di tabel audit login_logs
+        $this->assertDatabaseHas('login_logs', [
+            'identifier' => 'unknown_user_test',
+            'status' => 'terkunci_rate_limit',
+        ]);
     }
 
+    public function test_failed_login_creates_audit_log_entry(): void
+    {
+        $this->post('/login', [
+            'email' => 'audit_test_unknown_user',
+            'password' => 'secret123',
+        ]);
 
+        $this->assertDatabaseHas('login_logs', [
+            'identifier' => 'audit_test_unknown_user',
+            'status' => 'gagal_akun_tidak_ditemukan',
+        ]);
+    }
 }

@@ -89,11 +89,15 @@ class AdminSistemController extends Controller
         // Mengumpulkan Riwayat Aktivitas Nyata
         $activityLogs = $this->aggregateActivityLogs();
 
+        // Mengumpulkan Riwayat Audit Log Login Pengguna (10 aktivitas login terkini)
+        $loginLogs = \App\Models\LoginLog::with('akun')->latest('login_at')->take(10)->get();
+
         return view('admin.system.settings', compact(
             'startTime',
             'endTime',
             'lastBackupFormatted',
-            'activityLogs'
+            'activityLogs',
+            'loginLogs'
         ));
     }
 
@@ -264,6 +268,31 @@ class AdminSistemController extends Controller
                 'timestamp' => $loan->created_at ? $loan->created_at->translatedFormat('d M Y, H:i') . ' WIB' : '-',
                 'time'      => $loan->created_at ?? Carbon::now()->subDays(2),
             ];
+        }
+
+        // 4. Ambil aktivitas audit login terbaru (5 login terakhir)
+        try {
+            $recentLogins = \App\Models\LoginLog::with('akun')->latest('login_at')->take(5)->get();
+            foreach ($recentLogins as $l) {
+                $userDesc = $l->akun->nama ?? ($l->identifier ?: 'Tamu');
+                $statusDesc = match ($l->status) {
+                    'sukses' => 'berhasil masuk',
+                    'gagal_password' => 'gagal masuk (kata sandi salah)',
+                    'gagal_akun_tidak_ditemukan' => 'gagal masuk (akun tak dikenal)',
+                    'gagal_nonaktif' => 'gagal masuk (akun dinonaktifkan)',
+                    'terkunci_rate_limit' => 'terblokir sementara oleh rate limiter',
+                    default => $l->status,
+                };
+                $deviceInfo = $l->device_summary ?? 'Perangkat Web';
+                $logs[] = [
+                    'user'      => $userDesc,
+                    'action'    => "Percobaan autentikasi: {$statusDesc} dari IP {$l->ip_address} ({$deviceInfo})",
+                    'timestamp' => $l->login_at ? $l->login_at->translatedFormat('d M Y, H:i') . ' WIB' : '-',
+                    'time'      => $l->login_at ?? Carbon::now()->subDays(3),
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Abaikan jika tabel belum termigrasi
         }
 
         // Urutkan berdasarkan waktu paling baru

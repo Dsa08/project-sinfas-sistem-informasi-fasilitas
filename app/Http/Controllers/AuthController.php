@@ -69,6 +69,15 @@ class AuthController extends Controller
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
+            // Audit Log: Catat insiden pembatasan percobaan login (indikasi brute-force)
+            \App\Services\LoginAuditService::record(
+                $request,
+                'terkunci_rate_limit',
+                null,
+                $identifier,
+                "Upaya login dibatasi sementara oleh Rate Limiter ({$seconds} detik tersisa)"
+            );
+
             return back()->withErrors([
                 'email' => "Terlalu banyak percobaan login yang gagal. Silakan coba lagi dalam {$seconds} detik.",
             ])->onlyInput('email');
@@ -99,6 +108,15 @@ class AuthController extends Controller
         if ($akun && Hash::check($credentials['password'], $akun->password)) {
             // Cek apakah akun dinonaktifkan oleh administrator
             if (isset($akun->is_active) && ! $akun->is_active) {
+                // Audit Log: Upaya masuk ke akun yang berstatus non-aktif
+                \App\Services\LoginAuditService::record(
+                    $request,
+                    'gagal_nonaktif',
+                    $akun,
+                    $identifier,
+                    'Akses ditolak: Akun berstatus non-aktif'
+                );
+
                 return back()->withErrors([
                     'email' => 'Akun Anda sedang dinonaktifkan. Silakan hubungi Administrator Sistem.',
                 ])->onlyInput('email');
@@ -106,6 +124,15 @@ class AuthController extends Controller
 
             // Bersihkan riwayat percobaan gagal pada Rate Limiter
             RateLimiter::clear($throttleKey);
+
+            // Audit Log: Autentikasi berhasil
+            \App\Services\LoginAuditService::record(
+                $request,
+                'sukses',
+                $akun,
+                $identifier,
+                'Autentikasi akun berhasil via Web'
+            );
 
             // Simpan autentikasi pada session web Laravel (dengan opsi Remember Me)
             Auth::login($akun, $request->filled('remember'));
@@ -116,6 +143,17 @@ class AuthController extends Controller
 
         // 5. Catat kegagalan login ke Rate Limiter (decay time 60 detik)
         RateLimiter::hit($throttleKey, 60);
+
+        // Audit Log: Catat kegagalan autentikasi (password keliru atau akun tidak terdaftar)
+        $failureStatus = $akun ? 'gagal_password' : 'gagal_akun_tidak_ditemukan';
+        $failureNote = $akun ? 'Kata sandi tidak cocok' : 'Identitas pengguna tidak ditemukan di sistem';
+        \App\Services\LoginAuditService::record(
+            $request,
+            $failureStatus,
+            $akun,
+            $identifier,
+            $failureNote
+        );
 
         return back()->withErrors([
             'email' => 'Akun atau password yang Anda masukkan salah.',

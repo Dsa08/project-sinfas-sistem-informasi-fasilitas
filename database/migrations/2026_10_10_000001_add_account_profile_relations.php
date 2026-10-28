@@ -94,17 +94,22 @@ return new class extends Migration
             });
         }
 
-        DB::statement('UPDATE siswa s JOIN akun a ON a.nis = s.nis SET s.id_akun = a.id_akun WHERE s.id_akun IS NULL');
-        DB::statement("UPDATE pegawai p JOIN akun a ON a.nip = p.nip AND a.role = 'pegawai' AND a.is_active = 1 SET p.id_akun = a.id_akun WHERE p.id_akun IS NULL");
-        DB::statement('UPDATE peminjaman p JOIN akun a ON a.nis = p.nis SET p.id_akun = a.id_akun WHERE p.id_akun IS NULL');
+        if (Schema::hasColumn('akun', 'nis')) {
+            DB::statement('UPDATE siswa s JOIN akun a ON a.nis = s.nis SET s.id_akun = a.id_akun WHERE s.id_akun IS NULL');
+            DB::statement('UPDATE peminjaman p JOIN akun a ON a.nis = p.nis SET p.id_akun = a.id_akun WHERE p.id_akun IS NULL');
+        }
 
-        DB::statement("INSERT INTO staff_sarana (nip, id_akun, nama, no_hp)
-            SELECT a.nip, a.id_akun, a.nama, a.nomor_kontak
-            FROM akun a
-            JOIN (SELECT nip, MIN(id_akun) AS id_akun FROM akun
-                  WHERE role = 'admin_sarana' AND is_active = 1 AND nip IS NOT NULL GROUP BY nip) active_staff
-              ON active_staff.id_akun = a.id_akun
-            WHERE NOT EXISTS (SELECT 1 FROM staff_sarana s WHERE s.nip = a.nip)");
+        if (Schema::hasColumn('akun', 'nip')) {
+            DB::statement("UPDATE pegawai p JOIN akun a ON a.nip = p.nip AND a.role = 'pegawai' AND a.is_active = 1 SET p.id_akun = a.id_akun WHERE p.id_akun IS NULL");
+
+            DB::statement("INSERT INTO staff_sarana (nip, id_akun, nama, no_hp)
+                SELECT a.nip, a.id_akun, a.nama, a.nomor_kontak
+                FROM akun a
+                JOIN (SELECT nip, MIN(id_akun) AS id_akun FROM akun
+                      WHERE role = 'admin_sarana' AND is_active = 1 AND nip IS NOT NULL GROUP BY nip) active_staff
+                  ON active_staff.id_akun = a.id_akun
+                WHERE NOT EXISTS (SELECT 1 FROM staff_sarana s WHERE s.nip = a.nip)");
+        }
     }
 
     public function down(): void

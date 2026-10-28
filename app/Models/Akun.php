@@ -112,6 +112,16 @@ class Akun extends Authenticatable
     }
 
     /**
+     * Relasi: Akun memiliki banyak riwayat audit login (1:N).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class, 'id_akun', 'id_akun');
+    }
+
+    /**
      * Accessor untuk mendapatkan URL lengkap foto profil akun.
      *
      * @return string|null
