@@ -47,6 +47,7 @@ class Akun extends Authenticatable
         'foto',          // Path relatif foto profil pengguna
         'is_active',     // Status keaktifan akun (true: aktif, false: disuspend)
         'must_change_password',
+        'current_session_id', // ID sesi aktif pengguna untuk single session lock
     ];
 
     /**

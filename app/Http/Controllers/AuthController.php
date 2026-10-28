@@ -138,6 +138,12 @@ class AuthController extends Controller
             Auth::login($akun, $request->filled('remember'));
             $request->session()->regenerate();
 
+            // Single Session Lock: Simpan ID sesi terbaru ke database
+            // Setiap sesi lama di perangkat/peramban lain otomatis tidak valid pada request berikutnya
+            $akun->forceFill([
+                'current_session_id' => $request->session()->getId(),
+            ])->save();
+
             return $this->redirectBasedOnRole($akun)->with('success', 'Selamat datang kembali, '.$akun->nama.'!');
         }
 
@@ -167,6 +173,11 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Single Session Lock: Bersihkan ID sesi aktif saat pengguna logout sukarela
+        if ($user = Auth::user()) {
+            $user->forceFill(['current_session_id' => null])->save();
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

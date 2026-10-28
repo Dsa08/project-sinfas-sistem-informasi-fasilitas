@@ -29,6 +29,12 @@
         </div>
     @endif
 
+    @if(session('warning'))
+        <div class="auth-alert auth-alert--warning">
+            {{ session('warning') }}
+        </div>
+    @endif
+
     @if(session('error'))
         <div class="auth-alert auth-alert--danger">
             {{ session('error') }}

@@ -74,4 +74,54 @@ class AuthSecurityTest extends TestCase
             'status' => 'gagal_akun_tidak_ditemukan',
         ]);
     }
+
+    public function test_user_login_records_current_session_id(): void
+    {
+        $user = \App\Models\Akun::where('username', 'ahmad')->first();
+        if (! $user) {
+            $user = \App\Models\Akun::create([
+                'username' => 'test_single_session_user',
+                'nama' => 'Single Session Tester',
+                'email' => 'single_session@smkn11bdg.sch.id',
+                'role' => 'siswa',
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                'is_active' => true,
+            ]);
+        }
+
+        $response = $this->post('/login', [
+            'email' => $user->username,
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect();
+        $user->refresh();
+        $this->assertNotNull($user->current_session_id);
+    }
+
+    public function test_superseded_session_is_automatically_logged_out_with_warning(): void
+    {
+        $user = \App\Models\Akun::where('username', 'ahmad')->first();
+        if (! $user) {
+            $user = \App\Models\Akun::create([
+                'username' => 'test_superseded_user',
+                'nama' => 'Superseded Tester',
+                'email' => 'superseded@smkn11bdg.sch.id',
+                'role' => 'siswa',
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                'is_active' => true,
+            ]);
+        }
+
+        // Simulasikan perangkat baru login sehingga current_session_id di database terisi ID sesi lain
+        $user->forceFill(['current_session_id' => 'different-session-from-device-b'])->save();
+
+        // Kirim request dari peramban lama (yang memiliki session ID lokal berbeda)
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertRedirect('/login');
+        $response->assertSessionHas('warning');
+        $this->assertGuest();
+    }
 }
+
