@@ -16,7 +16,7 @@ class ExampleTest extends TestCase
 
         $response->assertOk();
         $response->assertViewIs('landing');
-        $response->assertSee('Tiga langkah peminjaman');
+        $response->assertSee('3 Langkah Mudah Peminjaman Sarana');
     }
 
     public function test_login_screen_can_be_rendered(): void
