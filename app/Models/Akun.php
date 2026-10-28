@@ -48,6 +48,9 @@ class Akun extends Authenticatable
         'is_active',     // Status keaktifan akun (true: aktif, false: disuspend)
         'must_change_password',
         'current_session_id', // ID sesi aktif pengguna untuk single session lock
+        'two_factor_secret',         // Kunci rahasia TOTP (dienkripsi)
+        'two_factor_recovery_codes',  // Daftar kode pemulihan cadangan (dienkripsi)
+        'two_factor_confirmed_at',   // Waktu aktivasi 2FA
     ];
 
     /**
@@ -58,6 +61,8 @@ class Akun extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -69,6 +74,9 @@ class Akun extends Authenticatable
         'password'  => 'hashed',
         'is_active' => 'boolean',
         'must_change_password' => 'boolean',
+        'two_factor_secret' => 'encrypted',
+        'two_factor_recovery_codes' => 'encrypted:array',
+        'two_factor_confirmed_at' => 'datetime',
     ];
 
     /**
@@ -185,6 +193,16 @@ class Akun extends Authenticatable
     public function isAdminSistem(): bool
     {
         return $this->role === 'admin_sistem';
+    }
+
+    /**
+     * Helper: Memeriksa apakah autentikasi dua faktor (2FA TOTP) telah aktif dan dikonfirmasi.
+     *
+     * @return bool
+     */
+    public function hasTwoFactorEnabled(): bool
+    {
+        return ! empty($this->two_factor_secret) && ! is_null($this->two_factor_confirmed_at);
     }
 
     /**

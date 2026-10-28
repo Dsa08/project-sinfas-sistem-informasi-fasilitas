@@ -56,6 +56,10 @@ Route::middleware('guest')->group(function () {
     // Memproses data login (mendukung Username, Email, NIS, atau NIP + Rate Limiting)
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
+    // --- Tantangan Two-Factor Authentication (2FA TOTP) ---
+    Route::get('/login/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'showChallenge'])->name('login.2fa');
+    Route::post('/login/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'verifyChallenge'])->name('login.2fa.post');
+
     // --- Pemulihan Kata Sandi (Forgot & Reset Password) ---
     // Menampilkan form permohonan tautan reset password
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
@@ -208,6 +212,13 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
         Route::delete('/accounts/{id}', [AccountController::class, 'destroy'])->name('admin.sistem.accounts.destroy');
         // Reset password darurat akun oleh administrator sistem
         Route::post('/accounts/{id}/reset-password', [AccountController::class, 'resetPassword'])->name('admin.sistem.accounts.reset');
+    });
+
+    // --- Pengaturan Two-Factor Authentication (2FA TOTP) Administrator ---
+    Route::middleware('role:admin_sarana,admin_sistem')->prefix('admin/2fa')->group(function () {
+        Route::get('/setup', [\App\Http\Controllers\Auth\TwoFactorController::class, 'setup'])->name('admin.2fa.setup');
+        Route::post('/confirm', [\App\Http\Controllers\Auth\TwoFactorController::class, 'confirm'])->name('admin.2fa.confirm');
+        Route::post('/disable', [\App\Http\Controllers\Auth\TwoFactorController::class, 'disable'])->name('admin.2fa.disable');
     });
 });
 

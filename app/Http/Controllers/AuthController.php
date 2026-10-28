@@ -125,7 +125,17 @@ class AuthController extends Controller
             // Bersihkan riwayat percobaan gagal pada Rate Limiter
             RateLimiter::clear($throttleKey);
 
-            // Audit Log: Autentikasi berhasil
+            // Two-Factor Authentication (2FA) khusus peran Administrator (Admin Sarana & Admin Sistem)
+            if ($akun->isAdmin() && $akun->hasTwoFactorEnabled()) {
+                $request->session()->put([
+                    'login.2fa.id' => $akun->id_akun,
+                    'login.2fa.remember' => $request->filled('remember'),
+                ]);
+
+                return redirect()->route('login.2fa');
+            }
+
+            // Audit Log: Autentikasi berhasil (tanpa 2FA)
             \App\Services\LoginAuditService::record(
                 $request,
                 'sukses',

@@ -123,5 +123,84 @@ class AuthSecurityTest extends TestCase
         $response->assertSessionHas('warning');
         $this->assertGuest();
     }
+
+    public function test_admin_with_2fa_is_redirected_to_two_factor_challenge(): void
+    {
+        $admin = \App\Models\Akun::where('username', 'admin_2fa_test')->first();
+        if (! $admin) {
+            $admin = \App\Models\Akun::create([
+                'username' => 'admin_2fa_test',
+                'nama' => 'Admin 2FA Tester',
+                'email' => 'admin_2fa_test@smkn11bdg.sch.id',
+                'role' => 'admin_sarana',
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                'is_active' => true,
+            ]);
+        }
+
+        $secret = \App\Services\TotpService::generateSecret();
+        $admin->two_factor_secret = $secret;
+        $admin->two_factor_recovery_codes = ['ABCD-1234', 'WXYZ-5678'];
+        $admin->two_factor_confirmed_at = now();
+        $admin->save();
+
+        $response = $this->post('/login', [
+            'email' => 'admin_2fa_test',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect('/login/two-factor');
+        $this->assertGuest();
+        $this->assertEquals($admin->id_akun, session('login.2fa.id'));
+    }
+
+    public function test_admin_2fa_challenge_succeeds_with_valid_totp(): void
+    {
+        $admin = \App\Models\Akun::where('username', 'admin_2fa_test')->first();
+        $secret = $admin->two_factor_secret;
+        $validOtp = \App\Services\TotpService::calculateOtp($secret);
+
+        $response = $this->withSession(['login.2fa.id' => $admin->id_akun])
+            ->post('/login/two-factor', [
+                'code' => $validOtp,
+            ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_admin_2fa_challenge_fails_with_invalid_totp(): void
+    {
+        $admin = \App\Models\Akun::where('username', 'admin_2fa_test')->first();
+
+        $response = $this->withSession(['login.2fa.id' => $admin->id_akun])
+            ->from('/login/two-factor')
+            ->post('/login/two-factor', [
+                'code' => '999999',
+            ]);
+
+        $response->assertRedirect('/login/two-factor');
+        $response->assertSessionHasErrors('code');
+        $this->assertGuest();
+    }
+
+    public function test_admin_2fa_challenge_succeeds_with_recovery_code(): void
+    {
+        $admin = \App\Models\Akun::where('username', 'admin_2fa_test')->first();
+        $codes = $admin->two_factor_recovery_codes;
+        $usedCode = $codes[0];
+
+        $response = $this->withSession(['login.2fa.id' => $admin->id_akun])
+            ->post('/login/two-factor', [
+                'recovery_code' => $usedCode,
+            ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($admin);
+
+        // Verifikasi bahwa recovery code yang dipakai telah hangus/dikonsumsi
+        $admin->refresh();
+        $this->assertNotContains($usedCode, $admin->two_factor_recovery_codes);
+    }
 }
 

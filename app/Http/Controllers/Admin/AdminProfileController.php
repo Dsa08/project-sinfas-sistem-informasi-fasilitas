@@ -27,22 +27,37 @@ class AdminProfileController extends Controller
     /**
      * Menampilkan halaman Pengaturan Akun admin dengan tab yang aktif.
      * Default tab adalah 'profile'.
-     *
-     * @param  string  $tab  Tab aktif: profile|password|notifications|verification
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $tab  Tab aktif: profile|password|notifications|verification|two_factor
      * @return \Illuminate\View\View
      */
-    public function show($tab = 'profile')
+    public function show(Request $request, $tab = 'profile')
     {
-        $allowedTabs = ['profile', 'password', 'notifications', 'verification'];
-        if (!in_array($tab, $allowedTabs)) {
+        $allowedTabs = ['profile', 'password', 'notifications', 'verification', 'two_factor'];
+        if (! in_array($tab, $allowedTabs, true)) {
             $tab = 'profile';
         }
 
         $user = Auth::user();
+        $draftSecret = null;
+        $qrCodeUrl = null;
+
+        if ($tab === 'two_factor' && ! $user->hasTwoFactorEnabled()) {
+            $draftSecret = $request->session()->get('2fa.draft_secret');
+            if (! $draftSecret) {
+                $draftSecret = \App\Services\TotpService::generateSecret();
+                $request->session()->put('2fa.draft_secret', $draftSecret);
+            }
+            $label = $user->email ?? $user->username;
+            $otpAuthUrl = \App\Services\TotpService::getOtpAuthUrl($label, $draftSecret, 'SINFAS');
+            $qrCodeUrl = \App\Services\TotpService::getQrCodeImageUrl($otpAuthUrl);
+        }
 
         return view('admin.profile', [
-            'user'       => $user,
-            'activeTab'  => $tab,
+            'user'        => $user,
+            'activeTab'   => $tab,
+            'draftSecret' => $draftSecret,
+            'qrCodeUrl'   => $qrCodeUrl,
         ]);
     }
 

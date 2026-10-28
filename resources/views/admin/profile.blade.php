@@ -71,6 +71,16 @@
                     </svg>
                     <span>Verifikasi Akun</span>
                 </a>
+
+                <a href="{{ route('admin.profile', ['tab' => 'two_factor']) }}"
+                   class="admin-profile-tab {{ $activeTab === 'two_factor' ? 'admin-profile-tab--active' : '' }}"
+                   id="tab-two-factor">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                    <span>Keamanan 2FA</span>
+                </a>
             </nav>
         </aside>
 
@@ -524,6 +534,158 @@
                     </svg>
                     <span>Untuk perubahan data identitas resmi (NIP, username, atau role), silakan hubungi <strong>Admin Sistem</strong> SINFAS.</span>
                 </div>
+            </div>
+            @endif
+
+            {{-- ===== TAB 5: KEAMANAN 2FA ===== --}}
+            @if($activeTab === 'two_factor')
+            <div class="admin-profile-panel" id="panel-two-factor">
+                <div class="admin-profile-panel-header">
+                    <h3 class="admin-profile-panel-title">Autentikasi Dua Faktor (2FA TOTP)</h3>
+                    <p class="admin-profile-panel-desc">Tingkatkan keamanan akun administrator dengan mewajibkan kode 6-digit dari aplikasi Authenticator saat login.</p>
+                </div>
+
+                {{-- Status 2FA: SUDAH AKTIF --}}
+                @if($user->hasTwoFactorEnabled())
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="m9 12 2 2 4-4"/>
+                            </svg>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #15803D;">2FA Sedang Aktif & Melindungi Akun</h4>
+                                <span style="background: #16A34A; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase;">Aktif</span>
+                            </div>
+                            <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: #166534; line-height: 1.45;">
+                                Dikonfirmasi sejak: <strong>{{ $user->two_factor_confirmed_at?->translatedFormat('d F Y, H:i') }} WIB</strong>.<br>
+                                Setiap kali Anda masuk menggunakan password, sistem akan meminta 6 digit kode dari aplikasi Authenticator Anda.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Tampilan Kode Pemulihan yang baru saja diaktifkan --}}
+                    @if(session('show_recovery_codes'))
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                            <h4 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: #92400E;">
+                                ⚠️ Penting: Simpan Kode Pemulihan Darurat Anda!
+                            </h4>
+                            <p style="margin: 0 0 1rem; font-size: 0.84rem; color: #78350F; line-height: 1.4;">
+                                Jika Anda kehilangan akses ke ponsel atau aplikasi authenticator, Anda dapat menggunakan salah satu kode di bawah ini untuk masuk. Setiap kode hanya dapat digunakan satu kali.
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; background: #fff; padding: 1rem; border-radius: 8px; border: 1px dashed #FCD34D;">
+                                @foreach(session('show_recovery_codes') as $code)
+                                    <code style="font-family: monospace; font-size: 0.92rem; font-weight: 700; color: #1E293B; text-align: center; display: block; padding: 4px; background: #F8FAFC; border-radius: 4px;">{{ $code }}</code>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                            <div>
+                                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: #334155;">Kode Pemulihan Cadangan</span>
+                                <span style="font-size: 0.78rem; color: #64748B;">{{ count($user->two_factor_recovery_codes ?? []) }} kode cadangan darurat tersisa.</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Form Penonaktifan 2FA --}}
+                    <div style="border-top: 1px solid #F1F5F9; padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <h4 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: #DC2626;">Zona Bahaya: Nonaktifkan 2FA</h4>
+                        <p style="margin: 0 0 1rem; font-size: 0.83rem; color: #64748B;">
+                            Menonaktifkan 2FA akan membuat akun Anda hanya dilindungi oleh kata sandi tunggal.
+                        </p>
+                        <form action="{{ route('admin.2fa.disable') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan 2FA? Keamanan akun administrator Anda akan berkurang.');">
+                            @csrf
+                            <div style="display: flex; gap: 0.75rem; max-width: 480px; align-items: flex-start;">
+                                <input
+                                    type="password"
+                                    name="current_password"
+                                    placeholder="Masukkan kata sandi untuk konfirmasi"
+                                    class="admin-profile-input"
+                                    required
+                                    style="flex: 1;"
+                                >
+                                <button type="submit" style="background: #DC2626; color: #fff; border: none; padding: 0.65rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">
+                                    Nonaktifkan 2FA
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                {{-- Status 2FA: BELUM AKTIF (WIZARD PENYIAPAN) --}}
+                @else
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        {{-- Langkah 1 --}}
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #1D67F2; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;">1</div>
+                            <div>
+                                <h4 style="margin: 0 0 0.25rem; font-size: 0.95rem; font-weight: 700; color: #0F172A;">Pasang Aplikasi Authenticator</h4>
+                                <p style="margin: 0; font-size: 0.83rem; color: #64748b; line-height: 1.4;">
+                                    Unduh aplikasi penyedia TOTP seperti <strong>Google Authenticator</strong> atau <strong>Microsoft Authenticator</strong> di ponsel Android / iPhone Anda melalui Play Store atau App Store.
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Langkah 2 --}}
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #1D67F2; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;">2</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 0.25rem; font-size: 0.95rem; font-weight: 700; color: #0F172A;">Pindai QR Code atau Ketik Kunci Manual</h4>
+                                <p style="margin: 0 0 1rem; font-size: 0.83rem; color: #64748b;">
+                                    Buka aplikasi Authenticator, pilih <em>"Pindai kode QR"</em> atau masukkan kunci manual di bawah ini jika kamera ponsel bermasalah:
+                                </p>
+
+                                <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 1.25rem; border-radius: 12px;">
+                                    @if($qrCodeUrl)
+                                        <div style="background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #CBD5E1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                                            <img src="{{ $qrCodeUrl }}" alt="QR Code 2FA" width="160" height="160" style="display: block;">
+                                        </div>
+                                    @endif
+                                    <div style="flex: 1; min-width: 220px;">
+                                        <span style="font-size: 0.78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.35rem;">KUNCI RAHASIA MANUAL (SECRET KEY):</span>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #CBD5E1; padding: 0.65rem 0.85rem; border-radius: 8px;">
+                                            <code style="font-family: monospace; font-size: 1rem; font-weight: 700; letter-spacing: 0.15em; color: #1D67F2;" id="secret-key-display">
+                                                {{ implode(' ', str_split($draftSecret, 4)) }}
+                                            </code>
+                                        </div>
+                                        <small style="color: #64748b; font-size: 0.75rem; display: block; margin-top: 0.35rem;">Kunci ini digunakan saat memilih "Masukkan kunci penyiapan" di aplikasi.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Langkah 3 --}}
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #1D67F2; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;">3</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 0.25rem; font-size: 0.95rem; font-weight: 700; color: #0F172A;">Konfirmasi Kode 6 Digit</h4>
+                                <p style="margin: 0 0 0.85rem; font-size: 0.83rem; color: #64748b;">
+                                    Ketik 6 digit kode yang sedang ditampilkan oleh aplikasi Authenticator untuk mengonfirmasi dan mengaktifkan 2FA:
+                                </p>
+
+                                <form action="{{ route('admin.2fa.confirm') }}" method="POST" style="display: flex; gap: 0.75rem; max-width: 380px; align-items: flex-start;">
+                                    @csrf
+                                    <input
+                                        type="text"
+                                        name="code"
+                                        placeholder="000000"
+                                        maxlength="6"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        required
+                                        class="admin-profile-input"
+                                        style="font-family: monospace; font-size: 1.2rem; letter-spacing: 0.25em; text-align: center; font-weight: 700; height: 46px; flex: 1;"
+                                    >
+                                    <button type="submit" class="btn-admin-profile-primary" style="height: 46px; padding: 0 1.25rem; font-size: 0.88rem; white-space: nowrap;">
+                                        Aktifkan 2FA
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
             @endif
 
