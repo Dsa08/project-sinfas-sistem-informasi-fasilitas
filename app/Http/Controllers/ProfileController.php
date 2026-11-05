@@ -22,13 +22,29 @@ use Illuminate\View\View;
  */
 class ProfileController extends Controller
 {
-    /** Tampilkan formulir penggantian sandi setelah admin menerbitkan sandi sementara. */
+    /**
+     * Menampilkan formulir wajib ganti kata sandi setelah admin menerbitkan sandi sementara.
+     *
+     * @return View Tampilan view 'auth.change-required-password'.
+     */
     public function showRequiredPasswordChange()
     {
         return view('auth.change-required-password');
     }
 
-    /** Buka kembali akses aplikasi setelah pengguna menetapkan sandi baru yang valid. */
+    /**
+     * Memproses pergantian kata sandi wajib dan membuka kembali hak akses penuh pengguna ke aplikasi.
+     *
+     * Prasyarat:
+     * - Kata sandi saat ini cocok dengan hash database.
+     * - Kata sandi baru minimal 8 karakter dan kombinasi huruf serta angka.
+     *
+     * Efek Samping:
+     * - Mengubah kolom `password` dan menyetel `must_change_password = false` pada akun pengguna.
+     *
+     * @param Request $request Request HTTP yang memuat sandi saat ini, sandi baru, dan konfirmasi sandi.
+     * @return RedirectResponse Pengalihan ke beranda peran pengguna dengan pesan sukses.
+     */
     public function updateRequiredPassword(Request $request)
     {
         $validated = $request->validate([
@@ -46,10 +62,9 @@ class ProfileController extends Controller
     }
 
     /**
-     * Menampilkan halaman pengaturan dan biodata profil pengguna.
-     * Mengambil email dari akun atau data siswa terkait.
+     * Menampilkan antarmuka profil dan pengaturan biodata pengguna yang sedang login.
      *
-     * @return View
+     * @return View Tampilan view 'user.profile' dengan data pengguna dan alamat email terdaftar.
      */
     public function show()
     {
@@ -69,10 +84,14 @@ class ProfileController extends Controller
     }
 
     /**
-     * Memperbarui informasi profil pengguna.
-     * Menyinkronkan perubahan nama dan kontak pada tabel 'akun' dan tabel 'siswa'.
+     * Memperbarui informasi nama lengkap, nomor kontak, dan email profil pengguna.
+     * Menyinkronkan perubahan ke tabel master yang terkait (`siswa` atau `pegawai`).
      *
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Memperbarui kolom `nama`, `nomor_kontak`, dan `email` pada tabel `akun` dan tabel profil induk.
+     *
+     * @param Request $request Request HTTP yang memuat input nama lengkap, nomor kontak, dan email.
+     * @return RedirectResponse Pengalihan kembali ke halaman profil dengan flash message sukses.
      */
     public function update(Request $request)
     {
@@ -119,9 +138,16 @@ class ProfileController extends Controller
     }
 
     /**
-     * Memproses penggantian kata sandi mandiri pengguna.
+     * Memproses penggantian kata sandi mandiri pengguna dari menu profil.
      *
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Kata sandi saat ini harus cocok dengan hash yang tersimpan di basis data.
+     *
+     * Efek Samping:
+     * - Mengubah hash password pengguna di tabel `akun`.
+     *
+     * @param Request $request Request HTTP yang memuat kata sandi saat ini, sandi baru, dan konfirmasi sandi.
+     * @return RedirectResponse Pengalihan kembali ke halaman profil dengan pesan sukses atau error.
      */
     public function updatePassword(Request $request)
     {
@@ -152,9 +178,15 @@ class ProfileController extends Controller
     }
 
     /**
-     * Memproses pengunggahan dan penggantian foto profil pengguna.
+     * Memproses pengunggahan dan pembaruan foto profil avatar pengguna dengan konversi WebP.
      *
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Mengompresi dan menyimpan berkas foto profil baru ke folder `uploads/avatars/`.
+     * - Menghapus foto profil lama dari disk penyimpanan server.
+     * - Memperbarui path foto di tabel `akun`.
+     *
+     * @param Request $request Request HTTP yang memuat berkas foto avatar.
+     * @return RedirectResponse Pengalihan kembali ke halaman profil dengan pesan sukses.
      */
     public function updatePhoto(Request $request)
     {
@@ -181,9 +213,13 @@ class ProfileController extends Controller
     }
 
     /**
-     * Menghapus foto profil pengguna dan mengembalikannya ke avatar default.
+     * Menghapus foto profil pengguna dan mengembalikannya ke avatar visual inisial bawaan sistem.
      *
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Menghapus berkas foto fisik dari disk server.
+     * - Menyetel kolom `foto` menjadi null pada tabel `akun`.
+     *
+     * @return RedirectResponse Pengalihan kembali ke halaman profil dengan pesan sukses.
      */
     public function deletePhoto()
     {

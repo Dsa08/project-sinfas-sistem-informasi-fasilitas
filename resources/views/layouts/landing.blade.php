@@ -1,3 +1,10 @@
+{{-- 
+  LAYOUT UTAMA HALAMAN LANDING PUBLIK — SINFAS
+  File: resources/views/layouts/landing.blade.php
+  Fungsi:
+  - Kerangka dasar HTML5 untuk halaman landing publik.
+  - Memuat meta tag SEO, Favicon resmi SINFAS, Google Fonts (Inter & Poppins), serta bundel aset Vite.
+--}}
 <!DOCTYPE html>
 <html lang="id">
 <head>

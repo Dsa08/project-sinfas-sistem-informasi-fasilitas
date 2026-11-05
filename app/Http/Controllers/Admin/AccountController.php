@@ -35,9 +35,10 @@ class AccountController extends Controller
 {
     /**
      * Menampilkan daftar seluruh akun pengguna selain admin sistem utama.
-     * Mendukung multi-field search (nama, username, nis, nip, email) dan sorting dinamis.
+     * Mendukung pencarian multi-field (nama, username, NIS, NIP, email), paginasi dinamis, dan pengurutan kolom.
      *
-     * @return View
+     * @param Request $request Request HTTP yang memuat query string pencarian, penyortiran, dan per_page.
+     * @return View Tampilan view 'admin.system.accounts' dengan data akun terpaginasi dan metrik total akun.
      */
     public function index(Request $request)
     {
@@ -84,10 +85,18 @@ class AccountController extends Controller
     }
 
     /**
-     * Menyimpan data akun pengguna baru ke dalam sistem.
-     * Memvalidasi apakah NIS siswa atau NIP pegawai terdaftar resmi di basis data sekolah.
+     * Menyimpan rekaman akun pengguna baru ke basis data dengan validasi identitas master sekolah.
      *
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Nomor identitas NIS (untuk siswa) atau NIP (untuk pegawai/sarana) harus terdaftar di master data sekolah.
+     * - Username dan email harus unik di tabel `akun`.
+     *
+     * Efek Samping:
+     * - Menyimpan avatar baru ke disk penyimpanan dengan optimasi WebP.
+     * - Membuat baris baru di tabel `akun` dan mengaitkan ID akun ke tabel profil (`siswa`, `pegawai`, atau `staff_sarana`).
+     *
+     * @param Request $request Request HTTP yang membawa seluruh data akun baru.
+     * @return RedirectResponse Pengalihan kembali ke daftar akun dengan pesan sukses.
      */
     public function store(Request $request)
     {
@@ -143,10 +152,11 @@ class AccountController extends Controller
     }
 
     /**
-     * Mengambil detail akun dalam format JSON untuk kebutuhan modal view/edit AJAX.
+     * Mengambil rincian data lengkap akun pengguna dalam format JSON untuk kebutuhan modal dialog AJAX.
+     * Mengikutsertakan relasi master identitas NIS/NIP dan 10 riwayat transaksi peminjaman terakhir.
      *
-     * @param  int  $id  ID Akun
-     * @return JsonResponse
+     * @param int $id ID unik akun pada tabel `akun`.
+     * @return JsonResponse Data profil akun dan riwayat pinjaman dalam format JSON.
      */
     public function show($id)
     {
@@ -196,10 +206,18 @@ class AccountController extends Controller
     }
 
     /**
-     * Memperbarui informasi akun pengguna yang telah ada.
+     * Memperbarui informasi akun pengguna yang telah terdaftar serta menyinkronkan data profilnya.
      *
-     * @param  int  $id  ID Akun
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Username dan email harus unik terhadap akun lain (mengabaikan ID akun saat ini).
+     *
+     * Efek Samping:
+     * - Mengganti avatar fisik lama di server jika ada berkas foto baru yang diunggah.
+     * - Memperbarui rekaman di tabel `akun` dan tabel profil induk.
+     *
+     * @param Request $request Request HTTP yang memuat data pembaruan akun.
+     * @param int $id ID unik akun yang akan diperbarui.
+     * @return RedirectResponse Pengalihan kembali ke panel kelola akun dengan notifikasi sukses.
      */
     public function update(Request $request, $id)
     {
@@ -265,11 +283,14 @@ class AccountController extends Controller
     }
 
     /**
-     * Mengaktifkan atau menonaktifkan akun pengguna (toggle is_active).
-     * Mencegah admin menonaktifkan akun dirinya sendiri.
+     * Mengubah status aktif akun pengguna (mengaktifkan kembali atau menonaktifkan akun).
+     * Mencegah admin sistem menonaktifkan akun miliknya sendiri untuk mencegah insiden penguncian sistem (lockout).
      *
-     * @param  int  $id  ID Akun
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Membalik nilai boolean pada kolom `is_active` di tabel `akun`.
+     *
+     * @param int $id ID unik akun yang status keaktifannya akan diubah.
+     * @return RedirectResponse Pengalihan kembali ke panel kelola akun dengan status pesan terbaru.
      */
     public function destroy($id)
     {
@@ -289,6 +310,15 @@ class AccountController extends Controller
             ->with('success', "Akun {$akun->nama} berhasil {$status}.");
     }
 
+    /**
+     * Memvalidasi dan mencari profil master sekolah yang berelasi dengan nomor identitas NIS/NIP yang diinputkan.
+     *
+     * @param string $role Peran akun yang diajukan ('siswa', 'pegawai', atau 'admin_sarana').
+     * @param string $identity Nomor NIS atau NIP yang diinputkan.
+     * @param Akun|null $currentAccount Model akun yang sedang diedit (jika operasi update).
+     * @return array<string, mixed> Array berisi nomor NIS/NIP dan objek model profil master sekolah.
+     * @throws ValidationException Jika identitas tidak ditemukan atau sudah dipakai akun lain.
+     */
     private function resolveIdentity(string $role, string $identity, ?Akun $currentAccount = null): array
     {
         if ($role === 'siswa') {
@@ -317,7 +347,7 @@ class AccountController extends Controller
         }
 
         $staffAccountId = StaffSarana::where('nip', $profile->nip)->value('id_akun');
-        if ($staffAccountId && (int) $staffAccountId !== (int) $currentAccount?->id_akun) {
+        if ($staffAccountId && (int) $staffAccountId !== (int) ($currentAccount?->id_akun ?? 0)) {
             throw ValidationException::withMessages(['nis_nip' => 'Pegawai ini sudah memiliki akun staff sarana.']);
         }
 
@@ -325,12 +355,14 @@ class AccountController extends Controller
     }
 
     /**
-     * Menghubungkan akun ke profil (StaffSarana, Siswa, atau Pegawai)
-     * dan menyinkronkan data kontak serta identitas.
+     * Menghubungkan relasi akun login ke tabel profil master sekolah (`staff_sarana`, `siswa`, atau `pegawai`).
      *
-     * @param  \App\Models\Akun  $akun
-     * @param  array  $identity
-     * @param  string  $role
+     * Efek Samping:
+     * - Membuat record di tabel `staff_sarana` atau memperbarui kolom `id_akun` pada tabel `siswa`/`pegawai`.
+     *
+     * @param Akun $akun Model akun pengguna yang baru dibuat atau diperbarui.
+     * @param array<string, mixed> $identity Data profil hasil resolusi identitas sekolah.
+     * @param string $role Peran akun yang ditetapkan.
      * @return void
      */
     private function syncUserProfile(Akun $akun, array $identity, string $role): void
@@ -352,11 +384,14 @@ class AccountController extends Controller
     }
 
     /**
-     * Membuat sandi sementara acak dan menampilkannya sekali kepada admin.
-     * Sandi tidak pernah disimpan atau dicatat dalam bentuk teks biasa.
+     * Menerbitkan kata sandi sementara acak 20-karakter untuk pemulihan akses akun oleh Admin Sistem.
+     * Menandai akun dengan `must_change_password = true` agar pengguna dipaksa mengganti sandi saat login berikutnya.
      *
-     * @param  int  $id  ID Akun
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Memperbarui hash kata sandi pada basis data dan menyetel flag kewajiban ganti sandi.
+     *
+     * @param int $id ID unik akun yang sandinya di-reset.
+     * @return RedirectResponse Pengalihan kembali dengan flash session kata sandi sementara yang hanya ditampilkan satu kali.
      */
     public function resetPassword($id)
     {

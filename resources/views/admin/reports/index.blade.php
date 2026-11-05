@@ -1,3 +1,13 @@
+{{-- 
+  PANEL LAPORAN OPERASIONAL ADMIN SARANA — SINFAS
+  File: resources/views/admin/reports/index.blade.php
+  Fitur:
+  - Pemilihan 4 jenis laporan utama: Frekuensi Pinjaman, Riwayat Kerusakan, Keterlambatan, dan Rekap Stok.
+  - Filter rentang tanggal (Start Date & End Date) serta filter kategori sarana.
+  - Diagram visualisasi analitik interaktif berbasis Chart.js.
+  - Tabel rincian data transaksi dan tombol aksi kirim notifikasi keterlambatan.
+  - Fasilitas Cetak Laporan PDF / Print Preview resmi dengan format standar sekolah.
+--}}
 @extends('layouts.admin-sarana')
 
 @section('title', 'Laporan Sarana - Admin SINFAS')

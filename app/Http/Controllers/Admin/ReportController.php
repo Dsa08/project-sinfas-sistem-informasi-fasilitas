@@ -11,10 +11,37 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\View\View;
+
+/**
+ * Controller ReportController
+ *
+ * Mengelola antarmuka dan kompilasi data laporan operasional sarana prasarana sekolah untuk Admin Sarana:
+ * 1. Frekuensi & Tren Peminjaman Alat: Analisis peringkat alat paling sering dipinjam dalam rentang tanggal tertentu.
+ * 2. Kerusakan & Riwayat Kondisi Alat: Laporan rekap sarana yang kembali dalam kondisi Kurang Baik atau Rusak Berat.
+ * 3. Keterlambatan Pengembalian Alat: Monitoring pinjaman aktif yang melewati batas durasi maksimal peminjaman.
+ * 4. Rekapitulasi Stok & Status Inventaris: Ringkasan komposisi seluruh aset fisik sekolah menurut kondisi.
+ * 5. Pengingat Otomatis: Pengiriman notifikasi peringatan in-app kepada peminjam yang terlambat mengembalikan alat.
+ */
 class ReportController extends Controller
 {
+    /**
+     * Batas durasi peminjaman standar sekolah (dalam satuan hari) sebelum dikategorikan terlambat.
+     */
     private const LOAN_DAYS = 3;
 
+    /**
+     * Menampilkan dashboard laporan terintegrasi lengkap dengan tabel data dan visualisasi grafik Chart.js.
+     *
+     * Prasyarat:
+     * - Pengguna terautentikasi dan memiliki hak akses role `admin_sarana`.
+     *
+     * Efek Samping:
+     * - Menyimpan preferensi filter terakhir (tipe laporan, tanggal, kategori) ke dalam session pengguna.
+     *
+     * @param Request $request Request HTTP yang membawa parameter query string filter laporan.
+     * @return View Tampilan antarmuka 'admin.reports.index' dengan data kompilasi dan konfigurasi dataset grafik.
+     */
     public function index(Request $request)
     {
         $validated = $request->validate([
@@ -300,11 +327,19 @@ class ReportController extends Controller
     }
 
     /**
-     * Mengirimkan notifikasi in-app pengingat keterlambatan kepada peminjam sarana.
+     * Mengirimkan notifikasi peringatan batas waktu (overdue) in-app kepada akun peminjam yang terlambat.
      *
-     * @param  string  $kode  Kode transaksi peminjaman
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Peminjaman dengan kode transaksi yang diberikan harus terdaftar di sistem.
+     * - Sarana yang bersangkutan belum selesai dikembalikan.
+     *
+     * Efek Samping:
+     * - Menyimpan baris notifikasi peringatan baru di tabel `notifikasi` akun peminjam.
+     * - Memicu pengiriman Web Push ke browser peminjam jika langganan push aktif.
+     *
+     * @param string $kode Kode unik transaksi peminjaman sarana (misal: 'PJ-20261101-001').
+     * @param Request $request Request HTTP pemanggil (mendukung respon JSON via AJAX atau redirect Blade).
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse Respon JSON status (untuk AJAX) atau redirect kembali dengan flash message.
      */
     public function notifyOverdue(string $kode, Request $request)
     {

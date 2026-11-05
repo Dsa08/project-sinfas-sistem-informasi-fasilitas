@@ -9,13 +9,33 @@ use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
- * Menjaga perubahan status pinjaman dan jejak persetujuannya tetap atomik.
+ * Service PenyetujuanPeminjamanService
+ *
+ * Mengelola eksekusi persetujuan atau penolakan permohonan pinjam secara aman dan atomik.
+ * Menggunakan transaksi basis data (`DB::transaction`) dan penguncian baris (`lockForUpdate`)
+ * untuk mencegah kondisi perlombaan (race condition) ketika dua petugas sarana
+ * mencoba memproses peminjaman yang sama pada detik yang bersamaan.
  */
 class PenyetujuanPeminjamanService
 {
     /**
-     * Proses keputusan hanya jika pinjaman masih menunggu saat baris dikunci.
-     * Penguncian mencegah dua petugas memutuskan pinjaman yang sama bersamaan.
+     * Memproses keputusan verifikasi peminjaman (setujui / tolak) dan mencatat jejak audit persetujuan.
+     *
+     * Prasyarat:
+     * - Parameter `$status` harus bernilai 'disetujui' atau 'ditolak'.
+     * - Peminjaman target harus ditemukan di basis data dan masih berstatus 'menunggu'.
+     *
+     * Efek Samping:
+     * - Mengunci baris transaksi peminjaman pada tingkat basis data hingga transaksi tuntas.
+     * - Memperbarui kolom `status_pengajuan` dan `alasan_penolakan` pada tabel `peminjaman`.
+     * - Membuat satu baris log keputusan baru di tabel `penyetujuan` dengan NIP staf yang bertugas.
+     *
+     * @param string $kodePinjam Kode unik transaksi peminjaman (misal: 'PJ-20261105-001').
+     * @param StaffSarana $staff Model data staf sarana prasarana yang mengeksekusi persetujuan.
+     * @param string $status Keputusan akhir yang diambil ('disetujui' atau 'ditolak').
+     * @param string|null $catatan Alasan penolakan resmi atau catatan operasional tambahan.
+     * @return Peminjaman|null Model Peminjaman yang telah diperbarui beserta relasinya, atau null jika data tidak berstatus menunggu.
+     * @throws InvalidArgumentException Jika status keputusan tidak sesuai dengan domain nilai yang diizinkan.
      */
     public function process(
         string $kodePinjam,

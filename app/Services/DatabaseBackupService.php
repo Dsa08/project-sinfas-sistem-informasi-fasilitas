@@ -7,12 +7,26 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Service DatabaseBackupService
+ *
+ * Mengelola proses pencadangan (backup) dan pemulihan (restore) database MySQL/MariaDB secara mandiri via PDO.
+ * Dirancang khusus agar tidak bergantung pada binary shell eksternal (`mysqldump`), sehingga
+ * kompatibel dengan lingkungan shared hosting maupun server lokal (Laragon/XAMPP).
+ */
 class DatabaseBackupService
 {
     /**
-     * Menghasilkan dump SQL penuh dari database aktif dan menyimpannya di storage.
+     * Menghasilkan berkas dump SQL penuh dari basis data aktif dan menyimpannya ke direktori penyimpanan lokal.
      *
-     * @return string Path absolut ke file backup yang baru dibuat
+     * Prasyarat:
+     * - Koneksi database PDO aktif dan memiliki hak akses pembacaan skema (`SHOW TABLES`, `SHOW CREATE TABLE`).
+     * 
+     * Efek Samping:
+     * - Membuat file `.sql` baru di direktori `storage/app/backups/`.
+     * - Memperbarui rekaman metadata tanggal dan nama file cadangan terakhir di `system_settings.json`.
+     *
+     * @return string Path absolut file cadangan SQL yang berhasil dibuat.
      */
     public static function createBackup(): string
     {
@@ -111,10 +125,18 @@ class DatabaseBackupService
     }
 
     /**
-     * Memulihkan database dari file SQL yang diunggah.
+     * Memulihkan seluruh struktur dan data basis data dari berkas dump SQL yang diunggah.
      *
-     * @param string $uploadedFilePath
+     * Prasyarat:
+     * - File SQL target harus ada di sistem file dan berisi perintah SQL valid.
+     *
+     * Efek Samping:
+     * - Menimpa tabel dan data dalam basis data aktif (`FOREIGN_KEY_CHECKS` dimatikan sementara).
+     * - Memperbarui rekaman waktu pemulihan terakhir `last_restore_at` di konfigurasi sistem.
+     *
+     * @param string $uploadedFilePath Lokasi path absolut file SQL cadangan di server.
      * @return void
+     * @throws \RuntimeException Jika file SQL yang dituju tidak ditemukan di path yang diberikan.
      */
     public static function restoreFromSql(string $uploadedFilePath): void
     {

@@ -20,15 +20,19 @@ use Carbon\Carbon;
 class NotifikasiService
 {
     /**
-     * Kirim notifikasi tunggal ke akun pengguna.
+     * Mengirimkan satu rekaman notifikasi in-app ke pengguna dan menyalurkan Web Push ke browser aktif.
      *
-     * @param  int|Akun  $akun          ID Akun atau model Akun
-     * @param  string    $tipe          Tipe notifikasi
-     * @param  string    $judul         Judul notifikasi
-     * @param  string    $pesan         Isi pesan notifikasi
-     * @param  string|null $kodePinjam  Kode transaksi peminjaman terkait
-     * @param  array|null  $dataTambahan Data kontekstual tambahan (misal hari_berlalu, alasan, dll.)
-     * @return Notifikasi
+     * Efek Samping:
+     * - Menyimpan baris notifikasi baru ke tabel `notifikasi` di database.
+     * - Memicu pengiriman pesan Web Push ke semua browser yang telah terdaftar pada akun penerima.
+     *
+     * @param int|Akun $akun Model Akun penerima notifikasi atau ID unik akun.
+     * @param string $tipe Kategori/tipe notifikasi (misal: 'pengajuan_baru', 'pengajuan_disetujui', 'batas_waktu').
+     * @param string $judul Judul singkat notifikasi untuk preview lonceng dan pop-up browser.
+     * @param string $pesan Isi lengkap penjelasan pemberitahuan.
+     * @param string|null $kodePinjam Kode unik transaksi peminjaman terkait (jika berhubungan dengan peminjaman).
+     * @param array|null $dataTambahan Data kontekstual tambahan berupa array asosiatif (misal: 'action_url', 'alasan').
+     * @return Notifikasi Model Notifikasi yang baru berhasil disimpan.
      */
     public static function kirim($akun, string $tipe, string $judul, string $pesan, ?string $kodePinjam = null, ?array $dataTambahan = null): Notifikasi
     {
@@ -59,8 +63,14 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi saat akun mengajukan permohonan pinjaman baru.
-     * Dikirimkan ke semua akun Admin Sarana aktif.
+     * Mengirimkan notifikasi broadcast ke seluruh Admin Sarana aktif saat ada pengajuan pinjaman baru.
+     *
+     * Efek Samping:
+     * - Menyimpan notifikasi baru ke seluruh akun dengan role `admin_sarana`.
+     * - Memicu Web Push ke browser perangkat petugas Admin Sarana.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang baru saja diajukan oleh siswa/pegawai.
+     * @return void
      */
     public static function pengajuanBaru(Peminjaman $peminjaman): void
     {
@@ -72,6 +82,7 @@ class NotifikasiService
         $judul = "Pengajuan Pinjaman Baru: {$namaBarang}";
         $pesan = "{$namaPeminjam} mengajukan permohonan peminjaman {$namaBarang} untuk tanggal {$tglPinjam}. Kode: {$peminjaman->kode_pinjam}.";
 
+        // Mengambil daftar seluruh admin sarana aktif agar seluruh staf operasional mendapat pemberitahuan serentak
         $adminSaranaList = Akun::where('role', 'admin_sarana')->active()->get();
 
         foreach ($adminSaranaList as $admin) {
@@ -94,8 +105,13 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi saat peminjam membatalkan pengajuan pinjaman yang masih berstatus menunggu.
-     * Dikirimkan ke semua akun Admin Sarana aktif.
+     * Mengirimkan notifikasi ke seluruh Admin Sarana saat peminjam membatalkan pengajuan pinjaman mandiri.
+     *
+     * Efek Samping:
+     * - Menyimpan rekaman notifikasi pembatalan ke seluruh akun Admin Sarana aktif.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang status pengajuannya dibatalkan oleh peminjam.
+     * @return void
      */
     public static function pengajuanDibatalkan(Peminjaman $peminjaman): void
     {
@@ -106,6 +122,7 @@ class NotifikasiService
         $judul = "Pengajuan Dibatalkan: {$namaBarang}";
         $pesan = "{$namaPeminjam} telah membatalkan permohonan peminjaman {$namaBarang} (Kode: {$peminjaman->kode_pinjam}).";
 
+        // Mengambil seluruh admin sarana aktif untuk memperbarui antrean verifikasi mereka
         $adminSaranaList = Akun::where('role', 'admin_sarana')->active()->get();
 
         foreach ($adminSaranaList as $admin) {
@@ -128,8 +145,13 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi saat admin sarana menyetujui peminjaman.
-     * Dikirimkan ke akun peminjam.
+     * Mengirimkan notifikasi konfirmasi persetujuan peminjaman ke akun peminjam.
+     *
+     * Efek Samping:
+     * - Membuat notifikasi persetujuan di akun peminjam agar dapat mengambil sarana di ruang Sarpras.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang telah diverifikasi dan disetujui.
+     * @return void
      */
     public static function pengajuanDisetujui(Peminjaman $peminjaman): void
     {
@@ -159,8 +181,14 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi saat admin sarana menolak permohonan peminjaman.
-     * Dikirimkan ke akun peminjam beserta alasannya.
+     * Mengirimkan notifikasi penolakan peminjaman beserta alasan resmi ke akun peminjam.
+     *
+     * Efek Samping:
+     * - Membuat notifikasi penolakan di akun peminjam agar peminjam mengetahui alasan sarana tidak dapat dipinjam.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang ditolak.
+     * @param string|null $alasan Keterangan/alasan mengapa permohonan pinjam tidak disetujui.
+     * @return void
      */
     public static function pengajuanDitolak(Peminjaman $peminjaman, ?string $alasan = null): void
     {
@@ -192,8 +220,13 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi saat peminjam mengajukan form pengembalian alat.
-     * Dikirimkan ke semua akun Admin Sarana aktif.
+     * Mengirimkan notifikasi ke seluruh Admin Sarana saat peminjam telah mengisi dan mengajukan form pengembalian alat.
+     *
+     * Efek Samping:
+     * - Menyimpan notifikasi pengembalian ke seluruh Admin Sarana agar segera memeriksa kondisi fisik sarana yang dikembalikan.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang formulir pengembaliannya telah dikirim oleh peminjam.
+     * @return void
      */
     public static function pengembalianDiajukan(Peminjaman $peminjaman): void
     {
@@ -223,8 +256,14 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi saat admin sarana memverifikasi fisik pengembalian barang.
-     * Dikirimkan ke akun peminjam.
+     * Mengirimkan notifikasi konfirmasi penerimaan fisik sarana dan hasil inspeksi kondisi ke akun peminjam.
+     *
+     * Efek Samping:
+     * - Memberitahu peminjam bahwa tanggung jawab peminjaman sarana telah selesai dan tercatat resmi di sistem.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang pengembaliannya telah disahkan oleh staf sarana.
+     * @param string $kondisi Hasil pengecekan kondisi fisik barang saat diterima ('Baik', 'Kurang Baik', atau 'Rusak Berat').
+     * @return void
      */
     public static function pengembalianDikonfirmasi(Peminjaman $peminjaman, string $kondisi): void
     {
@@ -255,8 +294,15 @@ class NotifikasiService
     }
 
     /**
-     * Notifikasi peringatan batas waktu (overdue) yang terus menghitung hari berlalu.
-     * Dikirimkan ke akun peminjam.
+     * Mengirimkan notifikasi peringatan keterlambatan (overdue) kepada peminjam dan fallback surel jika email terkonfigurasi.
+     *
+     * Efek Samping:
+     * - Menyimpan notifikasi peringatan di akun peminjam.
+     * - Mengirimkan email darurat via SMTP jika konfigurasi mail di server aktif.
+     *
+     * @param Peminjaman $peminjaman Model peminjaman yang telah melewati batas durasi peminjaman.
+     * @param int $hariBerlalu Jumlah hari keterlambatan sejak tanggal jatuh tempo pengembalian.
+     * @return void
      */
     public static function peringatanBatasWaktu(Peminjaman $peminjaman, int $hariBerlalu): void
     {

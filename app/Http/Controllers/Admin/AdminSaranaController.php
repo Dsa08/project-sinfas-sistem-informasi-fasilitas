@@ -39,10 +39,11 @@ class AdminSaranaController extends Controller
 
     /**
      * Menampilkan dashboard analitik admin sarana prasarana.
-     * Mengkalkulasi ringkasan statistik (pending, total barang, dipinjam, rusak)
-     * serta data tren peminjaman 6 bulan terakhir untuk grafik Chart.js.
+     * Mengompilasi statistik operasional (antrean verifikasi, total aset sarana, pinjaman aktif, barang rusak berat)
+     * serta menghasilkan dataset grafik analitik Chart.js sesuai filter laporan terakhir yang tersimpan di sesi.
      *
-     * @return View
+     * @param Request $request Request HTTP yang memuat session preferensi laporan.
+     * @return View Tampilan view 'admin.dashboard' dengan metrik analitik dan konfigurasi grafik Chart.js.
      */
     public function dashboard(Request $request)
     {
@@ -214,9 +215,11 @@ class AdminSaranaController extends Controller
     // =========================================================================
 
     /**
-     * Menampilkan daftar katalog barang dengan filter pencarian dan paginasi.
+     * Menampilkan katalog master data barang inventaris sarana prasarana sekolah.
+     * Mendukung pencarian multi-kolom (nama, kode, merk, kategori), filter kategori, paginasi, dan penyortiran dinamis.
      *
-     * @return View
+     * @param Request $request Request HTTP yang memuat query string pencarian, kategori, sort, dir, dan per_page.
+     * @return View Tampilan view 'admin.items' dengan data master barang terpaginasi dan daftar kategori.
      */
     public function items(Request $request)
     {
@@ -266,9 +269,19 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Menyimpan data item sarana prasarana baru ke inventaris.
+     * Menyimpan data item sarana prasarana baru ke dalam inventaris basis data.
+     * Mengelola kompresi berkas foto ke format WebP dan pencatatan kuantitas stok per kondisi fisik.
      *
-     * @return RedirectResponse
+     * Prasyarat:
+     * - `kode_barang` harus unik pada tabel `barang`.
+     * - `id_kategori` harus valid dan terdaftar di tabel `kategori`.
+     *
+     * Efek Samping:
+     * - Mengunggah dan mengompresi gambar foto sarana ke direktori `uploads/items/`.
+     * - Membuat baris baru di tabel `barang`.
+     *
+     * @param Request $request Request HTTP yang memuat spesifikasi sarana, kuantitas stok kondisi, dan file foto.
+     * @return RedirectResponse Pengalihan kembali ke panel kelola data alat dengan notifikasi toast keberhasilan.
      */
     public function storeItem(Request $request)
     {
@@ -341,10 +354,10 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Mengambil detail satu barang dalam format respons JSON untuk modal AJAX edit barang.
+     * Mengambil rincian data satu item sarana dalam format JSON untuk kebutuhan modal dialog AJAX edit barang.
      *
-     * @param  string  $kode  Kode barang
-     * @return JsonResponse
+     * @param string $kode Kode unik inventaris barang (misal: 'BRG-2026-001').
+     * @return JsonResponse Rincian data atribut sarana dan URL foto publik dalam format JSON.
      */
     public function showItem($kode)
     {
@@ -370,10 +383,15 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Memperbarui informasi dan stok kondisi sarana prasarana.
+     * Memperbarui spesifikasi dan kuantitas stok kondisi fisik sarana prasarana yang ada.
      *
-     * @param  string  $kode  Kode barang
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Memperbarui rekaman di tabel `barang`.
+     * - Mengunggah foto baru (WebP) dan menghapus foto fisik lama dari disk jika berkas baru diunggah.
+     *
+     * @param Request $request Request HTTP yang memuat perubahan data barang.
+     * @param string $kode Kode barang unik sarana yang diperbarui.
+     * @return RedirectResponse Pengalihan kembali ke daftar inventaris alat dengan toast sukses.
      */
     public function updateItem(Request $request, $kode)
     {
@@ -448,11 +466,17 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Menghapus sarana prasarana dari sistem inventaris.
-     * Mencegah penghapusan jika ada transaksi peminjaman aktif yang belum selesai.
+     * Menghapus sarana prasarana dari inventaris jika tidak memiliki transaksi pinjam aktif.
      *
-     * @param  string  $kode  Kode barang
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Tidak boleh ada transaksi peminjaman aktif ('menunggu' atau 'disetujui') yang terkait dengan barang ini.
+     *
+     * Efek Samping:
+     * - Menghapus file fisik foto barang dari direktori penyimpanan.
+     * - Menghapus baris rekaman pada tabel `barang`.
+     *
+     * @param string $kode Kode unik inventaris barang yang akan dihapus.
+     * @return RedirectResponse Pengalihan kembali ke panel kelola data alat dengan status keberhasilan/kegagalan.
      */
     public function destroyItem($kode)
     {
@@ -489,7 +513,8 @@ class AdminSaranaController extends Controller
     /**
      * Menampilkan daftar kategori sarana beserta jumlah sarana yang terasosiasi.
      *
-     * @return View
+     * @param Request $request Permintaan HTTP dengan parameter pencarian (search), pengurutan (sort, dir), dan paginasi (per_page).
+     * @return View Tampilan admin.categories dengan data koleksi kategori yang telah dipaginasi.
      */
     public function categories(Request $request)
     {
@@ -518,9 +543,14 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Menyimpan kategori baru ke database dan membersihkan cache kategori.
+     * Menyimpan kategori sarana baru ke basis data dan merefresh cache kategori global.
      *
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Menyimpan entitas baru pada tabel `kategori`.
+     * - Menghapus cache 'all_categories' agar data dropdown dan filter kategori terbarui seketika.
+     *
+     * @param Request $request Permintaan HTTP berisi input 'nama_kategori' yang unik.
+     * @return RedirectResponse Pengalihan kembali ke daftar kategori dengan pesan notifikasi sukses.
      */
     public function storeCategory(Request $request)
     {
@@ -541,10 +571,15 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Memperbarui nama kategori dan merefresh cache kategori.
+     * Memperbarui nama kategori yang sudah ada dan merefresh cache kategori.
      *
-     * @param  int  $id  ID Kategori
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Memperbarui nama pada baris kategori bersangkutan.
+     * - Menghapus cache 'all_categories'.
+     *
+     * @param Request $request Permintaan HTTP berisi input data 'nama_kategori' baru.
+     * @param int|string $id Kunci utama (ID) kategori yang akan diperbarui.
+     * @return RedirectResponse Pengalihan kembali ke halaman kelola kategori dengan pesan status.
      */
     public function updateCategory(Request $request, $id)
     {
@@ -569,8 +604,15 @@ class AdminSaranaController extends Controller
     /**
      * Menghapus kategori sarana jika tidak memiliki barang inventaris yang terhubung.
      *
-     * @param  int  $id  ID Kategori
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Nilai `barang_count` harus 0 (tidak boleh ada sarana yang menggunakan kategori ini).
+     *
+     * Efek Samping:
+     * - Menghapus baris kategori dari basis data.
+     * - Menghapus cache 'all_categories'.
+     *
+     * @param int|string $id Kunci utama (ID) kategori yang akan dihapus.
+     * @return RedirectResponse Pengalihan kembali ke daftar kategori dengan status hasil operasi.
      */
     public function destroyCategory($id)
     {
@@ -597,11 +639,15 @@ class AdminSaranaController extends Controller
     // =========================================================================
 
     /**
-     * Menampilkan halaman verifikasi dengan 2 tab:
-     * - Tab 1: Antrean permohonan pinjam baru (status 'menunggu')
-     * - Tab 2: Antrean konfirmasi fisik barang kembali (status 'disetujui' dan pengembalian belum diverifikasi)
+     * Menampilkan antarmuka verifikasi permohonan peminjaman dan pengembalian sarana.
      *
-     * @return View
+     * Fitur tab verifikasi:
+     * - Tab 1 (`requests`): Antrean permohonan pinjam baru yang berstatus 'menunggu'.
+     * - Tab 2 (`returns`): Antrean konfirmasi fisik barang kembali yang berstatus 'disetujui' dan kondisi fisiknya belum diverifikasi.
+     * - Tab 3 (`active`): Daftar peminjaman aktif yang sedang berlangsung (belum ada entri pengembalian).
+     *
+     * @param Request $request Permintaan HTTP dengan parameter tab aktif, filter, pengurutan, dan paginasi.
+     * @return View Tampilan admin.verifications berisi antrean permohonan, antrean pengembalian, dan daftar pinjam aktif.
      */
     public function verifications(Request $request)
     {
@@ -733,11 +779,20 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Menyetujui permohonan peminjaman sarana.
-     * Mengubah status transaksi menjadi 'disetujui'.
+     * Menyetujui permohonan peminjaman sarana prasarana.
      *
-     * @param  string  $kode  Kode pinjam
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Akun administrator yang sedang masuk harus terasosiasi dengan data Staff Sarana.
+     * - Transaksi peminjaman harus berstatus 'menunggu' dan belum dibatalkan oleh peminjam.
+     *
+     * Efek Samping:
+     * - Memperbarui status transaksi menjadi 'disetujui' via PenyetujuanPeminjamanService.
+     * - Mengurangi stok barang yang bersangkutan (melalui trigger/service).
+     * - Mengirimkan notifikasi web push & database ke akun peminjam.
+     *
+     * @param string $kode Kode unik pengajuan peminjaman (contoh: 'PMJ-202611-0001').
+     * @param PenyetujuanPeminjamanService $approvalService Layanan transaksi persetujuan peminjaman.
+     * @return RedirectResponse Pengalihan kembali ke panel verifikasi dengan pesan hasil persetujuan.
      */
     public function approveRequest($kode, PenyetujuanPeminjamanService $approvalService)
     {
@@ -779,10 +834,20 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Menolak permohonan peminjaman sarana dengan menyertakan alasan penolakan.
+     * Menolak permohonan peminjaman sarana dengan mencatat alasan penolakan.
      *
-     * @param  string  $kode  Kode pinjam
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Akun administrator harus terhubung dengan relasi Staff Sarana.
+     * - Pengajuan masih berada dalam status 'menunggu'.
+     *
+     * Efek Samping:
+     * - Mengubah status permohonan menjadi 'ditolak' dan menyimpan catatan penolakan.
+     * - Mengirimkan notifikasi penolakan ke akun peminjam.
+     *
+     * @param Request $request Permintaan HTTP yang memuat input opsional 'alasan_penolakan'.
+     * @param string $kode Kode pengajuan peminjaman yang ditolak.
+     * @param PenyetujuanPeminjamanService $approvalService Layanan eksekusi transaksi persetujuan/penolakan.
+     * @return RedirectResponse Pengalihan kembali ke antrean verifikasi dengan pesan konfirmasi penolakan.
      */
     public function rejectRequest(Request $request, $kode, PenyetujuanPeminjamanService $approvalService)
     {
@@ -827,7 +892,13 @@ class AdminSaranaController extends Controller
         }
     }
 
-    /** Samakan respons ketika pengajuan tidak ditemukan atau formulirnya sudah kedaluwarsa. */
+    /**
+     * Membangun respons pengalihan saat pengajuan peminjaman sudah tidak tersedia atau dibatalkan.
+     *
+     * @param string $kode Kode unik peminjaman yang diperiksa.
+     * @param string $title Judul pesan toast notifikasi kesalahan.
+     * @return RedirectResponse Pengalihan kembali ke route verifikasi dengan flash data pesan kesalahan.
+     */
     private function approvalUnavailable(string $kode, string $title)
     {
         $existing = Peminjaman::find($kode);
@@ -843,12 +914,20 @@ class AdminSaranaController extends Controller
     }
 
     /**
-     * Mengonfirmasi pengembalian barang fisik dari peminjam.
-     * Menyimpan kondisi fisik hasil serah terima (Baik, Kurang Baik, atau Rusak Berat)
-     * dan otomatis mengembalikan unit stok ke kategori kondisi yang bersangkutan.
+     * Mengonfirmasi pengembalian barang fisik sarana dari peminjam.
      *
-     * @param  string  $kode  Kode pinjam
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Peminjaman harus berstatus 'disetujui' dan telah diajukan form pengembaliannya oleh peminjam.
+     * - Nilai kondisi_barang harus salah satu dari: 'Baik', 'Kurang Baik', atau 'Rusak Berat'.
+     *
+     * Efek Samping:
+     * - Memperbarui kolom `kondisi_barang` pada tabel `pengembalian`.
+     * - Menyesuaikan stok barang pada tabel `barang` secara otomatis melalui trigger database `trg_kembalikan_stok_barang`.
+     * - Mengirimkan notifikasi konfirmasi dan rincian kondisi ke akun peminjam.
+     *
+     * @param Request $request Permintaan HTTP berisi input 'kondisi_barang'.
+     * @param string $kode Kode peminjaman yang barangnya dikembalikan.
+     * @return RedirectResponse Pengalihan ke tab pengembalian dengan notifikasi konfirmasi sukses.
      */
     public function confirmReturn(Request $request, $kode)
     {

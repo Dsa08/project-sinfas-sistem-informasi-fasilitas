@@ -1,3 +1,11 @@
+{{-- 
+  KOMPONEN MODAL DIALOG KONFIRMASI & TOAST GLOBAL — SINFAS
+  File: resources/views/components/app-dialogs.blade.php
+  Fitur:
+  - Menyediakan modal dialog pop-up konfirmasi berbasis Promise JavaScript (`window.appConfirm`).
+  - Menampilkan toast alert mengambang (`window.appToast`) untuk pesan sukses, peringatan, atau error.
+  - Menggantikan fungsi bawaan browser `window.confirm()` dan `alert()` agar antarmuka konsisten dan modern.
+--}}
 <div class="app-dialog-overlay" id="app-confirm-overlay" aria-hidden="true">
     <section class="app-dialog-card" role="dialog" aria-modal="true" aria-labelledby="app-confirm-title">
         <div class="app-dialog-icon" id="app-confirm-icon">?</div>

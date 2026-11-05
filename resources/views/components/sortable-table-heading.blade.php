@@ -1,3 +1,11 @@
+{{-- 
+  KOMPONEN JUDUL KOLOM TABEL DENGAN PENYORTIRAN (SORTABLE HEADING) — SINFAS
+  File: resources/views/components/sortable-table-heading.blade.php
+  Fitur:
+  - Menyediakan tautan penyortiran 3 kondisi (asc -> desc -> default) pada header tabel.
+  - Menampilkan indikator panah naik/turun interaktif dengan status aktif yang berwarna kontras.
+  - Menjaga parameter query string lain (pencarian, tab, filter) tetap utuh saat URL disortir.
+--}}
 @props([
     'label',
     'column',

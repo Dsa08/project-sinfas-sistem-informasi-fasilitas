@@ -18,10 +18,14 @@ use Illuminate\Support\Facades\Auth;
 class NotifikasiController extends Controller
 {
     /**
-     * Menampilkan halaman daftar notifikasi lengkap untuk Siswa.
+     * Menampilkan halaman daftar notifikasi lengkap untuk Siswa / Peminjam.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * Prasyarat:
+     * - Pengguna telah terautentikasi.
+     * - Jika pengguna adalah Admin Sarana, dialihkan otomatis ke rute antarmuka notifikasi admin.
+     *
+     * @param Request $request Permintaan HTTP dengan parameter opsi filter status baca ('unread', 'read').
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse Tampilan user.notifications atau pengalihan ke antarmuka admin.
      */
     public function index(Request $request)
     {
@@ -51,10 +55,13 @@ class NotifikasiController extends Controller
     }
 
     /**
-     * Menampilkan halaman daftar notifikasi khusus Admin Sarana.
+     * Menampilkan antarmuka pusat notifikasi khusus peran Admin Sarana.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * Efek Samping:
+     * - Seluruh notifikasi yang ditujukan kepada akun admin ini otomatis ditandai sebagai telah dibaca saat halaman dibuka.
+     *
+     * @param Request $request Permintaan HTTP dengan opsi filter tab.
+     * @return \Illuminate\View\View Tampilan admin.notifications berisi daftar notifikasi admin yang dipaginasi.
      */
     public function adminIndex(Request $request)
     {
@@ -80,9 +87,9 @@ class NotifikasiController extends Controller
     }
 
     /**
-     * API JSON: Mengambil jumlah notifikasi belum dibaca dan beberapa item terbaru untuk popover/dropdown navbar.
+     * Mengambil jumlah notifikasi belum dibaca serta daftar cuplikan notifikasi terbaru untuk dropdown navbar.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse Respon JSON berisi 'unread_count' dan 'recent' (daftar 5 notifikasi terakhir).
      */
     public function hitungBelumDibaca()
     {
@@ -119,11 +126,14 @@ class NotifikasiController extends Controller
     }
 
     /**
-     * Menandai satu notifikasi sebagai sudah dibaca.
+     * Menandai satu item notifikasi milik pengguna yang sedang login sebagai sudah dibaca.
      *
-     * @param  int  $id
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Efek Samping:
+     * - Mengubah kolom `status_baca` menjadi 1 dan merekam timestamp `dibaca_pada`.
+     *
+     * @param int|string $id Kunci utama (ID) notifikasi yang ditandai dibaca.
+     * @param Request $request Permintaan HTTP untuk membedakan respon AJAX/JSON dengan permintaan web biasa.
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse Respon JSON sukses atau pengalihan kembali ke halaman sebelumnya.
      */
     public function tandaiDibaca($id, Request $request)
     {
@@ -145,10 +155,13 @@ class NotifikasiController extends Controller
     }
 
     /**
-     * Menandai seluruh notifikasi pengguna sebagai sudah dibaca.
+     * Menandai seluruh notifikasi milik pengguna yang sedang login sebagai sudah dibaca.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Efek Samping:
+     * - Memperbarui seluruh baris belum dibaca milik pengguna menjadi berstatus dibaca.
+     *
+     * @param Request $request Permintaan HTTP (AJAX/JSON atau form submission).
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse Respon status sukses via JSON atau redirect back.
      */
     public function tandaiSemuaDibaca(Request $request)
     {

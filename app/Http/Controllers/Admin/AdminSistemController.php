@@ -24,10 +24,10 @@ use Illuminate\Support\Facades\Log;
 class AdminSistemController extends Controller
 {
     /**
-     * Menampilkan dashboard utama administrator sistem.
-     * Mengumpulkan metrik akun pengguna dari tabel 'akun' dan status backup.
+     * Menampilkan dashboard utama administrator sistem (IT/Superadmin).
+     * Mengompilasi statistik total akun pengguna, pembagian peran akun, dan status pencadangan sistem.
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View Tampilan view 'admin.system.dashboard' dengan metrik akun dan status backup.
      */
     public function dashboard()
     {
@@ -72,9 +72,9 @@ class AdminSistemController extends Controller
     }
 
     /**
-     * Menampilkan halaman konfigurasi dan pengaturan sistem aplikasi.
+     * Menampilkan antarmuka konfigurasi operasional sistem, utilitas backup/restore, dan riwayat aktivitas.
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View Tampilan view 'admin.system.settings' berisi formulir pengaturan dan log aktivitas.
      */
     public function settings()
     {
@@ -98,10 +98,17 @@ class AdminSistemController extends Controller
     }
 
     /**
-     * Menyimpan preferensi jam operasional layanan sarana.
+     * Memperbarui dan memvalidasi rentang jam operasional layanan sarana prasarana sekolah.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Format jam harus HH:MM (24 jam) dan waktu selesai harus lebih lambat dari waktu mulai.
+     *
+     * Efek Samping:
+     * - Menyimpan nilai `start_time` dan `end_time` ke file konfigurasi `system_settings.json`.
+     * - Mencatat tindakan perubahan ini ke dalam riwayat aktivitas sistem internal.
+     *
+     * @param Request $request Request HTTP yang memuat `start_time` dan `end_time`.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke halaman settings dengan pesan konfirmasi toast.
      */
     public function updateHours(Request $request)
     {
@@ -132,9 +139,13 @@ class AdminSistemController extends Controller
     }
 
     /**
-     * Membuat file backup dump database SQL dan mengunduhnya ke browser administrator.
+     * Menghasilkan berkas dump database SQL penuh dan langsung mengunduhkannya ke peramban administrator.
      *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+     * Efek Samping:
+     * - Membuat file cadangan baru di folder `storage/app/backups/`.
+     * - Mencatat riwayat pencadangan ke log aktivitas sistem.
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse Respon unduhan berkas binary SQL atau redirect jika gagal.
      */
     public function backup()
     {
@@ -163,10 +174,17 @@ class AdminSistemController extends Controller
     }
 
     /**
-     * Memulihkan data database dari file dump SQL yang diunggah.
+     * Memulihkan seluruh struktur tabel dan data basis data dari berkas dump SQL yang diunggah oleh admin.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Berkas yang diunggah harus bertipe SQL (`.sql`) dan berukuran maksimal 50MB.
+     *
+     * Efek Samping:
+     * - Mengeksekusi query SQL yang menimpa basis data aktif.
+     * - Mencatat riwayat pemulihan sistem ke log internal.
+     *
+     * @param Request $request Request HTTP yang memuat file unggahan `backup_file`.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke panel pengaturan dengan status pemulihan.
      */
     public function restore(Request $request)
     {
@@ -208,9 +226,9 @@ class AdminSistemController extends Controller
     }
 
     /**
-     * Menggabungkan log aktivitas sistem dari database nyata dan aksi sistem internal.
+     * Mengompilasi dan mengurutkan log aktivitas dari tiga sumber: log kustom, akun baru, dan transaksi peminjaman.
      *
-     * @return array
+     * @return array<int, array<string, mixed>> Daftar 10 riwayat aktivitas sistem paling mutakhir.
      */
     protected function aggregateActivityLogs(): array
     {

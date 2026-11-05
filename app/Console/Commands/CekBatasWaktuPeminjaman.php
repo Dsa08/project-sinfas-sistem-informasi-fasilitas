@@ -8,24 +8,37 @@ use App\Models\Notifikasi;
 use App\Services\NotifikasiService;
 use Carbon\Carbon;
 
+/**
+ * Console Command CekBatasWaktuPeminjaman
+ *
+ * Perintah Artisan penjadwalan (cron job) yang memindai seluruh transaksi peminjaman aktif
+ * yang telah melampaui batas waktu pinjam standar (3 hari kalender).
+ * Mengirimkan notifikasi peringatan in-app dan Web Push otomatis kepada peminjam.
+ */
 class CekBatasWaktuPeminjaman extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Nama dan format opsi perintah CLI Artisan.
      *
      * @var string
      */
     protected $signature = 'sinfas:cek-batas-waktu {--force : Paksa kirim notifikasi meskipun sudah pernah dikirim hari ini}';
 
     /**
-     * The console command description.
+     * Deskripsi ringkas tugas perintah pada daftar `php artisan list`.
      *
      * @var string
      */
     protected $description = 'Periksa transaksi peminjaman yang sedang aktif dan kirimkan notifikasi peringatan batas waktu secara otomatis';
 
     /**
-     * Execute the console command.
+     * Mengeksekusi pemindaian basis data dan mengirimkan peringatan keterlambatan ke peminjam.
+     *
+     * Efek Samping:
+     * - Menyimpan baris notifikasi peringatan baru di tabel `notifikasi`.
+     * - Memicu Web Push notification ke browser peminjam.
+     *
+     * @return int Kode status keberhasilan perintah console (0 untuk sukses).
      */
     public function handle()
     {

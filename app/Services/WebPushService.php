@@ -112,8 +112,12 @@ class WebPushService
     }
 
     /**
-     * Memvalidasi dan membersihkan URL target notifikasi push agar aman dari open-redirect.
-     * Mengarahkan ke fallback spesifik per role (admin verifications atau dashboard siswa).
+     * Memvalidasi dan membersihkan URL target notifikasi push agar aman dari celah open-redirect ke domain asing.
+     * Mengarahkan ke rute fallback internal yang sesuai dengan role akun jika URL terdeteksi tidak valid.
+     *
+     * @param string $url URL target navigasi yang dikirim bersama payload notifikasi push.
+     * @param Akun|null $akun Model akun penerima untuk menentukan fallback yang tepat (admin verifikasi atau dashboard siswa).
+     * @return string Path internal yang aman untuk dibuka oleh browser klien.
      */
     private function safeUrl(string $url, ?Akun $akun = null): string
     {

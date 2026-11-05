@@ -23,11 +23,12 @@ use Illuminate\Support\Facades\Cache;
 class UserController extends Controller
 {
     /**
-     * Menampilkan dashboard utama pengguna dengan katalog sarana prasarana.
-     * Mengimplementasikan pencarian multifield, filter kategori, paginasi, dan caching kategori.
+     * Menampilkan antarmuka katalog utama sarana prasarana sekolah untuk siswa dan staf.
+     * Mengelola fitur pencarian interaktif multi-field, penyaringan berdasarkan kategori & ketersediaan stok,
+     * pengurutan nama, serta kompilasi riwayat peminjaman berjalan milik pengguna aktif.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * @param Request $request Request HTTP yang memuat parameter pencarian, kategori, filter stok, dan sort.
+     * @return \Illuminate\View\View Tampilan view 'user.dashboard' beserta koleksi barang terpaginasi dan master kategori.
      */
     public function dashboard(Request $request)
     {
@@ -154,10 +155,10 @@ class UserController extends Controller
     }
 
     /**
-     * Menampilkan status transaksi peminjaman milik pengguna yang sedang login.
-     * Termasuk relasi barang, kategori, dan catatan pengembalian.
+     * Menampilkan antarmuka pelacakan status transaksi peminjaman milik akun yang sedang login.
+     * Menyajikan tahapan riwayat transaksi (Menunggu Verifikasi, Disetujui, Ditolak, Dibatalkan, atau Selesai).
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View Tampilan view 'user.loan-status' yang memuat daftar permohonan pinjam terpaginasi.
      */
     public function loanStatus()
     {
@@ -173,12 +174,19 @@ class UserController extends Controller
     }
 
     /**
-     * Membatalkan permohonan peminjaman yang masih berstatus 'menunggu' oleh peminjam yang sedang login.
-     * Menggunakan soft status 'dibatalkan' (bukan hard delete) untuk menjaga integritas jejak audit,
-     * serta mengirimkan notifikasi info pembatalan ke Admin Sarana.
+     * Membatalkan permohonan peminjaman mandiri oleh peminjam sebelum diproses oleh Admin Sarana.
+     * Menggunakan soft status 'dibatalkan' untuk menjaga integritas rekam jejak audit sistem.
      *
-     * @param  string  $kode  Kode unik transaksi peminjaman (kode_pinjam)
-     * @return \Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Transaksi peminjaman harus milik akun yang sedang login.
+     * - Status transaksi saat pembatalan harus masih 'menunggu'.
+     *
+     * Efek Samping:
+     * - Memperbarui kolom `status_pengajuan` menjadi 'dibatalkan' di basis data.
+     * - Mengirimkan notifikasi pembatalan ke seluruh Admin Sarana aktif.
+     *
+     * @param string $kode Kode unik transaksi peminjaman (misal: 'PNJ-2026-001').
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke halaman status pinjaman dengan flash message.
      */
     public function cancelLoanRequest($kode)
     {
@@ -217,11 +225,11 @@ class UserController extends Controller
     }
 
     /**
-     * Menampilkan halaman detail sarana dan formulir pengajuan peminjaman.
-     * Memeriksa kuota pinjam pengguna dan status pengajuan yang sedang berjalan.
+     * Menampilkan halaman rincian spesifikasi sarana dan formulir permohonan pinjam baru.
+     * Memvalidasi kuota transaksi aktif peminjam untuk mencegah antrean spam.
      *
-     * @param  string  $kode  Kode unik barang yang akan dipinjam
-     * @return \Illuminate\View\View
+     * @param string $kode Kode unik barang/sarana yang ingin dipinjam.
+     * @return \Illuminate\View\View Tampilan view 'user.loan-request' berisi form tanggal, lokasi, dan keperluan pinjam.
      */
     public function loanRequest($kode)
     {
@@ -246,11 +254,20 @@ class UserController extends Controller
     }
 
     /**
-     * Memproses pengiriman formulir permohonan peminjaman dengan aturan validasi dan anti-spam.
+     * Memproses permohonan peminjaman sarana baru dengan validasi anti-spam dan ketersediaan stok fisik.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $kode  Kode unik barang
-     * @return \Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Peminjam memiliki kuota aktif di bawah 2 peminjaman.
+     * - Peminjam tidak sedang meminjam unit sarana yang sama yang belum selesai dikembalikan.
+     * - Stok fisik barang dalam kondisi 'baik' tersedia (> 0).
+     *
+     * Efek Samping:
+     * - Menghasilkan kode pinjam berurutan dan menyimpan baris transaksi baru di tabel `peminjaman`.
+     * - Mengirimkan notifikasi instan kepada Admin Sarana.
+     *
+     * @param Request $request Request HTTP yang memuat tanggal mulai pinjam, lokasi pemakaian, dan tujuan pinjam.
+     * @param string $kode Kode unik sarana yang diajukan untuk dipinjam.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan ke halaman status peminjaman dengan modal penantian verifikasi.
      */
     public function submitLoanRequest(Request $request, $kode)
     {
@@ -339,10 +356,14 @@ class UserController extends Controller
     }
 
     /**
-     * Menampilkan formulir pengembalian untuk pinjaman akun yang sedang login.
+     * Menampilkan formulir penyerahan pengembalian sarana untuk peminjaman aktif milik akun login.
      *
-     * @param  string  $kode  Kode transaksi peminjaman
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Transaksi peminjaman terdaftar milik akun login dan berstatus 'disetujui'.
+     * - Belum pernah mengajukan pengembalian untuk transaksi yang sama.
+     *
+     * @param string $kode Kode unik transaksi peminjaman.
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse Tampilan view 'user.loan-return' atau redirect jika sudah diajukan.
      */
     public function loanReturn($kode)
     {
@@ -365,11 +386,16 @@ class UserController extends Controller
     }
 
     /**
-     * Memproses pengembalian beserta bukti foto atau video.
+     * Memproses konfirmasi pengembalian sarana dari siswa beserta berkas bukti visual (foto/video fisik).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $kode  Kode transaksi peminjaman
-     * @return \Illuminate\Http\RedirectResponse
+     * Efek Samping:
+     * - Menyimpan berkas bukti kondisi fisik ke folder `uploads/returns/` (kompresi WebP untuk foto).
+     * - Membuat baris pencatatan baru pada tabel `pengembalian` dengan status kondisi awal 'null' menunggu inspeksi fisik petugas.
+     * - Mengirimkan notifikasi penyerahan pengembalian ke Admin Sarana.
+     *
+     * @param Request $request Request HTTP yang membawa tanggal kembali, catatan penggunaan, dan file bukti fisik.
+     * @param string $kode Kode unik transaksi peminjaman.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan ke halaman status dengan pesan sukses penyerahan alat.
      */
     public function submitReturnRequest(Request $request, $kode)
     {

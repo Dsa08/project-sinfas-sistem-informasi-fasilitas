@@ -31,10 +31,10 @@ use Illuminate\View\View;
 class AuthController extends Controller
 {
     /**
-     * Menampilkan formulir login aplikasi.
-     * Jika pengguna sudah dalam status login, otomatis dialihkan ke dashboard sesuai perannya.
+     * Menampilkan antarmuka formulir masuk (login) aplikasi.
+     * Jika pengguna sudah dalam sesi terautentikasi, dialihkan otomatis ke halaman awal sesuai perannya.
      *
-     * @return View|RedirectResponse
+     * @return View|RedirectResponse Tampilan view 'auth.login' atau pengalihan rute ke beranda peran pengguna.
      */
     public function showLoginForm()
     {
@@ -46,10 +46,18 @@ class AuthController extends Controller
     }
 
     /**
-     * Memproses permohonan login dengan Rate Limiting anti brute force.
-     * Pengguna dapat menginputkan Username, Email, NIS siswa, atau NIP pegawai.
+     * Memproses otentikasi login pengguna dengan proteksi pembatasan laju percobaan (Rate Limiting).
+     * Mendukung multi-identitas: Username, Email resmi, NIS siswa, atau NIP pegawai/staf sarana.
      *
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Input identifier (email/username/NIS/NIP) dan password wajib diisi.
+     *
+     * Efek Samping:
+     * - Menghitung jumlah kegagalan login pada Rate Limiter berbasis kombinasi identitas dan IP klien.
+     * - Menginisialisasi sesi login baru (`Auth::login`) dan meregenerasi ID sesi CSRF untuk mencegah session fixation.
+     *
+     * @param Request $request Request HTTP yang memuat kredensial login (identitas dan password).
+     * @return RedirectResponse Pengalihan ke beranda peran pengguna jika sukses, atau kembali ke formulir dengan pesan error.
      */
     public function login(Request $request)
     {
@@ -104,7 +112,7 @@ class AuthController extends Controller
                 ])->onlyInput('email');
             }
 
-            // Bersihkan riwayat percobaan gagal pada Rate Limiter
+            // Bersihkan riwayat percobaan gagal pada Rate Limiter setelah login berhasil
             RateLimiter::clear($throttleKey);
 
             // Simpan autentikasi pada session web Laravel (dengan opsi Remember Me)
@@ -114,7 +122,7 @@ class AuthController extends Controller
             return $this->redirectBasedOnRole($akun)->with('success', 'Selamat datang kembali, '.$akun->nama.'!');
         }
 
-        // 5. Catat kegagalan login ke Rate Limiter (decay time 60 detik)
+        // 5. Catat kegagalan login ke Rate Limiter (decay time 60 detik) untuk menghitung ambang batas brute-force
         RateLimiter::hit($throttleKey, 60);
 
         return back()->withErrors([
@@ -123,9 +131,14 @@ class AuthController extends Controller
     }
 
     /**
-     * Memproses logout pengguna secara aman (menghapus session & token CSRF).
+     * Memproses keluar sistem (logout) pengguna secara aman.
      *
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Menghapus sesi otentikasi aktif (`Auth::logout`).
+     * - Membatalkan (invalidate) token session peramban dan meregenerasi token CSRF baru.
+     *
+     * @param Request $request Request HTTP pemanggil logout.
+     * @return RedirectResponse Pengalihan rute kembali ke halaman login dengan flash message sukses.
      */
     public function logout(Request $request)
     {
@@ -137,7 +150,11 @@ class AuthController extends Controller
     }
 
     /**
-     * Helper: Menghasilkan kunci pembatas (rate limit key) berbasis kombinasi identifier dan alamat IP klien.
+     * Menghasilkan kunci pembatas laju (rate limiter key) berbasis kombinasi identifier pengguna dan IP klien.
+     *
+     * @param Request $request Request HTTP dari klien.
+     * @param string $identifier String identitas yang diinputkan pengguna (username/email/NIS/NIP).
+     * @return string Kunci unik untuk pencatatan frekuensi percobaan login pada cache rate limiter.
      */
     protected function throttleKey(Request $request, string $identifier): string
     {
@@ -145,10 +162,10 @@ class AuthController extends Controller
     }
 
     /**
-     * Helper: Mengarahkan pengguna ke rute dashboard yang sesuai dengan peran (role) masing-masing.
+     * Menentukan dan mengarahkan rute tujuan pengguna sesuai dengan peran (role) akun yang dimiliki.
      *
-     * @param  Akun  $user
-     * @return RedirectResponse
+     * @param Akun $user Model Akun pengguna yang terautentikasi.
+     * @return RedirectResponse Pengalihan ke URL beranda yang sesuai dengan peran pengguna.
      */
     private function redirectBasedOnRole($user)
     {
@@ -156,9 +173,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Menampilkan formulir permintaan lupa password.
+     * Menampilkan formulir permohonan pemulihan kata sandi (lupa password).
      *
-     * @return View|RedirectResponse
+     * @return View|RedirectResponse Tampilan view 'auth.forgot-password' atau redirect jika sudah login.
      */
     public function showForgotPasswordForm()
     {
@@ -170,10 +187,14 @@ class AuthController extends Controller
     }
 
     /**
-     * Memproses permohonan reset password, men-generate token unik aman 64-karakter,
-     * dan mengirimkan tautan reset ke email terdaftar tanpa menampilkan token ke halaman.
+     * Memproses permohonan reset sandi, menerbitkan token kriptografis 64-karakter, dan mengirim tautan via surel.
      *
-     * @return RedirectResponse
+     * Efek Samping:
+     * - Menyimpan hash token reset ke tabel `password_reset_tokens`.
+     * - Mengirimkan surel berisi URL pemulihan jika alamat surel terdaftar dan valid.
+     *
+     * @param Request $request Request HTTP yang memuat identitas akun pemohon reset sandi.
+     * @return RedirectResponse Kembali ke halaman sebelumnya dengan pesan status tergeneralisasi untuk privasi.
      */
     public function sendResetLink(Request $request)
     {
@@ -271,10 +292,16 @@ class AuthController extends Controller
     }
 
     /**
-     * Menampilkan formulir input password baru dengan validasi masa aktif token.
+     * Menampilkan antarmuka formulir pembuatan kata sandi baru berdasarkan token kriptografis.
+     * Memeriksa keberadaan token di basis data dan masa berlakunya (kedaluwarsa setelah 60 menit).
      *
-     * @param  string  $token
-     * @return View|RedirectResponse
+     * Prasyarat:
+     * - Parameter token dan email harus valid dan cocok dengan rekaman di tabel `password_reset_tokens`.
+     * - Waktu pembuatan token tidak boleh lebih dari 60 menit yang lalu.
+     *
+     * @param Request $request Request HTTP yang memuat query parameter email pemohon.
+     * @param string $token Token acak 64-karakter dari tautan yang diklik pada email.
+     * @return View|RedirectResponse Tampilan view 'auth.reset-password' atau redirect ke request token jika token tidak valid/kedaluwarsa.
      */
     public function showResetPasswordForm(Request $request, $token)
     {
@@ -307,9 +334,17 @@ class AuthController extends Controller
     }
 
     /**
-     * Mengeksekusi perubahan password baru pada database dan menghapus token yang telah terpakai.
+     * Memvalidasi dan mengeksekusi pembaruan kata sandi baru ke basis data serta menganulir token reset yang telah dipakai.
      *
-     * @return RedirectResponse
+     * Prasyarat:
+     * - Kata sandi baru minimal 8 karakter, wajib kombinasi huruf dan angka, serta cocok dengan konfirmasi sandi.
+     *
+     * Efek Samping:
+     * - Mengubah hash kata sandi akun di tabel `akun`.
+     * - Menghapus baris token dari tabel `password_reset_tokens` agar token bersifat satu kali pakai (one-time use).
+     *
+     * @param Request $request Request HTTP yang memuat token, email, sandi baru, dan konfirmasi sandi.
+     * @return RedirectResponse Pengalihan ke halaman login dengan pesan sukses pembaruan sandi.
      */
     public function resetPassword(Request $request)
     {

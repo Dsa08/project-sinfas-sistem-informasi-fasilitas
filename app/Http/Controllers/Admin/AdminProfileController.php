@@ -25,11 +25,10 @@ use Illuminate\Validation\Rules\Password;
 class AdminProfileController extends Controller
 {
     /**
-     * Menampilkan halaman Pengaturan Akun admin dengan tab yang aktif.
-     * Default tab adalah 'profile'.
+     * Menampilkan halaman Pengaturan Akun Admin Sarana dengan tab navigasi aktif.
      *
-     * @param  string  $tab  Tab aktif: profile|password|notifications|verification
-     * @return \Illuminate\View\View
+     * @param string $tab Nama tab pengaturan yang dibuka: 'profile', 'password', 'notifications', atau 'verification'. Default 'profile'.
+     * @return \Illuminate\View\View Tampilan admin.profile dengan data akun admin dan penanda tab aktif.
      */
     public function show($tab = 'profile')
     {
@@ -47,10 +46,14 @@ class AdminProfileController extends Controller
     }
 
     /**
-     * Memperbarui data profil Admin Sarana (nama, nomor kontak, email).
+     * Memperbarui informasi profil Admin Sarana (nama lengkap, kontak telepon, dan email).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Efek Samping:
+     * - Memperbarui rekaman pada tabel `akun`.
+     * - Menyinkronkan perubahan nama dan kontak pada tabel referensi `staff_sarana`.
+     *
+     * @param Request $request Permintaan HTTP berisi input 'nama', 'nomor_kontak', dan opsional 'email'.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab profil dengan notifikasi keberhasilan.
      */
     public function updateProfile(Request $request)
     {
@@ -86,10 +89,17 @@ class AdminProfileController extends Controller
     }
 
     /**
-     * Memperbarui kata sandi Admin Sarana dengan verifikasi password lama.
+     * Memperbarui kata sandi akun Admin Sarana dengan verifikasi kata sandi lama.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Prasyarat:
+     * - Kata sandi saat ini (`current_password`) harus cocok dengan hash password pengguna yang terautentikasi.
+     * - Kata sandi baru minimal 8 karakter dan mengandung kombinasi huruf serta angka.
+     *
+     * Efek Samping:
+     * - Mengenkripsi (hash) kata sandi baru dan memperbarui kolom `password` pada tabel `akun`.
+     *
+     * @param Request $request Permintaan HTTP berisi 'current_password', 'new_password', dan 'new_password_confirmation'.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab password atau form semula jika validasi gagal.
      */
     public function updatePassword(Request $request)
     {
@@ -122,10 +132,15 @@ class AdminProfileController extends Controller
     }
 
     /**
-     * Memperbarui foto profil Admin Sarana.
+     * Mengunggah dan memperbarui foto profil Admin Sarana.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Efek Samping:
+     * - Mengonversi gambar ke format WebP terkompresi dan menyimpannya pada storage disk public.
+     * - Menghapus file foto avatar lama dari server jika sebelumnya ada.
+     * - Memperbarui path foto pada tabel `akun`.
+     *
+     * @param Request $request Permintaan HTTP berisi berkas gambar 'foto' (maksimal 2MB).
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab profil dengan konfirmasi berhasil.
      */
     public function updatePhoto(Request $request)
     {
@@ -154,9 +169,13 @@ class AdminProfileController extends Controller
     }
 
     /**
-     * Menghapus foto profil Admin Sarana dan mengembalikan ke avatar default.
+     * Menghapus berkas foto profil admin dan mengembalikan tampilan ke inisial/avatar bawaan.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * Efek Samping:
+     * - Menghapus berkas fisik foto dari direktori penyimpanan.
+     * - Mengubah kolom `foto` pada basis data menjadi `null`.
+     *
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab profil dengan pesan sukses.
      */
     public function deletePhoto()
     {
