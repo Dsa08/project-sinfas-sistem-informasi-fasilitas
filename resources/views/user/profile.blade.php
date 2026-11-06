@@ -1,10 +1,9 @@
 {{-- 
-  HALAMAN PROFIL PENGGUNA (MY PROFILE) — SINFAS
+  HALAMAN PROFIL PENGGUNA — SINFAS
   File: resources/views/user/profile.blade.php
-  Fitur:
-  - Tampilan kartu identitas: Avatar profil, nama lengkap, role badge, dan NIS/NIP.
-  - Tab 1: Personal Information (pembaruan nama lengkap, kontak WhatsApp, surel).
-  - Tab 2: Security & Password (pembaruan kata sandi mandiri dengan validasi password lama).
+  Fungsi: Manajemen biodata akun, unggah foto avatar, dan ganti kata sandi mandiri.
+  Data Controller:
+  - $user (Akun): Data akun pengguna yang sedang masuk beserta relasi profil.
 --}}
 @extends('layouts.app')
 

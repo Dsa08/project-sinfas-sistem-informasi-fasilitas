@@ -1,12 +1,10 @@
 {{-- 
-  MANAJEMEN MASTER AKUN PENGGUNA (USER ACCOUNTS) — SINFAS
+  MANAJEMEN MASTER AKUN PENGGUNA — SINFAS
   File: resources/views/admin/system/accounts.blade.php
-  Fitur:
-  - Tabel Akun: Avatar, nama, NIS/NIP, kontak, role, status aktif (Aktif / Nonaktif), dan tanggal terdaftar.
-  - Modal Tambah Akun Baru: Integrasi validasi NIS/NIP master data sekolah.
-  - Modal Detail Akun: Format kartu info pengguna via AJAX.
-  - Modal Edit Akun: Form update data profil, username, surel, dan password opsional.
-  - Aksi Toggle Aktif/Nonaktif (Soft deactivate) & Reset Password Darurat.
+  Fungsi: Pengelolaan akun pengguna, registrasi massal siswa, toggle aktif, dan reset sandi.
+  Data Controller:
+  - $accounts (LengthAwarePaginator): Daftar akun pengguna selain admin sistem.
+  - $totalAccounts, $totalActive: Statistik ringkas akun.
 --}}
 @extends('layouts.admin-system')
 
@@ -54,9 +52,18 @@
                 placeholder="Cari berdasarkan nama, NIS/NIP, atau email..."
             >
         </form>
-        <button type="button" class="btn-add-account" id="btn-add-account">
-            + Tambah Akun
-        </button>
+        <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+            <form method="POST" action="{{ route('admin.sistem.accounts.batch-students') }}" id="batch-students-form" onsubmit="return confirm('Buat akun login otomatis untuk seluruh siswa di master data yang belum memiliki akun?\n\nSandi sementara (format SMK11-XXXX) akan diterbitkan dan siswa wajib mengganti kata sandi saat pertama kali login.');">
+                @csrf
+                <button type="submit" class="btn-add-account" style="background-color: #f1f5f9; color: #1e40af; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; gap: 0.4rem;" title="Buat akun login massal untuk data siswa yang belum berakun">
+                    <x-heroicon-o-user-group class="w-4 h-4" />
+                    <span>Generate Akun Siswa</span>
+                </button>
+            </form>
+            <button type="button" class="btn-add-account" id="btn-add-account">
+                + Tambah Akun
+            </button>
+        </div>
     </div>
 
     {{-- Accounts Table Card --}}
@@ -303,12 +310,24 @@
                 <input type="email" id="add-email" name="email" class="account-form-input" placeholder="Contoh: ahmad.fadli@mail.com" value="{{ old('email') }}">
             </div>
 
-            <div class="account-form-group">
+            <div class="account-form-group" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem 0.85rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; font-size: 0.875rem; font-weight: 600; color: #1e293b; margin-bottom: 0;">
+                    <input type="checkbox" name="auto_password" id="add-auto-password" value="1" {{ old('auto_password') ? 'checked' : '' }} style="margin-top: 0.15rem; width: 1.05rem; height: 1.05rem; accent-color: #1E40AF; cursor: pointer;">
+                    <div>
+                        <span>Buat sandi sementara otomatis (Format: SMK11-XXXX)</span>
+                        <p style="font-size: 0.78rem; font-weight: 400; color: #64748b; margin: 0.2rem 0 0 0;">
+                            Sandi acak ramah-ketik akan dibuatkan otomatis dan pengguna diwajibkan mengubah sandi saat login perdana.
+                        </p>
+                    </div>
+                </label>
+            </div>
+
+            <div class="account-form-group" id="group-add-password">
                 <label class="account-form-label" for="add-password">Password</label>
                 <input type="password" id="add-password" name="password" class="account-form-input" placeholder="••••••••" required>
             </div>
 
-            <div class="account-form-group">
+            <div class="account-form-group" id="group-add-confirm-password">
                 <label class="account-form-label" for="add-confirm-password">Konfirmasi Password</label>
                 <input type="password" id="add-confirm-password" name="password_confirmation" class="account-form-input" placeholder="••••••••" required>
             </div>
@@ -679,6 +698,36 @@ document.addEventListener('DOMContentLoaded', function () {
             dropdownMenus.forEach(m => m.classList.remove('action-dropdown-menu--active'));
         }
     });
+
+    // ─── Toggle auto-password fields di Modal Tambah Akun ────────
+    const autoPasswordCheckbox = document.getElementById('add-auto-password');
+    const groupPassword = document.getElementById('group-add-password');
+    const groupConfirmPassword = document.getElementById('group-add-confirm-password');
+    const inputPassword = document.getElementById('add-password');
+    const inputConfirmPassword = document.getElementById('add-confirm-password');
+
+    function toggleAutoPassword() {
+        if (!autoPasswordCheckbox || !groupPassword || !groupConfirmPassword) return;
+        const isAuto = autoPasswordCheckbox.checked;
+        if (isAuto) {
+            groupPassword.style.display = 'none';
+            groupConfirmPassword.style.display = 'none';
+            inputPassword.removeAttribute('required');
+            inputConfirmPassword.removeAttribute('required');
+            inputPassword.value = '';
+            inputConfirmPassword.value = '';
+        } else {
+            groupPassword.style.display = '';
+            groupConfirmPassword.style.display = '';
+            inputPassword.setAttribute('required', 'required');
+            inputConfirmPassword.setAttribute('required', 'required');
+        }
+    }
+
+    if (autoPasswordCheckbox) {
+        autoPasswordCheckbox.addEventListener('change', toggleAutoPassword);
+        toggleAutoPassword();
+    }
 
     // ─── Auto-open Add modal on validation error ────────────────────
     @if($errors->any() && !old('_edit_mode'))

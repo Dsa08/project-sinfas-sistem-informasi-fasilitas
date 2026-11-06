@@ -4,12 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model Siswa
  * 
- * Mengelola data master siswa sekolah.
- * Terhubung dengan akun login siswa (relasi 1:1) dan riwayat peminjaman sarana.
+ * Mengelola data master siswa sekolah pada sistem informasi SINFAS.
+ * Menyimpan profil siswa (NIS, nama, kelas, kontak, email) dan menghubungkannya
+ * dengan akun autentikasi pengguna (relasi N:1 atau 1:1 via foreign key id_akun).
+ *
+ * @property string $nis Nomor Induk Siswa unik (kunci utama sekolah).
+ * @property int|null $id_akun ID akun login sistem yang terhubung.
+ * @property string $nama Nama lengkap siswa.
+ * @property string|null $email Alamat surel siswa.
+ * @property string|null $kelas Tingkat / rombongan belajar siswa (misal: 'XII RPL 1').
+ * @property string|null $no_hp Nomor telepon / WhatsApp aktif siswa.
+ * @property-read Akun|null $akun Relasi akun login sistem (N:1).
  */
 class Siswa extends Model
 {
@@ -58,11 +68,11 @@ class Siswa extends Model
     ];
 
     /**
-     * Relasi: Data siswa memiliki satu akun login (1:1).
+     * Relasi: Data master siswa terhubung ke satu akun login sistem (N:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return BelongsTo Relasi belongs-to ke model Akun berdasarkan foreign key id_akun.
      */
-    public function akun()
+    public function akun(): BelongsTo
     {
         return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }

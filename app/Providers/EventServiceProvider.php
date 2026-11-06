@@ -7,10 +7,16 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
+/**
+ * Service Provider EventServiceProvider
+ *
+ * Mengelola pendaftaran relasi antara peristiwa sistem (*events*) dan penangan peristiwa (*listeners*).
+ * Memungkinkan pemrosesan aksi asinkron atau terpisah ketika suatu kejadian bisnis terjadi di SINFAS.
+ */
 class EventServiceProvider extends ServiceProvider
 {
     /**
-     * The event to listener mappings for the application.
+     * Pemetaan kelas event ke listener yang bertugas menanganinya.
      *
      * @var array<class-string, array<int, class-string>>
      */
@@ -21,7 +27,9 @@ class EventServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Register any events for your application.
+     * Mendaftarkan konfigurasi event kustom aplikasi saat proses bootstrap berlangsung.
+     *
+     * @return void
      */
     public function boot(): void
     {
@@ -29,7 +37,9 @@ class EventServiceProvider extends ServiceProvider
     }
 
     /**
-     * Determine if events and listeners should be automatically discovered.
+     * Menentukan apakah event dan listener harus ditemukan secara otomatis (event discovery).
+     *
+     * @return bool False untuk menjaga pendaftaran event tetap eksplisit dan terprediksi.
      */
     public function shouldDiscoverEvents(): bool
     {

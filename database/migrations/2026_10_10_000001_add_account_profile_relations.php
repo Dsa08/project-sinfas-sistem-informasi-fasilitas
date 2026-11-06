@@ -5,6 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migrasi Basis Data: Penyelarasan Relasi Akun dan Profil Master (ERD 2).
+ *
+ * Tujuan:
+ * 1. Menambahkan foreign key `id_akun` pada tabel master `siswa` dan `pegawai`.
+ * 2. Menghubungkan akun Admin Sarana ke tabel identitas petugas `staff_sarana`.
+ * 3. Menambahkan kolom `id_peminjaman` dan `id_akun` pada tabel `peminjaman`.
+ * 4. Membuat tabel audit jejak verifikasi persetujuan (`penyetujuan`) sesuai ERD 2.
+ */
 return new class extends Migration
 {
     /**

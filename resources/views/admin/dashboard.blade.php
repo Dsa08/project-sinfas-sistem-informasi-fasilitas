@@ -1,10 +1,10 @@
 {{-- 
   DASHBOARD ANALITIK ADMIN SARANA — SINFAS
   File: resources/views/admin/dashboard.blade.php
-  Fitur:
-  - 4 Kartu Metrik Utama: Pending Verification, Total Items (Barang), Currently Borrowed, dan Damaged Items (Rusak Berat).
-  - Visualisasi Grafik Chart.js yang berubah sesuai jenis dan filter laporan.
-  - Tabel peringkat 5 barang yang paling sering dipinjam pada periode dan kategori laporan.
+  Fungsi: Ringkasan operasional sarana, 4 kartu KPI, grafik analitik, dan alat terpopuler.
+  Data Controller:
+  - $pendingCount, $totalItems, $borrowedCount, $damagedCount: Metrik statistik.
+  - $chartLabels, $chartDatasets: Data visualisasi grafik Chart.js.
 --}}
 @extends('layouts.admin-sarana')
 

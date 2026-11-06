@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Akun;
 use App\Models\Peminjaman;
 use App\Services\DatabaseBackupService;
+use App\Services\LoginAuditService;
 use App\Services\SystemSettingsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -72,7 +73,8 @@ class AdminSistemController extends Controller
     }
 
     /**
-     * Menampilkan antarmuka konfigurasi operasional sistem, utilitas backup/restore, dan riwayat aktivitas.
+     * Menampilkan antarmuka konfigurasi operasional sistem, utilitas backup/restore,
+     * riwayat aktivitas sistem, dan audit log percobaan login terbaru.
      *
      * @return \Illuminate\View\View Tampilan view 'admin.system.settings' berisi formulir pengaturan dan log aktivitas.
      */
@@ -86,14 +88,18 @@ class AdminSistemController extends Controller
             ? Carbon::parse($rawLastBackup)->translatedFormat('d M Y, H:i') . ' WIB'
             : 'Belum pernah dicadangkan';
 
-        // Mengumpulkan Riwayat Aktivitas Nyata
+        // 1. Mengumpulkan riwayat aktivitas sistem secara agregat
         $activityLogs = $this->aggregateActivityLogs();
+
+        // 2. Mengambil 10 rekaman audit log login terbaru dari file log server
+        $loginAuditLogs = LoginAuditService::getRecentLogs(10);
 
         return view('admin.system.settings', compact(
             'startTime',
             'endTime',
             'lastBackupFormatted',
-            'activityLogs'
+            'activityLogs',
+            'loginAuditLogs'
         ));
     }
 

@@ -1,11 +1,7 @@
 {{-- 
-  HALAMAN LOGIN (MASUK APLIKASI) — SINFAS
+  HALAMAN MASUK (LOGIN) — SINFAS
   File: resources/views/auth/login.blade.php
-  Fitur:
-  - Form otentikasi melalui username, email, NIS, atau NIP yang tidak ambigu.
-  - Tampilan alert kesalahan validasi dan notifikasi rate-limiting brute force.
-  - Opsi checkbox "Ingat Saya" (Remember Me).
-  - Tautan pemulihan kata sandi.
+  Fungsi: Gerbang autentikasi masuk multi-identitas (Username, Email, NIS, atau NIP).
 --}}
 @extends('layouts.auth')
 
@@ -26,6 +22,12 @@
     @if(session('success'))
         <div class="auth-alert auth-alert--success">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="auth-alert auth-alert--warning">
+            {{ session('warning') }}
         </div>
     @endif
 

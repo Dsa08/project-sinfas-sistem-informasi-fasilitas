@@ -1,12 +1,10 @@
-{{--
-  HALAMAN PENGATURAN AKUN — ADMIN SARANA SINFAS
+{{-- 
+  HALAMAN PENGATURAN AKUN ADMIN SARANA — SINFAS
   File: resources/views/admin/profile.blade.php
-  Fitur Tab:
-  - Pengaturan Profil: Edit nama, nomor kontak, email, foto profil
-  - Kata Sandi: Ganti password dengan verifikasi password lama
-  - Notifikasi: Preferensi notifikasi in-app
-  - Verifikasi Akun: Informasi identitas & status akun
-  TERPISAH dari halaman profil siswa (user/profile.blade.php)
+  Fungsi: Pengaturan profil admin sarana, foto avatar, kata sandi, dan notifikasi.
+  Data Controller:
+  - $user (Akun): Data akun admin yang login beserta relasi staffSarana.
+  - $activeTab (string): Tab pengaturan yang sedang aktif.
 --}}
 @extends('layouts.admin-sarana')
 

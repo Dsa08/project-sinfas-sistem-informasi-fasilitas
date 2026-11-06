@@ -4,10 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migrasi Basis Data: Pembuatan Tabel Penyimpanan Token Reset Kata Sandi.
+ *
+ * Tujuan:
+ * Menampung token acak kriptografis yang dikirimkan ke surel pengguna saat melakukan pemulihan akses akun.
+ */
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Menjalankan migrasi pembuatan tabel password_reset_tokens.
+     *
+     * Efek Samping:
+     * - Membuat tabel baru `password_reset_tokens` dengan kolom primary key `email`.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -19,7 +30,12 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Membatalkan migrasi dan menghapus tabel password_reset_tokens.
+     *
+     * Efek Samping:
+     * - Menghapus tabel `password_reset_tokens` dari basis data.
+     *
+     * @return void
      */
     public function down(): void
     {

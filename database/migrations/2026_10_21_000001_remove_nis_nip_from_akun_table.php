@@ -5,6 +5,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migrasi Basis Data: Normalisasi Skema Akun dan Penyelarasan ERD 2.
+ *
+ * Tujuan:
+ * Menghapus kolom redundan `nis` dan `nip` dari tabel `akun` setelah seluruh relasi data master
+ * (siswa, pegawai, staff_sarana, dan peminjaman) berhasil dimigrasikan menggunakan foreign key `id_akun`.
+ */
 return new class extends Migration
 {
     /**

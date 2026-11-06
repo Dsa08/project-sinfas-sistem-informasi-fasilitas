@@ -1,17 +1,10 @@
 {{-- 
-  HALAMAN PUSAT NOTIFIKASI PENGGUNA â€” SINFAS
+  HALAMAN PUSAT NOTIFIKASI PENGGUNA — SINFAS
   File: resources/views/user/notifications.blade.php
-  Fitur Sesuai Desain Figma:
-  - Header navigasi "Kembali ke Beranda" & judul halaman "Pusat Notifikasi"
-  - Filter status: Semua, Belum Dibaca, Sudah Dibaca
-  - Tombol "Tandai Semua Sudah Dibaca"
-  - Tampilan kartu notifikasi mirip riwayat peminjaman (Foto barang, Nama sarana, Waktu, Durasi hari berjalan)
-  - Color-coded durasi peminjaman otomatis:
-    * 1 - 9 hari: Abu-abu (Gray)
-    * 10 - 50 hari: Kuning (Yellow)
-    * > 50 hari: Merah (Red)
-  - Badge status vertikal kanan sesuai Figma (Approved/Hijau, Pending/Kuning, Rejected/Merah, Returned/Biru)
-  - Tombol aksi kontekstual (Lihat Status, Kembalikan Sarana, Tandai Dibaca)
+  Fungsi: Menampilkan daftar notifikasi in-app untuk peminjam (status & pengingat).
+  Data Controller:
+  - $notifikasi (LengthAwarePaginator): Daftar notifikasi pengguna terpaginasi.
+  - $unreadCount (int): Total notifikasi yang belum dibaca.
 --}}
 @extends('layouts.app')
 

@@ -1,11 +1,10 @@
 {{-- 
-  HALAMAN PENGATURAN SISTEM (SYSTEM SETTINGS) — SINFAS
+  PENGATURAN SISTEM & PEMELIHARAAN — SINFAS
   File: resources/views/admin/system/settings.blade.php
-  Fitur Profesional:
-  - Pengaturan Jam Operasional Layanan Sarana (disimpan secara persisten).
-  - Pencadangan Database SQL instan & unduh langsung ke komputer administrator.
-  - Pemulihan Database dari file dump SQL dengan proteksi validasi.
-  - Riwayat Aktivitas Nyata yang diagregasi dari sistem registrasi, transaksi sarana, dan pengaturan.
+  Fungsi: Pengaturan jam operasional, backup & restore database SQL, dan log audit.
+  Data Controller:
+  - $startTime, $endTime: Jam operasional layanan.
+  - $activityLogs, $loginAuditLogs: Catatan audit aktivitas sistem.
 --}}
 @extends('layouts.admin-system')
 
@@ -127,6 +126,74 @@
                         <tr>
                             <td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">
                                 Belum ada riwayat aktivitas sistem yang tercatat.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- Card 4: Login Audit Log --}}
+    <div class="system-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 class="system-card-title no-border">Audit Log Percobaan Login</h3>
+                <p style="font-size: 0.8rem; color: #64748b; margin: 0.2rem 0 0;">
+                    Pencatatan riwayat autentikasi berbasis berkas server (IP, perangkat, status login, dan proteksi brute-force).
+                </p>
+            </div>
+            <span style="font-size: 0.78rem; color: #64748b;">Menampilkan 10 rekaman terbaru</span>
+        </div>
+        <div class="system-table-card no-border mt-2">
+            <table class="system-table">
+                <thead>
+                    <tr>
+                        <th class="th-number">No.</th>
+                        <th style="width: 22%;">Identitas Masukan</th>
+                        <th style="width: 20%;">Alamat IP &amp; Perangkat</th>
+                        <th style="width: 18%;">Status Autentikasi</th>
+                        <th style="width: 23%;">Keterangan Sistem</th>
+                        <th style="width: 15%;">Waktu Kejadian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($loginAuditLogs ?? [] as $idx => $audit)
+                        <tr>
+                            <td class="td-number">{{ $idx + 1 }}</td>
+                            <td>
+                                <strong style="display: block; color: #0f172a; font-size: 0.88rem;">{{ $audit['nama'] ?? $audit['identifier'] }}</strong>
+                                <span style="font-size: 0.76rem; color: #64748b;">
+                                    Input: <code>{{ $audit['identifier'] }}</code> ({{ $audit['role_label'] ?? '-' }})
+                                </span>
+                            </td>
+                            <td>
+                                <span style="display: block; font-size: 0.82rem; font-weight: 600; color: #334155;">{{ $audit['ip_address'] ?? '127.0.0.1' }}</span>
+                                <span style="font-size: 0.74rem; color: #64748b;">{{ $audit['device_summary'] ?? '-' }}</span>
+                            </td>
+                            <td>
+                                @php
+                                    $badgeStyle = match($audit['status'] ?? '') {
+                                        'sukses' => 'background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;',
+                                        'terkunci_rate_limit' => 'background: #fef3c7; color: #92400e; border: 1px solid #fde68a;',
+                                        default => 'background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;',
+                                    };
+                                @endphp
+                                <span style="display: inline-block; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.74rem; font-weight: 600; {{ $badgeStyle }}">
+                                    {{ $audit['status_label'] ?? ucfirst($audit['status'] ?? '-') }}
+                                </span>
+                            </td>
+                            <td style="font-size: 0.8rem; color: #475569;">
+                                {{ $audit['keterangan'] ?: '-' }}
+                            </td>
+                            <td style="font-size: 0.8rem; color: #64748b; white-space: nowrap;">
+                                {{ $audit['datetime'] ?? '-' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                Belum ada rekaman percobaan login pada berkas log server.
                             </td>
                         </tr>
                     @endforelse

@@ -4,8 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migrasi Basis Data: Pembuatan Tabel Pengembalian Sarana.
+ *
+ * Tujuan:
+ * Mencatat transaksi pengembalian barang yang telah selesai dipinjam (relasi 1:1 terhadap peminjaman),
+ * tanggal kembali aktual, kondisi saat diterima, dan unggahan bukti fisik.
+ */
 return new class extends Migration
 {
+    /**
+     * Menjalankan migrasi pembuatan tabel pengembalian.
+     *
+     * Efek Samping:
+     * - Membuat tabel baru `pengembalian` dengan primary key `kode_kembali` dan foreign key unique `kode_pinjam`.
+     *
+     * @return void
+     */
     public function up(): void
     {
         Schema::create('pengembalian', function (Blueprint $table) {
@@ -22,6 +37,14 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Membatalkan migrasi dan menghapus tabel pengembalian.
+     *
+     * Efek Samping:
+     * - Menghapus tabel `pengembalian` dari basis data.
+     *
+     * @return void
+     */
     public function down(): void
     {
         Schema::dropIfExists('pengembalian');

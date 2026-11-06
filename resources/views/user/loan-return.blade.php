@@ -1,10 +1,9 @@
 {{-- 
-  HALAMAN PENGEMBALIAN BARANG (RETURN ITEM) â€” SINFAS
+  HALAMAN PENGEMBALIAN ALAT (RETURN ITEM) — SINFAS
   File: resources/views/user/loan-return.blade.php
-  Fitur:
-  - Ringkasan data peminjaman aktif: Kode pinjam, tanggal mulai pinjam, lokasi dan tujuan penggunaan.
-  - Formulir pengembalian: Input tanggal aktual pengembalian, catatan kondisi barang dari pengguna.
-  - Upload berkas bukti fisik serah terima (foto / video, maksimal 10MB) dengan preview interaktif.
+  Fungsi: Formulir konfirmasi pengembalian alat dan unggah bukti fisik serah terima.
+  Data Controller:
+  - $loan (Peminjaman): Transaksi pinjaman aktif beserta relasi barang & pengembalian.
 --}}
 @extends('layouts.app')
 

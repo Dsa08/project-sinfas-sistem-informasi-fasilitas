@@ -16,7 +16,12 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
-     * Menjalankan migration dan mendefinisikan triggers otomatisasi stok.
+     * Menjalankan migrasi pembuatan database triggers otomatisasi pengurangan dan pengembalian stok.
+     *
+     * Efek Samping:
+     * - Menerbitkan trigger `trg_kurangi_stok_peminjaman` dan `trg_kembalikan_stok_barang` ke dalam RDBMS.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -62,7 +67,12 @@ return new class extends Migration
     }
 
     /**
-     * Membatalkan migration dan menghapus triggers stok.
+     * Membatalkan migrasi dan melepas triggers dari basis data.
+     *
+     * Efek Samping:
+     * - Menghapus trigger `trg_kurangi_stok_peminjaman` dan `trg_kembalikan_stok_barang` dari RDBMS.
+     *
+     * @return void
      */
     public function down(): void
     {

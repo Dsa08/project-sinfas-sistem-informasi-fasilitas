@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Model Barang
@@ -11,6 +13,25 @@ use Illuminate\Database\Eloquent\Model;
  * Merepresentasikan data inventaris fisik sarana & prasarana sekolah.
  * Mengelola informasi detail barang, kategori, riwayat peminjaman, serta
  * pembagian kuantitas berdasarkan kondisi fisik (baik, kurang baik, rusak berat).
+ *
+ * @property string $kode_barang Kode inventaris unik sarana (kunci utama, misal: 'AUD-001').
+ * @property int $id_kategori Foreign key merujuk ke tabel kategori.
+ * @property string $nama_barang Nama umum barang atau alat sarana.
+ * @property string|null $merk_model Merk produsen dan tipe model barang.
+ * @property string|null $no_seri_pabrik Nomor seri pabrikasi untuk pelacakan fisik.
+ * @property string|null $ukuran_dimensi Dimensi fisik alat (contoh: '8 x 3 x 2 cm').
+ * @property string|null $bahan Material penyusun barang (contoh: 'Plastik ABS', 'Besi').
+ * @property int|null $tahun_pembelian Tahun kalender pengadaan sarana.
+ * @property int $jumlah_baik Kuantitas unit dalam kondisi prima (siap dipinjam).
+ * @property int $jumlah_kurang_baik Kuantitas unit aus yang membutuhkan perawatan berkala.
+ * @property int $jumlah_rusak_berat Kuantitas unit rusak permanen (tidak dapat dipinjam).
+ * @property string|null $keterangan Catatan operasional sarana.
+ * @property string|null $foto Path relatif penyimpanan gambar sarana.
+ * @property-read string|null $foto_url URL publik menuju berkas gambar barang.
+ * @property-read int $total_stok Akumulasi total kuantitas dari seluruh kondisi fisik.
+ * @property-read string $status Status ketersediaan sarana ('Available' / 'Unavailable').
+ * @property-read Kategori $kategori Relasi kategori barang (N:1).
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Peminjaman> $peminjaman Riwayat transaksi peminjaman (1:N).
  */
 class Barang extends Model
 {
@@ -80,13 +101,19 @@ class Barang extends Model
     /**
      * Relasi: Barang merupakan bagian dari satu kategori induk (N:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo Relasi belongs-to ke model Kategori.
      */
-    public function kategori()
+    public function kategori(): BelongsTo
     {
         return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');
     }
 
+    /**
+     * Accessor untuk mendapatkan URL publik lengkap berkas gambar sarana.
+     * Menggunakan helper PublicUploadStorage untuk mendukung penempatan penyimpanan lokal maupun publik.
+     *
+     * @return string|null URL publik gambar barang atau null jika tidak ada berkas foto.
+     */
     public function getFotoUrlAttribute(): ?string
     {
         return app(\App\Services\PublicUploadStorage::class)->url($this->foto);
@@ -95,9 +122,9 @@ class Barang extends Model
     /**
      * Relasi: Satu barang memiliki banyak riwayat transaksi peminjaman (1:N).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany Relasi has-many ke model Peminjaman.
      */
-    public function peminjaman()
+    public function peminjaman(): HasMany
     {
         return $this->hasMany(Peminjaman::class, 'kode_barang', 'kode_barang');
     }

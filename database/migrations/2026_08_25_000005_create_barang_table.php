@@ -4,8 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migrasi Basis Data: Pembuatan Tabel Master Barang Inventaris.
+ *
+ * Tujuan:
+ * Menyimpan data spesifikasi teknis dan kondisi fisik sarana prasarana sekolah
+ * (kode barang unik, spesifikasi pabrik, kuantitas per kondisi fisik: baik, kurang baik, rusak berat).
+ */
 return new class extends Migration
 {
+    /**
+     * Menjalankan migrasi pembuatan tabel barang.
+     *
+     * Efek Samping:
+     * - Membuat tabel baru `barang` dengan primary key `kode_barang` dan relasi foreign key ke tabel `kategori`.
+     *
+     * @return void
+     */
     public function up(): void
     {
         Schema::create('barang', function (Blueprint $table) {
@@ -25,6 +40,14 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Membatalkan migrasi dan menghapus tabel barang.
+     *
+     * Efek Samping:
+     * - Menghapus tabel `barang` dari basis data.
+     *
+     * @return void
+     */
     public function down(): void
     {
         Schema::dropIfExists('barang');

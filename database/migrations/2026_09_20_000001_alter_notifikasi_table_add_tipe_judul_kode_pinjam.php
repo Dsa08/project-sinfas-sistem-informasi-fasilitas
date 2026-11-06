@@ -4,10 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migrasi Basis Data: Pembaruan Skema Tabel Notifikasi untuk Sistem Notifikasi Terpusat.
+ *
+ * Tujuan:
+ * Menambahkan kolom `tipe`, `judul`, `kode_pinjam` (relasi foreign key ke peminjaman),
+ * dan `data_tambahan` (JSON) untuk mendukung notification bell in-app dan Web Push PWA.
+ */
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Menjalankan migrasi penambahan kolom-kolom struktur notifikasi.
+     *
+     * Efek Samping:
+     * - Menambahkan kolom `tipe`, `judul`, `kode_pinjam`, dan `data_tambahan` ke tabel `notifikasi`.
+     * - Menambahkan foreign key `kode_pinjam` dan indeks komposit `[id_akun, status_baca]`.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -27,7 +40,12 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Membatalkan migrasi dan melepas kolom serta foreign key terkait.
+     *
+     * Efek Samping:
+     * - Melepas foreign key dan menghapus kolom yang ditambahkan.
+     *
+     * @return void
      */
     public function down(): void
     {

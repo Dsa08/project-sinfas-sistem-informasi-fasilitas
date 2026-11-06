@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Akun;
 use App\Models\Pegawai;
 use App\Models\Siswa;
+use App\Services\LoginAuditService;
 use App\Support\RoleHome;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -48,12 +50,15 @@ class AuthController extends Controller
     /**
      * Memproses otentikasi login pengguna dengan proteksi pembatasan laju percobaan (Rate Limiting).
      * Mendukung multi-identitas: Username, Email resmi, NIS siswa, atau NIP pegawai/staf sarana.
+     * Dilengkapi fitur Single Session Lock berbasis cache serta audit log kejadian autentikasi.
      *
      * Prasyarat:
      * - Input identifier (email/username/NIS/NIP) dan password wajib diisi.
      *
      * Efek Samping:
      * - Menghitung jumlah kegagalan login pada Rate Limiter berbasis kombinasi identitas dan IP klien.
+     * - Mencatat seluruh kejadian autentikasi ke berkas audit log melalui `LoginAuditService`.
+     * - Menyimpan ID sesi aktif ke cache (`active_user_session_{id}`) untuk mencegah login ganda.
      * - Menginisialisasi sesi login baru (`Auth::login`) dan meregenerasi ID sesi CSRF untuk mencegah session fixation.
      *
      * @param Request $request Request HTTP yang memuat kredensial login (identitas dan password).
@@ -76,6 +81,15 @@ class AuthController extends Controller
         // 2. Proteksi Brute Force: batasi maksimal 5 percobaan gagal dalam periode tertentu
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
+
+            // Audit Log: Catat pemblokiran sementara akibat serangan brute-force
+            LoginAuditService::record(
+                $request,
+                'terkunci_rate_limit',
+                null,
+                $identifier,
+                "Akses dikunci sementara oleh Rate Limiter karena 5x kegagalan berturut-turut (tersisa {$seconds} detik)"
+            );
 
             return back()->withErrors([
                 'email' => "Terlalu banyak percobaan login yang gagal. Silakan coba lagi dalam {$seconds} detik.",
@@ -107,6 +121,15 @@ class AuthController extends Controller
         if ($akun && Hash::check($credentials['password'], $akun->password)) {
             // Cek apakah akun dinonaktifkan oleh administrator
             if (isset($akun->is_active) && ! $akun->is_active) {
+                // Audit Log: Percobaan masuk ke akun yang sedang dinonaktifkan
+                LoginAuditService::record(
+                    $request,
+                    'gagal_nonaktif',
+                    $akun,
+                    $identifier,
+                    'Akses ditolak: Akun pengguna berstatus nonaktif'
+                );
+
                 return back()->withErrors([
                     'email' => 'Akun Anda sedang dinonaktifkan. Silakan hubungi Administrator Sistem.',
                 ])->onlyInput('email');
@@ -119,11 +142,35 @@ class AuthController extends Controller
             Auth::login($akun, $request->filled('remember'));
             $request->session()->regenerate();
 
+            // Single Session Lock: Daftarkan ID sesi terkini ke memory cache server
+            // Menjadikan sesi sebelumnya pada peramban/perangkat lain otomatis kedaluwarsa
+            Cache::forever('active_user_session_' . $akun->id_akun, $request->session()->getId());
+
+            // Audit Log: Catat keberhasilan autentikasi ke log sistem
+            LoginAuditService::record(
+                $request,
+                'sukses',
+                $akun,
+                $identifier,
+                'Autentikasi akun berhasil via Web'
+            );
+
             return $this->redirectBasedOnRole($akun)->with('success', 'Selamat datang kembali, '.$akun->nama.'!');
         }
 
         // 5. Catat kegagalan login ke Rate Limiter (decay time 60 detik) untuk menghitung ambang batas brute-force
         RateLimiter::hit($throttleKey, 60);
+
+        // Audit Log: Catat kegagalan verifikasi identitas atau kata sandi
+        $failureStatus = $akun ? 'gagal_password' : 'gagal_akun_tidak_ditemukan';
+        $failureNote = $akun ? 'Kata sandi tidak cocok dengan data akun' : 'Identitas pengguna tidak terdaftar di sistem';
+        LoginAuditService::record(
+            $request,
+            $failureStatus,
+            $akun,
+            $identifier,
+            $failureNote
+        );
 
         return back()->withErrors([
             'email' => 'Akun atau password yang Anda masukkan salah.',
@@ -135,6 +182,7 @@ class AuthController extends Controller
      *
      * Efek Samping:
      * - Menghapus sesi otentikasi aktif (`Auth::logout`).
+     * - Membersihkan kunci sesi aktif pengguna dari cache (`active_user_session_{id}`).
      * - Membatalkan (invalidate) token session peramban dan meregenerasi token CSRF baru.
      *
      * @param Request $request Request HTTP pemanggil logout.
@@ -142,6 +190,11 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Single Session Lock: Bersihkan cache sesi aktif saat pengguna logout secara sukarela
+        if ($user = Auth::user()) {
+            Cache::forget('active_user_session_' . $user->id_akun);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

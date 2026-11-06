@@ -1,11 +1,11 @@
 {{-- 
-  HALAMAN PENGAJUAN PEMINJAMAN SARANA (LOAN REQUEST) â€” SINFAS
+  HALAMAN FORMULIR PENGAJUAN PINJAMAN — SINFAS
   File: resources/views/user/loan-request.blade.php
-  Fitur:
-  - Rincian spesifikasi sarana: Foto, merk/model, kode inventaris, kategori, nomor seri pabrik, dimensi, dan bahan.
-  - Peringatan kuota aktif peminjaman (maksimal 2 transaksi berjalan).
-  - Formulir input pengajuan: Tanggal mulai pinjam (validasi minimal hari ini), lokasi penggunaan, dan alasan/keperluan penggunaan.
-  - Proteksi anti-spam submit pinjaman.
+  Fungsi: Menampilkan detail sarana dan formulir pengajuan pinjaman untuk siswa/pegawai.
+  Data Controller:
+  - $item (Barang): Data sarana prasarana yang diajukan beserta kategori.
+  - $activeLoansCount (int): Jumlah pinjaman aktif pengguna (maksimal 2).
+  - $alreadyPending (bool): Status permohonan antrean yang sama.
 --}}
 @extends('layouts.app')
 
@@ -15,7 +15,7 @@
 
 @section('content')
 <div class="loan-page-wrapper">
-    {{-- Flash Messages --}}
+    {{-- Flash message notifikasi kegagalan/error dari session --}}
     @if(session('error'))
         <div class="flash-msg flash-msg--error" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
             {{ session('error') }}
@@ -23,13 +23,13 @@
     @endif
 
     <div class="loan-content-grid">
-        {{-- Left Column: Item Details --}}
+        {{-- Kolom Kiri: Rincian spesifikasi teknis dan ketersediaan fisik sarana prasarana --}}
         <div class="loan-item-column">
             <div class="loan-image-card">
                 @if(!empty($item->foto_url))
                     <img src="{{ $item->foto_url }}" alt="{{ $item->nama_barang }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                 @else
-                    {{-- Placeholder abu-abu --}}
+                    {{-- Tampilan placeholder jika sarana prasarana belum diunggah fotonya --}}
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; color: #9ca3af;">
                         <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -56,11 +56,12 @@
             </div>
         </div>
 
-        {{-- Right Column: Loan Form --}}
+        {{-- Kolom Kanan: Formulir pengajuan permohonan pinjam dengan validasi kuota --}}
         <div class="loan-form-column">
             <div class="loan-form-card">
                 <h3 class="loan-form-title">Formulir Pengajuan Pinjaman</h3>
 
+                {{-- Tampilan galat validasi formulir (form request error list) --}}
                 @if($errors->any())
                     <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.82rem;">
                         <ul style="margin: 0; padding-left: 1.25rem;">
@@ -71,38 +72,41 @@
                     </div>
                 @endif
 
+                {{-- Peringatan batas maksimal kuota peminjaman aktif (aturan bisnis: maksimal 2 alat berjalan) --}}
                 @if(isset($activeLoansCount) && $activeLoansCount >= 2)
                     <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.88rem; line-height: 1.4;">
                         <strong>Batas Kuota Tercapai:</strong> Anda saat ini memiliki {{ $activeLoansCount }} peminjaman aktif. Harap selesaikan peminjaman sebelumnya sebelum meminjam alat baru.
                     </div>
+                {{-- Peringatan pencegahan permohonan ganda jika unit alat yang sama masih berstatus menunggu verifikasi --}}
                 @elseif(isset($alreadyPending) && $alreadyPending)
                     <div style="background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.88rem; line-height: 1.4;">
                         <strong>Permohonan Sedang Diproses:</strong> Anda sudah mengajukan alat ini dan statusnya masih menunggu verifikasi admin.
                     </div>
                 @endif
 
+                {{-- Formulir pengajuan: mengirim POST ke UserController::submitLoanRequest dengan proteksi CSRF --}}
                 <form action="{{ route('loan.submit', $item->kode_barang) }}" method="POST" class="loan-request-form" id="loanRequestForm">
                     @csrf
 
-                    {{-- Loan Date --}}
+                    {{-- Tanggal Pinjam: dibatasi minimal hari ini (min date) guna mencegah peminjaman tanggal lampau --}}
                     <div class="loan-field-group">
                         <label class="loan-field-label" for="tanggal_pinjam">Tanggal Pinjam</label>
                         <input type="date" name="tanggal_pinjam" id="tanggal_pinjam" class="loan-field-input" value="{{ old('tanggal_pinjam', date('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required>
                     </div>
 
-                    {{-- Location --}}
+                    {{-- Lokasi penggunaan fisik sarana di lingkungan sekolah --}}
                     <div class="loan-field-group">
                         <label class="loan-field-label" for="lokasi_penggunaan">Lokasi Penggunaan</label>
                         <input type="text" name="lokasi_penggunaan" id="lokasi_penggunaan" class="loan-field-input" placeholder="Contoh: Ruang 31, Aula Utama" value="{{ old('lokasi_penggunaan') }}" required>
                     </div>
 
-                    {{-- Purpose / Reason --}}
+                    {{-- Alasan/keperluan peminjaman sarana prasarana --}}
                     <div class="loan-field-group">
                         <label class="loan-field-label" for="keterangan_penggunaan">Keperluan / Alasan Peminjaman</label>
                         <textarea name="keterangan_penggunaan" id="keterangan_penggunaan" class="loan-field-textarea" placeholder="Jelaskan keperluan peminjaman..." rows="4" required>{{ old('keterangan_penggunaan') }}</textarea>
                     </div>
 
-                    {{-- Submit with Anti-Spam Check --}}
+                    {{-- Tombol Aksi: Beradaptasi terhadap status kuota peminjaman, permohonan aktif, atau stok barang --}}
                     @if(isset($activeLoansCount) && $activeLoansCount >= 2)
                         <button type="button" class="loan-btn-submit" disabled style="background-color: #9ca3af; cursor: not-allowed;">Batas Kuota Pinjaman Penuh (2/2)</button>
                     @elseif(isset($alreadyPending) && $alreadyPending)
@@ -120,6 +124,7 @@
     </div>
 </div>
 
+{{-- Skrip Interaksi Sisi Klien: Dialog konfirmasi submit dan pencegahan pengiriman ganda (anti-spam) --}}
 <script>
     document.getElementById('loanRequestForm')?.addEventListener('submit', async function(e) {
         if (this.dataset.appConfirmed !== 'true') {

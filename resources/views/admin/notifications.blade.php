@@ -1,13 +1,9 @@
 {{-- 
   HALAMAN PUSAT NOTIFIKASI ADMIN SARANA — SINFAS
   File: resources/views/admin/notifications.blade.php
-  Fitur:
-  - Notifikasi terpisah khusus Admin Sarana (tidak bercampur dengan akun siswa).
-  - Menerima permohonan peminjaman baru dari siswa secara real-time.
-  - Menerima pengajuan konfirmasi fisik barang kembali.
-  - Tombol aksi cepat langsung menuju tab verifikasi terkait (Verifikasi Pinjam / Konfirmasi Kembali).
-  - Notifikasi otomatis ditandai dibaca saat halaman pusat notifikasi dibuka.
-  - Pagination 10 notifikasi per halaman.
+  Fungsi: Menampilkan notifikasi permohonan baru dan konfirmasi pengembalian alat.
+  Data Controller:
+  - $notifikasi (LengthAwarePaginator): Daftar notifikasi admin terpaginasi.
 --}}
 @extends('layouts.admin-sarana')
 

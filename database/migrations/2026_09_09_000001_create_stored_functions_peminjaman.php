@@ -14,7 +14,12 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
-     * Menjalankan migration dan mendefinisikan stored functions.
+     * Menjalankan migrasi pembuatan stored functions pada level basis data MySQL.
+     *
+     * Efek Samping:
+     * - Menerbitkan fungsi SQL `fn_sisa_kuota_siswa` dan `fn_hitung_terlambat_hari` ke dalam basis data.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -60,7 +65,12 @@ return new class extends Migration
     }
 
     /**
-     * Membatalkan migration dan menghapus stored functions.
+     * Membatalkan migrasi dan menghapus stored functions dari basis data.
+     *
+     * Efek Samping:
+     * - Menghapus fungsi SQL `fn_sisa_kuota_siswa` dan `fn_hitung_terlambat_hari` dari RDBMS.
+     *
+     * @return void
      */
     public function down(): void
     {

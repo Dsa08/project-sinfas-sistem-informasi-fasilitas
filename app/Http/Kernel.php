@@ -4,6 +4,16 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
+/**
+ * Class Kernel (HTTP)
+ *
+ * Pusat registrasi dan konfigurasi tumpukan middleware HTTP pada aplikasi SINFAS.
+ * Mengatur:
+ * 1. Global Middleware: Enkripsi, pemangkasan string, pencegahan back-history, dan pemeliharaan.
+ * 2. Web Middleware Group: Pengelolaan sesi, proteksi CSRF, dan penguncian sesi tunggal (CheckSingleSession).
+ * 3. Route Middleware Aliases: Otorisasi berbasis peran (role:siswa,pegawai,admin_sarana,admin_sistem),
+ *    keharusan ganti kata sandi sementara, dan pembatasan akses desktop admin.
+ */
 class Kernel extends HttpKernel
 {
     /**
@@ -37,6 +47,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\CheckSingleSession::class,
         ],
 
         'api' => [
@@ -67,5 +78,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'admin.desktop' => \App\Http\Middleware\DesktopOnlyAdmin::class,
+        'single.session' => \App\Http\Middleware\CheckSingleSession::class,
     ];
 }

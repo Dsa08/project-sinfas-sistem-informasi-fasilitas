@@ -1,10 +1,7 @@
 {{-- 
-  HALAMAN LUPA PASSWORD (PERMOHONAN RESET KATA SANDI) — SINFAS
+  HALAMAN LUPA KATA SANDI — SINFAS
   File: resources/views/auth/forgot-password.blade.php
-  Fitur:
-  - Mengirimkan tautan reset kata sandi melalui surel pengguna.
-  - Mendukung input Email, Username, atau NIS/NIP.
-  - Tidak menampilkan token atau tautan reset pada halaman; pemulihan hanya lewat email terdaftar.
+  Fungsi: Formulir permohonan tautan pemulihan kata sandi melalui email terdaftar.
 --}}
 @extends('layouts.auth')
 

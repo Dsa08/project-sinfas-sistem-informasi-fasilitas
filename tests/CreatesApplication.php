@@ -5,10 +5,18 @@ namespace Tests;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application;
 
+/**
+ * Trait CreatesApplication
+ *
+ * Menyediakan prosedur inisialisasi dan *bootstrapping* instans aplikasi Laravel
+ * yang diisolasi khusus untuk kebutuhan eksekusi *automated testing*.
+ */
 trait CreatesApplication
 {
     /**
-     * Creates the application.
+     * Membangun dan mengembalikan instans aplikasi yang telah siap digunakan untuk pengujian.
+     *
+     * @return Application Instans aplikasi Laravel yang telah dibootstrap.
      */
     public function createApplication(): Application
     {

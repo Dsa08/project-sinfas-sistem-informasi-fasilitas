@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model Notifikasi
@@ -12,6 +14,22 @@ use Carbon\Carbon;
  * Mengelola entitas notifikasi sistem terpusat (In-App Notification Center).
  * Digunakan untuk merekam pemberitahuan status pengajuan (disetujui, ditolak),
  * konfirmasi pengembalian, peringatan batas waktu (overdue), dan permohonan baru untuk admin.
+ *
+ * @property int $id_notifikasi Kunci utama unik notifikasi.
+ * @property int $id_akun ID akun pengguna penerima notifikasi.
+ * @property string $tipe Kategori/jenis pemberitahuan ('pengajuan_disetujui', 'batas_waktu', dll).
+ * @property string $judul Ringkasan judul notifikasi.
+ * @property string $pesan Uraian pesan lengkap notifikasi.
+ * @property string|null $kode_pinjam Kode transaksi peminjaman terkait jika ada.
+ * @property array|null $data_tambahan Data kontekstual tambahan berupa array JSON.
+ * @property bool $status_baca Status penandaan baca (false: belum dibaca, true: sudah dibaca).
+ * @property \Carbon\Carbon $created_at Waktu pengiriman notifikasi.
+ * @property \Carbon\Carbon $updated_at Waktu pembaruan status notifikasi.
+ * @property-read int|null $hari_berlalu Jumlah hari yang telah berlalu sejak tanggal pinjam.
+ * @property-read string $warna_durasi Kode warna badge peringatan durasi pinjam ('gray', 'yellow', 'red').
+ * @property-read string $tipe_label Label kategori notifikasi ramah pengguna.
+ * @property-read Akun $akun Relasi model akun penerima (N:1).
+ * @property-read Peminjaman|null $peminjaman Relasi model transaksi peminjaman terkait (N:1).
  */
 class Notifikasi extends Model
 {
@@ -59,51 +77,65 @@ class Notifikasi extends Model
     ];
 
     /**
-     * Relasi ke akun penerima notifikasi.
+     * Relasi ke akun pengguna penerima notifikasi (N:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo Relasi belongs-to ke model Akun berdasarkan foreign key id_akun.
      */
-    public function akun()
+    public function akun(): BelongsTo
     {
         return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 
     /**
-     * Relasi ke data transaksi peminjaman terkait (opsional).
+     * Relasi ke data transaksi peminjaman terkait notifikasi (opsional, N:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo Relasi belongs-to ke model Peminjaman berdasarkan foreign key kode_pinjam.
      */
-    public function peminjaman()
+    public function peminjaman(): BelongsTo
     {
         return $this->belongsTo(Peminjaman::class, 'kode_pinjam', 'kode_pinjam');
     }
 
     /**
-     * Query Scope: Menyaring notifikasi yang belum dibaca.
+     * Query Scope: Menyaring notifikasi yang belum dibaca (status_baca = false).
+     *
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @return Builder Query builder dengan filter status_baca = false.
      */
-    public function scopeBelumDibaca($query)
+    public function scopeBelumDibaca(Builder $query): Builder
     {
         return $query->where('status_baca', false);
     }
 
     /**
-     * Query Scope: Menyaring notifikasi yang sudah dibaca.
+     * Query Scope: Menyaring notifikasi yang sudah dibaca (status_baca = true).
+     *
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @return Builder Query builder dengan filter status_baca = true.
      */
-    public function scopeDibaca($query)
+    public function scopeDibaca(Builder $query): Builder
     {
         return $query->where('status_baca', true);
     }
 
     /**
-     * Query Scope: Urutkan notifikasi terbaru di atas.
+     * Query Scope: Mengurutkan notifikasi terbaru di bagian paling atas (DESC berdasarkan created_at).
+     *
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @return Builder Query builder yang telah diurutkan berdasarkan tanggal dibuat menurun.
      */
-    public function scopeTerbaru($query)
+    public function scopeTerbaru(Builder $query): Builder
     {
         return $query->orderBy('created_at', 'desc');
     }
 
     /**
-     * Helper: Menandai notifikasi ini sudah dibaca.
+     * Menandai rekaman notifikasi saat ini sebagai sudah dibaca.
+     *
+     * Efek Samping:
+     * - Memperbarui kolom `status_baca` menjadi true di basis data.
+     *
+     * @return bool True jika rekaman berhasil disimpan ke basis data.
      */
     public function tandaiDibaca(): bool
     {
@@ -112,7 +144,13 @@ class Notifikasi extends Model
     }
 
     /**
-     * Helper: Menandai seluruh notifikasi milik akun tertentu sudah dibaca.
+     * Menandai seluruh notifikasi yang belum dibaca milik akun tertentu menjadi sudah dibaca.
+     *
+     * Efek Samping:
+     * - Memperbarui secara massal seluruh baris notifikasi aktif milik akun terkait menjadi status_baca = true.
+     *
+     * @param int $idAkun ID unik akun pengguna penerima notifikasi.
+     * @return int Jumlah baris notifikasi yang berhasil diperbarui.
      */
     public static function tandaiSemuaDibaca(int $idAkun): int
     {
@@ -122,8 +160,10 @@ class Notifikasi extends Model
     }
 
     /**
-     * Menghitung berapa hari berlalu sejak tanggal_pinjam transaksi.
-     * Digunakan untuk pewarnaan dan perhitungan otomatis waktu berjalan.
+     * Accessor: Menghitung berapa hari kalender yang telah berlalu sejak tanggal peminjaman barang.
+     * Digunakan untuk perhitungan analitik durasi pinjam dan penentuan status keterlambatan.
+     *
+     * @return int|null Jumlah hari berlalu atau null jika data transaksi peminjaman tidak terkait.
      */
     public function getHariBerlaluAttribute(): ?int
     {
@@ -140,10 +180,12 @@ class Notifikasi extends Model
     }
 
     /**
-     * Menghasilkan warna badge durasi pinjam sesuai aturan:
-     * - 1 - 9 hari: Abu-abu (gray)
-     * - 10 - 50 hari: Kuning (yellow)
-     * - > 50 hari: Merah (red)
+     * Accessor: Menghasilkan kode warna badge durasi pinjam untuk indikator antarmuka pengguna:
+     * - 1 - 9 hari: Abu-abu ('gray' - masa pinjam wajar)
+     * - 10 - 50 hari: Kuning ('yellow' - mendekati batas tenggat waktu)
+     * - > 50 hari: Merah ('red' - telah melampaui batas waktu / overdue)
+     *
+     * @return string Kode warna indikator badge antarmuka ('gray', 'yellow', atau 'red').
      */
     public function getWarnaDurasiAttribute(): string
     {
@@ -161,7 +203,9 @@ class Notifikasi extends Model
     }
 
     /**
-     * Accessor label tipe notifikasi yang ramah pengguna.
+     * Accessor: Menghasilkan label nama kategori notifikasi yang ramah pembaca untuk antarmuka.
+     *
+     * @return string Label teks kategori notifikasi (contoh: 'Disetujui', 'Peringatan Batas Waktu').
      */
     public function getTipeLabelAttribute(): string
     {

@@ -1,9 +1,7 @@
 {{-- 
-  FORMULIR PENGGANTIAN KATA SANDI SEMENTARA — SINFAS
+  FORMULIR WAJIB GANTI KATA SANDI — SINFAS
   File: resources/views/auth/change-required-password.blade.php
-  Fitur:
-  - Mewajibkan pengguna baru atau pengguna yang sandinya di-reset untuk membuat kata sandi pribadi baru.
-  - Memverifikasi kata sandi lama, sandi baru, dan konfirmasi sandi dengan validasi keamanan ketat.
+  Fungsi: Gerbang pembaruan kata sandi wajib bagi pengguna yang memegang sandi sementara.
 --}}
 @extends('layouts.auth')
 

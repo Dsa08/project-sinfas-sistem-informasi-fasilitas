@@ -1,10 +1,10 @@
 {{-- 
-  HALAMAN LANDING PUBLIK (PORTAL UTAMA SEKOLAH) — SINFAS
+  HALAMAN LANDING PUBLIK — SINFAS
   File: resources/views/landing.blade.php
-  Fungsi:
-  - Halaman gerbang utama publik Sistem Informasi Fasilitas SMKN 11 Bandung.
-  - Memperkenalkan alur peminjaman 3 langkah (Cari & Pilih, Ajukan Online, Ambil di Sarpras).
-  - Menampilkan ringkasan kategori sarana unggulan, jam operasional layanan, dan tombol aksi masuk (Login).
+  Fungsi: Portal utama publik sekolah, pengenalan alur pinjam, dan katalog sarana unggulan.
+  Data:
+  - $categories: Master kategori sarana.
+  - $featuredItems: Koleksi sarana siap pinjam.
 --}}
 @extends('layouts.landing')
 

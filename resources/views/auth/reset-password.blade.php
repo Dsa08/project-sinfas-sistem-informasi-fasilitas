@@ -1,10 +1,10 @@
 {{-- 
-  HALAMAN RESET PASSWORD (PEMBUATAN KATA SANDI BARU) — SINFAS
+  HALAMAN RESET KATA SANDI — SINFAS
   File: resources/views/auth/reset-password.blade.php
-  Fitur:
-  - Validasi token kriptografis 64-karakter dari parameter URL.
-  - Form pembaharuan kata sandi dengan verifikasi konfirmasi sandi.
-  - Memastikan persyaratan kata sandi aman (minimal 8 karakter kombinasi huruf & angka).
+  Fungsi: Formulir pembuatan kata sandi baru menggunakan token verifikasi dari email.
+  Data:
+  - $token (string): Token kriptografis reset sandi.
+  - $email (string): Alamat email penerima reset.
 --}}
 @extends('layouts.auth')
 

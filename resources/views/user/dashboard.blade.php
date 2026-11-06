@@ -1,16 +1,11 @@
 {{-- 
-  DASHBOARD PEMINJAM (KATALOG SARANA PRASARANA) — SINFAS
+  DASHBOARD KATALOG SARANA PRASARANA — SINFAS
   File: resources/views/user/dashboard.blade.php
-  Fitur Sesuai Desain Figma:
-  - Hero banner sambutan: "Mau Pinjam Apa Hari Ini?"
-  - Search bar & Filter dropdown interaktif.
-  - Navigasi Kategori Cepat (Kapsul/Chips).
-  - Carousel Kategori Horizontal dengan tombol panah navigasi (< dan >) dan smooth horizontal scrolling.
-  - Tombol "Lihat Semua >" di setiap sudut kanan judul kategori untuk membuka seluruh inventaris secara penuh di halaman terpisah.
-  - Detail & Feedback Visual:
-    * Label "Category: [Nama Kategori]"
-    * Badge stok "X tersedia" hijau dan "0 tersedia" merah
-    * Tombol aksi "Pinjam Alat" (biru) dan "Stok Habis" (abu-abu disabled untuk stok 0)
+  Fungsi: Katalog utama alat, pencarian, filter kategori, dan ringkasan pinjaman aktif.
+  Data Controller:
+  - $items: Koleksi barang katalog terpaginasi.
+  - $categories: Master kategori untuk filter.
+  - $activeLoans: Transaksi peminjaman yang sedang aktif.
 --}}
 @extends('layouts.app')
 

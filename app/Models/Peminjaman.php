@@ -2,16 +2,38 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Model Peminjaman
  * 
- * Mengelola siklus transaksi permohonan peminjaman sarana oleh akun.
- * Memuat kode transaksi, identitas akun peminjam,
- * barang yang dipinjam (kode_barang), rincian lokasi dan peruntukan, status verifikasi,
- * hingga alasan jika permohonan ditolak admin.
+ * Mengelola siklus transaksi permohonan peminjaman sarana oleh akun peminjam (siswa atau pegawai).
+ * Memuat kode transaksi unik, identitas peminjam, barang yang diajukan (kode_barang),
+ * rincian lokasi dan peruntukan, status verifikasi (menunggu, disetujui, ditolak, dibatalkan),
+ * hingga pencatatan alasan penolakan oleh staf sarana prasarana.
+ *
+ * @property string $kode_pinjam Kode transaksi unik peminjaman (kunci utama, misal: 'PJ-20261105-001').
+ * @property int|null $id_peminjaman ID sekuensial peminjaman untuk relasi ERD 2.
+ * @property int|null $id_akun ID akun peminjam yang terdaftar di tabel akun.
+ * @property string|null $nis Nomor Induk Siswa peminjam (kompatibilitas data lama).
+ * @property string $kode_barang Kode inventaris sarana yang diajukan.
+ * @property \Carbon\Carbon $tanggal_pinjam Tanggal rencana dimulainya peminjaman.
+ * @property string $keterangan_penggunaan Deskripsi tujuan / peruntukan peminjaman sarana.
+ * @property string|null $lokasi_penggunaan Ruang kelas / laboratorium / lokasi sarana dipakai.
+ * @property string $status_pengajuan Status peminjaman ('menunggu', 'disetujui', 'ditolak', 'dibatalkan').
+ * @property string|null $alasan_penolakan Catatan evaluasi penolakan dari admin sarana.
+ * @property-read string $peminjam_status Label peran peminjam ('Siswa', 'Pegawai', dll).
+ * @property-read string $peminjam_nama Nama lengkap peminjam sarana.
+ * @property-read Siswa|null $siswa Relasi profil siswa berdasarkan NIS (N:1).
+ * @property-read Akun|null $akun Relasi model akun peminjam berdasarkan id_akun (N:1).
+ * @property-read Barang $barang Relasi master barang sarana yang dipinjam (N:1).
+ * @property-read Pengembalian|null $pengembalian Relasi bukti transaksi pengembalian (1:1).
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Penyetujuan> $penyetujuan Riwayat keputusan verifikasi admin (1:N).
  */
 class Peminjaman extends Model
 {
@@ -73,22 +95,31 @@ class Peminjaman extends Model
     ];
 
     /**
-     * Relasi: Transaksi peminjaman diajukan oleh satu siswa (N:1).
+     * Relasi: Transaksi peminjaman diajukan oleh satu data profil siswa (N:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo Relasi belongs-to ke model Siswa berdasarkan foreign key nis.
      */
-    public function siswa()
+    public function siswa(): BelongsTo
     {
         return $this->belongsTo(Siswa::class, 'nis', 'nis');
     }
 
-    /** Akun peminjam langsung, termasuk akun pegawai. */
-    public function akun()
+    /**
+     * Relasi: Akun peminjam langsung yang terdaftar pada sistem (N:1).
+     * Mencakup akun bertipe peran siswa maupun pegawai.
+     *
+     * @return BelongsTo Relasi belongs-to ke model Akun berdasarkan foreign key id_akun.
+     */
+    public function akun(): BelongsTo
     {
         return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 
-    /** Label status diambil dari role akun agar konsisten dengan tabel akun Admin Sistem. */
+    /**
+     * Accessor: Menghasilkan label status/peran peminjam yang konsisten dengan tabel kelola akun Admin Sistem.
+     *
+     * @return string Label peran peminjam ('Siswa', 'Pegawai', atau '-' jika tidak teridentifikasi).
+     */
     public function getPeminjamStatusAttribute(): string
     {
         if ($this->akun) {
@@ -102,71 +133,88 @@ class Peminjaman extends Model
         return '-';
     }
 
-    /** Nama peminjam mengikuti data siswa yang memiliki NIS transaksi. */
+    /**
+     * Accessor: Menghasilkan nama lengkap peminjam sarana.
+     * Mengambil dari profil siswa terlebih dahulu, jika null mengambil dari nama akun pengguna.
+     *
+     * @return string Nama lengkap peminjam atau tanda '-' jika data tidak ditemukan.
+     */
     public function getPeminjamNamaAttribute(): string
     {
         return $this->siswa?->nama ?? $this->akun?->nama ?? '-';
     }
 
     /**
-     * Relasi: Transaksi peminjaman terkait dengan satu barang fisik (N:1).
+     * Relasi: Transaksi peminjaman terkait dengan satu barang fisik sarana (N:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo Relasi belongs-to ke model Barang berdasarkan foreign key kode_barang.
      */
-    public function barang()
+    public function barang(): BelongsTo
     {
         return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
 
     /**
-     * Relasi: Satu transaksi peminjaman memiliki maksimal satu catatan pengembalian (1:1).
+     * Relasi: Satu transaksi peminjaman memiliki maksimal satu catatan pengembalian fisik (1:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne Relasi has-one ke model Pengembalian berdasarkan foreign key kode_pinjam.
      */
-    public function pengembalian()
+    public function pengembalian(): HasOne
     {
         return $this->hasOne(Pengembalian::class, 'kode_pinjam', 'kode_pinjam');
     }
 
-    public function penyetujuan()
+    /**
+     * Relasi: Riwayat jejak audit keputusan verifikasi peminjaman oleh staf sarana prasarana (1:N sesuai ERD 2).
+     *
+     * @return HasMany Relasi has-many ke model Penyetujuan berdasarkan foreign key id_peminjaman.
+     */
+    public function penyetujuan(): HasMany
     {
         return $this->hasMany(Penyetujuan::class, 'id_peminjaman', 'id_peminjaman');
     }
 
     /**
-     * Query Scope: Menyaring transaksi yang masih menunggu proses verifikasi admin.
+     * Query Scope: Menyaring transaksi yang masih menunggu proses verifikasi admin sarana.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @return Builder Query builder dengan filter status_pengajuan = 'menunggu'.
      */
-    public function scopeMenunggu($query)
+    public function scopeMenunggu(Builder $query): Builder
     {
         return $query->where('status_pengajuan', 'menunggu');
     }
 
-    public function scopeOwnedBy($query, Akun $akun)
+    /**
+     * Query Scope: Menyaring transaksi peminjaman yang dimiliki oleh akun pengguna tertentu.
+     *
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @param Akun $akun Model akun pemilik transaksi.
+     * @return Builder Query builder dengan filter id_akun.
+     */
+    public function scopeOwnedBy(Builder $query, Akun $akun): Builder
     {
         return $query->where('id_akun', $akun->id_akun);
     }
 
     /**
-     * Query Scope: Menyaring transaksi yang telah disetujui (barang sedang dipinjam).
+     * Query Scope: Menyaring transaksi yang telah disetujui (sarana sedang dalam masa peminjaman aktif).
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @return Builder Query builder dengan filter status_pengajuan = 'disetujui'.
      */
-    public function scopeDisetujui($query)
+    public function scopeDisetujui(Builder $query): Builder
     {
         return $query->where('status_pengajuan', 'disetujui');
     }
 
     /**
-     * Query Scope: Menyaring transaksi yang dibatalkan oleh peminjam.
+     * Query Scope: Menyaring transaksi peminjaman yang dibatalkan langsung oleh pengguna peminjam.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $query Query builder Eloquent yang sedang diproses.
+     * @return Builder Query builder dengan filter status_pengajuan = 'dibatalkan'.
      */
-    public function scopeDibatalkan($query)
+    public function scopeDibatalkan(Builder $query): Builder
     {
         return $query->where('status_pengajuan', 'dibatalkan');
     }

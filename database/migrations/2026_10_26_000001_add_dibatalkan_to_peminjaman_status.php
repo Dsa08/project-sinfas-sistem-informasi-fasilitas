@@ -12,7 +12,12 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Menjalankan migrasi perubahan domain nilai kolom status_pengajuan.
+     *
+     * Efek Samping:
+     * - Memodifikasi tipe ENUM pada kolom `status_pengajuan` menjadi ('menunggu', 'disetujui', 'ditolak', 'dibatalkan').
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -20,7 +25,12 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Membatalkan migrasi dan mengembalikan enum status_pengajuan ke domain awal.
+     *
+     * Efek Samping:
+     * - Mengembalikan tipe ENUM pada kolom `status_pengajuan` menjadi ('menunggu', 'disetujui', 'ditolak').
+     *
+     * @return void
      */
     public function down(): void
     {

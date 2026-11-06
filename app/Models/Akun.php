@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,8 +14,27 @@ use Laravel\Sanctum\HasApiTokens;
  * Model Akun
  * 
  * Entitas utama autentikasi dan otorisasi pengguna pada aplikasi SINFAS.
- * Menyimpan identitas login dan peran aplikasi, lalu menghubungkan akun ke
- * profil siswa atau pegawai melalui foreign key pada tabel profil.
+ * Menyimpan identitas kredensial login dan peran aplikasi (siswa, pegawai, admin_sarana, admin_sistem),
+ * lalu menghubungkan akun ke profil data master (Siswa, Pegawai, atau StaffSarana) sesuai skema ERD 2.
+ *
+ * @property int $id_akun Kunci utama unik akun pengguna.
+ * @property string $nama Nama lengkap pengguna.
+ * @property string|null $nomor_kontak Nomor telepon / WhatsApp aktif.
+ * @property string|null $email Alamat surel unik akun.
+ * @property string $role Peran otorisasi ('siswa', 'pegawai', 'admin_sarana', 'admin_sistem').
+ * @property string $username Username unik untuk autentikasi.
+ * @property string $password Hash kata sandi terenkripsi (Bcrypt).
+ * @property string|null $foto Path berkas foto profil avatar.
+ * @property bool $is_active Status keaktifan akun (true: aktif, false: disuspend).
+ * @property bool $must_change_password Penanda kewajiban mengganti kata sandi sementara.
+ * @property-read string|null $foto_url URL publik lengkap menuju berkas foto avatar.
+ * @property-read string $role_label Label nama peran ramah pengguna.
+ * @property-read string|null $nis Nomor Induk Siswa jika akun berperan siswa.
+ * @property-read string|null $nip Nomor Induk Pegawai jika akun berperan pegawai atau admin sarana.
+ * @property-read string $nis_nip Identitas nomor induk sekolah yang berlaku.
+ * @property-read Siswa|null $siswa Relasi profil data siswa (1:1).
+ * @property-read Pegawai|null $pegawai Relasi profil data pegawai (1:1).
+ * @property-read StaffSarana|null $staffSarana Relasi profil staf sarana (1:1).
  */
 class Akun extends Authenticatable
 {
@@ -82,21 +104,21 @@ class Akun extends Authenticatable
     }
 
     /**
-     * Profil siswa yang menggunakan akun ini.
+     * Profil data master siswa yang menggunakan akun ini (relasi 1:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return HasOne Relasi has-one ke model Siswa berdasarkan foreign key id_akun.
      */
-    public function siswa()
+    public function siswa(): HasOne
     {
         return $this->hasOne(Siswa::class, 'id_akun', 'id_akun');
     }
 
     /**
-     * Profil pegawai yang menggunakan akun ini.
+     * Profil data master pegawai yang menggunakan akun ini (relasi 1:1).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return HasOne Relasi has-one ke model Pegawai berdasarkan foreign key id_akun.
      */
-    public function pegawai()
+    public function pegawai(): HasOne
     {
         return $this->hasOne(Pegawai::class, 'id_akun', 'id_akun');
     }
@@ -104,17 +126,18 @@ class Akun extends Authenticatable
     /**
      * Relasi: Akun memiliki banyak riwayat notifikasi sistem (1:N).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany Relasi has-many ke model Notifikasi.
      */
-    public function notifikasi()
+    public function notifikasi(): HasMany
     {
         return $this->hasMany(Notifikasi::class, 'id_akun', 'id_akun');
     }
 
     /**
      * Accessor untuk mendapatkan URL lengkap foto profil akun.
+     * Menggunakan helper PublicUploadStorage untuk resolusi URL publik yang aman.
      *
-     * @return string|null
+     * @return string|null URL publik foto profil atau null jika foto belum diunggah.
      */
     public function getFotoUrlAttribute(): ?string
     {
@@ -122,26 +145,42 @@ class Akun extends Authenticatable
     }
 
     /**
-     * Helper: Memeriksa apakah akun bersangkutan memiliki role Siswa.
+     * Helper: Memeriksa apakah akun bersangkutan memiliki peran Siswa.
      *
-     * @return bool
+     * @return bool True jika role bernilai 'siswa', false jika peran lain.
      */
     public function isSiswa(): bool
     {
         return $this->role === 'siswa';
     }
 
+    /**
+     * Helper: Memeriksa apakah akun bersangkutan memiliki peran Pegawai / Guru.
+     *
+     * @return bool True jika role bernilai 'pegawai', false jika peran lain.
+     */
     public function isPegawai(): bool
     {
         return $this->role === 'pegawai';
     }
 
+    /**
+     * Helper: Memeriksa apakah akun berstatus sebagai peminjam sarana yang sah (siswa atau pegawai).
+     * Sesuai aturan bisnis, hanya akun siswa dan pegawai yang berhak mengajukan permohonan pinjam.
+     *
+     * @return bool True jika akun adalah siswa atau pegawai, false untuk admin sarana / sistem.
+     */
     public function isPeminjam(): bool
     {
         return $this->isSiswa() || $this->isPegawai();
     }
 
-    public function staffSarana()
+    /**
+     * Profil data master staf sarana yang terhubung dengan akun ini (relasi 1:1).
+     *
+     * @return HasOne Relasi has-one ke model StaffSarana berdasarkan foreign key id_akun.
+     */
+    public function staffSarana(): HasOne
     {
         return $this->hasOne(StaffSarana::class, 'id_akun', 'id_akun');
     }

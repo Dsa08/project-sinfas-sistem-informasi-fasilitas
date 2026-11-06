@@ -1,11 +1,10 @@
 {{-- 
   MANAJEMEN MASTER DATA ALAT (INVENTARIS SARANA) — SINFAS
   File: resources/views/admin/items.blade.php
-  Fitur:
-  - Tabel master barang: Foto preview, kode unik, nama, merk/model, kategori, breakdown kondisi (baik, rusak), dan status.
-  - Modal Form Tambah Sarana Baru: Input kode barang, spesifikasi teknis, stok per kondisi, upload foto.
-  - Modal Form Edit Sarana: Pengambilan data via AJAX dan update rincian sarana.
-  - Validasi penghapusan: Mencegah penghapusan barang yang masih terikat transaksi peminjaman aktif.
+  Fungsi: Manajemen CRUD inventaris sarana prasarana sekolah dan kuantitas kondisi fisik.
+  Data Controller:
+  - $items (LengthAwarePaginator): Koleksi master barang terpaginasi.
+  - $categories (Collection): Master kategori untuk filter dan dropdown modal.
 --}}
 @extends('layouts.admin-sarana')
 

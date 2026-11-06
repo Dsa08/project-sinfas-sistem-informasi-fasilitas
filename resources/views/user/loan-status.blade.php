@@ -1,12 +1,9 @@
 {{-- 
-  HALAMAN STATUS PENGAJUAN & RIWAYAT PEMINJAMAN â€” SINFAS
+  HALAMAN STATUS PENGAJUAN & RIWAYAT PINJAMAN — SINFAS
   File: resources/views/user/loan-status.blade.php
-  Fitur:
-  - Pelacakan status permohonan pinjam akun pengguna.
-  - Badge status dengan styling warna indikator dinamis.
-  - Penjelasan alasan penolakan dari admin sarana jika permohonan ditolak.
-  - Tombol aksi pengembalian sarana (Return Item) dengan modal popup interaktif atau halaman mandiri.
-  - Paginasi daftar riwayat transaksi peminjaman.
+  Fungsi: Pelacakan status permohonan pinjam aktif dan riwayat peminjaman pengguna.
+  Data Controller:
+  - $loans (LengthAwarePaginator): Daftar riwayat transaksi pinjam terpaginasi.
 --}}
 @extends('layouts.app')
 

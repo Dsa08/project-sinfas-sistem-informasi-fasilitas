@@ -22,7 +22,13 @@ use App\Models\Barang;
 class BarangKategoriSeeder extends Seeder
 {
     /**
-     * Menjalankan proses seeding kategori dan data inventaris barang.
+     * Menjalankan proses seeding 5 kategori induk dan 25 item master sarana prasarana sekolah.
+     * Menggunakan updateOrCreate untuk mencegah terjadinya duplikasi data saat seeder dipanggil berulang.
+     *
+     * Efek Samping:
+     * - Menyimpan baris data ke tabel `kategori` dan `barang`.
+     *
+     * @return void
      */
     public function run(): void
     {

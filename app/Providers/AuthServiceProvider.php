@@ -2,13 +2,18 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
+/**
+ * Service Provider AuthServiceProvider
+ *
+ * Mengelola kebijakan autentikasi (*authentication*) dan otorisasi (*authorization*) aplikasi.
+ * Bertanggung jawab mendaftarkan pemetaan Model ke Policy serta definisi Gate akses pada sistem SINFAS.
+ */
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * The model to policy mappings for the application.
+     * Pemetaan model entitas ke kelas kebijakan hak akses (policies).
      *
      * @var array<class-string, class-string>
      */
@@ -17,7 +22,9 @@ class AuthServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Register any authentication / authorization services.
+     * Mendaftarkan layanan autentikasi dan gerbang otorisasi aplikasi saat bootstrapping.
+     *
+     * @return void
      */
     public function boot(): void
     {

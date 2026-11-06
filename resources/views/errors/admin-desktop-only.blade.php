@@ -1,10 +1,7 @@
 {{-- 
-  HALAMAN PERINGATAN AKSES DESKTOP ONLY ADMIN (HTTP 403) — SINFAS
+  HALAMAN PERINGATAN AKSES DESKTOP ONLY (HTTP 403) — SINFAS
   File: resources/views/errors/admin-desktop-only.blade.php
-  Fitur:
-  - Ditampilkan saat pengguna dengan role Admin Sarana atau Admin Sistem mengakses panel via smartphone/tablet.
-  - Memberikan penjelasan kebijakan penggunaan layar desktop demi kenyamanan dan ketelitian verifikasi data.
-  - Menyediakan tombol keluar akun (logout) yang tetap dapat dieksekusi secara aman.
+  Fungsi: Peringatan pembatasan akses seluler bagi peran admin sarana dan admin sistem.
 --}}
 <!DOCTYPE html>
 <html lang="id">

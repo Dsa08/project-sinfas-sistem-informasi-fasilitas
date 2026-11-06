@@ -1,10 +1,7 @@
 {{-- 
-  LAYOUT ADMIN SISTEM (SUPERADMIN / IT) — SINFAS
+  LAYOUT ADMINISTRATOR SISTEM — SINFAS
   File: resources/views/layouts/admin-system.blade.php
-  Fungsi:
-  - Kerangka layout panel kontrol administrator sistem / IT.
-  - Sidebar Navigasi: Dashboard Overview Sistem, Manajemen Master Akun Pengguna, dan Pengaturan Sistem.
-  - Topbar dengan profil admin, session info, dan tombol logout.
+  Fungsi: Kerangka layout panel kendali admin sistem (sidebar, topbar, dan dialog modal).
 --}}
 <!DOCTYPE html>
 <html lang="id">

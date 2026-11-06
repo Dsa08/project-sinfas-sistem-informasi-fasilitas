@@ -1,9 +1,7 @@
 {{-- 
-  LAYOUT AUTENTIKASI (LOGIN / REGISTER / FORGOT / RESET) — SINFAS
+  LAYOUT AUTENTIKASI PENGGUNA — SINFAS
   File: resources/views/layouts/auth.blade.php
-  Fungsi:
-  - Kerangka layout halaman publik pra-login dengan latar belakang grafis & overlay gradien modern.
-  - Memuat Google Fonts dan bundle aset Vite.
+  Fungsi: Kerangka layout halaman autentikasi (login, forgot, reset, ganti sandi sementara).
 --}}
 <!DOCTYPE html>
 <html lang="id">

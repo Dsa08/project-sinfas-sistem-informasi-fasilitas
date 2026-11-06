@@ -4,10 +4,16 @@ namespace App\Http\Middleware;
 
 use Illuminate\Routing\Middleware\ValidateSignature as Middleware;
 
+/**
+ * Middleware ValidateSignature
+ *
+ * Memverifikasi keaslian dan masa berlaku tanda tangan digital kriptografis pada URL tertanda (*signed URLs*).
+ * Digunakan untuk mencegah manipulasi parameter kueri saat pengguna mengakses tautan verifikasi atau reset sandi.
+ */
 class ValidateSignature extends Middleware
 {
     /**
-     * The names of the query string parameters that should be ignored.
+     * Daftar nama parameter query string pihak ketiga yang diabaikan saat validasi hash signature.
      *
      * @var array<int, string>
      */

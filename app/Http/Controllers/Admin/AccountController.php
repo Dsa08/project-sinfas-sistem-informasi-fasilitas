@@ -29,7 +29,7 @@ use Illuminate\View\View;
  * 3. Menampilkan detail akun via format JSON untuk keperluan modal antarmuka.
  * 4. Memperbarui identitas, kontak, role, username, dan password akun.
  * 5. Fitur soft-deactivate/toggle status aktif akun (mencegah akun menonaktifkan dirinya sendiri).
- * 6. Membuat kata sandi sementara acak untuk pemulihan akun oleh admin sistem.
+ * 6. Menerbitkan kata sandi sementara terstruktur (format SMK11-XXXX) dan pembuatan akun massal otomatis bagi siswa.
  */
 class AccountController extends Controller
 {
@@ -86,21 +86,26 @@ class AccountController extends Controller
 
     /**
      * Menyimpan rekaman akun pengguna baru ke basis data dengan validasi identitas master sekolah.
+     * Mendukung opsi pembuatan kata sandi sementara otomatis terstruktur (gaya Scola).
      *
      * Prasyarat:
      * - Nomor identitas NIS (untuk siswa) atau NIP (untuk pegawai/sarana) harus terdaftar di master data sekolah.
      * - Username dan email harus unik di tabel `akun`.
+     * - Jika mode sandi otomatis aktif, input password manual tidak diwajibkan.
      *
      * Efek Samping:
      * - Menyimpan avatar baru ke disk penyimpanan dengan optimasi WebP.
      * - Membuat baris baru di tabel `akun` dan mengaitkan ID akun ke tabel profil (`siswa`, `pegawai`, atau `staff_sarana`).
+     * - Jika sandi otomatis dipilih, menandai `must_change_password = true` dan mem-flash sandi sementara ke session.
      *
      * @param Request $request Request HTTP yang membawa seluruh data akun baru.
      * @return RedirectResponse Pengalihan kembali ke daftar akun dengan pesan sukses.
      */
     public function store(Request $request)
     {
-        // 1. Validasi struktur data input
+        $autoPassword = $request->boolean('auto_password');
+
+        // 1. Validasi struktur data input (fleksibel terhadap mode kata sandi manual atau otomatis)
         $request->validate([
             'nama' => 'required|string|max:255',
             'nis_nip' => 'required|string|max:20',
@@ -108,7 +113,7 @@ class AccountController extends Controller
             'nomor_kontak' => 'nullable|string|max:20',
             'username' => 'required|string|max:255|unique:akun,username',
             'email' => 'nullable|email|max:255|unique:akun,email',
-            'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
+            'password' => $autoPassword ? 'nullable' : ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'nama.required' => 'Nama wajib diisi.',
@@ -117,12 +122,16 @@ class AccountController extends Controller
             'username.required' => 'Username wajib diisi.',
             'username.unique' => 'Username sudah digunakan.',
             'email.unique' => 'Email sudah digunakan.',
-            'password.required' => 'Password wajib diisi.',
+            'password.required' => 'Password wajib diisi jika tidak memilih opsi otomatis.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $role = $request->role;
         $identity = $this->resolveIdentity($role, trim($request->nis_nip));
+
+        // 2. Tentukan kata sandi: buat sandi sementara terstruktur jika mode otomatis dipilih
+        $plainPassword = $autoPassword ? ('SMK11-' . random_int(1000, 9999)) : $request->password;
+        $mustChangePassword = $autoPassword;
 
         // 3. Upload berkas foto avatar pengguna jika disediakan
         $fotoPath = null;
@@ -132,23 +141,33 @@ class AccountController extends Controller
         }
 
         // 4. Eksekusi pembuatan akun baru (tanpa kolom nis/nip di akun sesuai ERD 2)
-        DB::transaction(function () use ($request, $role, $identity, $fotoPath) {
-            $akun = Akun::create([
-                'nama' => $request->nama,
-                'nomor_kontak' => $request->nomor_kontak,
-                'email' => $request->email,
-                'role' => $role,
-                'username' => $request->username,
-                'password' => $request->password,
-                'foto' => $fotoPath,
-                'is_active' => true,
+        $akunBaru = null;
+        DB::transaction(function () use ($request, $role, $identity, $fotoPath, $plainPassword, $mustChangePassword, &$akunBaru) {
+            $akunBaru = Akun::create([
+                'nama'                 => $request->nama,
+                'nomor_kontak'         => $request->nomor_kontak,
+                'email'                => $request->email,
+                'role'                 => $role,
+                'username'             => $request->username,
+                'password'             => $plainPassword,
+                'foto'                 => $fotoPath,
+                'is_active'            => true,
+                'must_change_password' => $mustChangePassword,
             ]);
 
-            $this->syncUserProfile($akun, $identity, $role);
+            $this->syncUserProfile($akunBaru, $identity, $role);
         });
 
-        return redirect()->route('admin.sistem.accounts')
+        $redirect = redirect()->route('admin.sistem.accounts')
             ->with('success', 'Akun pengguna berhasil ditambahkan.');
+
+        // 5. Jika menggunakan kata sandi sementara, sertakan flash session agar dapat disalin Admin
+        if ($autoPassword && $akunBaru) {
+            $redirect->with('temporary_password', $plainPassword)
+                ->with('temporary_password_account', $akunBaru->nama);
+        }
+
+        return $redirect;
     }
 
     /**
@@ -384,11 +403,14 @@ class AccountController extends Controller
     }
 
     /**
-     * Menerbitkan kata sandi sementara acak 20-karakter untuk pemulihan akses akun oleh Admin Sistem.
+     * Menerbitkan kata sandi sementara terstruktur yang ramah-ketik (format SMK11-XXXX) untuk pemulihan akses akun oleh Admin Sistem.
      * Menandai akun dengan `must_change_password = true` agar pengguna dipaksa mengganti sandi saat login berikutnya.
      *
+     * Prasyarat / Kondisi:
+     * - Akun dengan ID yang diberikan harus terdaftar dalam tabel `akun`.
+     *
      * Efek Samping:
-     * - Memperbarui hash kata sandi pada basis data dan menyetel flag kewajiban ganti sandi.
+     * - Memperbarui hash kata sandi pada basis data dan menyetel flag `must_change_password = true`.
      *
      * @param int $id ID unik akun yang sandinya di-reset.
      * @return RedirectResponse Pengalihan kembali dengan flash session kata sandi sementara yang hanya ditampilkan satu kali.
@@ -397,7 +419,8 @@ class AccountController extends Controller
     {
         $akun = Akun::findOrFail($id);
 
-        $temporaryPassword = Str::password(20, true, true, false, false);
+        // Hasilkan kata sandi sementara terstruktur agar mudah diketik pada papan ketik ponsel siswa atau pegawai
+        $temporaryPassword = 'SMK11-' . random_int(1000, 9999);
         $akun->password = $temporaryPassword;
         $akun->must_change_password = true;
         $akun->save();
@@ -405,5 +428,84 @@ class AccountController extends Controller
         return redirect()->route('admin.sistem.accounts')
             ->with('temporary_password', $temporaryPassword)
             ->with('temporary_password_account', $akun->nama);
+    }
+
+    /**
+     * Membuat akun login secara massal untuk seluruh data siswa terdaftar yang belum memiliki akun sistem.
+     * Menggunakan Nomor Induk Siswa (NIS) sebagai username awal dan kata sandi sementara ramah-ketik (format SMK11-XXXX).
+     * Seluruh akun hasil pembuatan massal ditandai `must_change_password = true` demi menjaga keamanan akun sejak awal.
+     *
+     * Prasyarat / Kondisi:
+     * - Terdapat baris data pada tabel `siswa` dengan foreign key `id_akun` bernilai null.
+     *
+     * Efek Samping:
+     * - Menyimpan rekaman baru pada tabel `akun` dengan peran 'siswa'.
+     * - Memperbarui foreign key `id_akun` pada baris tabel `siswa` yang bersangkutan.
+     *
+     * @return RedirectResponse Pengalihan kembali ke panel kelola akun beserta rekapitulasi jumlah akun yang berhasil dibuat.
+     */
+    public function batchGenerateStudentAccounts(): RedirectResponse
+    {
+        // 1. Ambil data master siswa yang belum memiliki relasi akun login
+        $unlinkedStudents = Siswa::whereNull('id_akun')->get();
+
+        if ($unlinkedStudents->isEmpty()) {
+            return redirect()->route('admin.sistem.accounts')
+                ->with('error', 'Semua siswa yang terdaftar di master data sudah memiliki akun sistem.');
+        }
+
+        $createdCount = 0;
+        $skippedCount = 0;
+
+        // 2. Iterasi setiap siswa untuk membuatkan akun terstruktur secara atomik
+        foreach ($unlinkedStudents as $siswa) {
+            $username = trim($siswa->nis);
+
+            // Lewati jika username dari NIS ini secara tak terduga telah digunakan oleh akun lain
+            if (Akun::where('username', $username)->exists()) {
+                $skippedCount++;
+                continue;
+            }
+
+            // Gunakan email siswa jika valid dan belum terpakai pada tabel akun
+            $email = !empty($siswa->email) && !Akun::where('email', $siswa->email)->exists()
+                ? $siswa->email
+                : null;
+
+            // Hasilkan sandi awal terstruktur yang mudah disalin dan dibagikan oleh staf tata usaha
+            $temporaryPassword = 'SMK11-' . random_int(1000, 9999);
+
+            try {
+                DB::transaction(function () use ($siswa, $username, $email, $temporaryPassword, &$createdCount) {
+                    $akun = Akun::create([
+                        'nama'                 => $siswa->nama,
+                        'nomor_kontak'         => $siswa->no_hp,
+                        'email'                => $email,
+                        'role'                 => 'siswa',
+                        'username'             => $username,
+                        'password'             => $temporaryPassword,
+                        'is_active'            => true,
+                        'must_change_password' => true,
+                    ]);
+
+                    // Hubungkan akun baru ke profil master siswa terkait
+                    $siswa->id_akun = $akun->id_akun;
+                    $siswa->save();
+
+                    $createdCount++;
+                });
+            } catch (\Throwable $e) {
+                // Lewati dan catat kegagalan individu agar proses akun siswa lainnya tetap berjalan
+                $skippedCount++;
+            }
+        }
+
+        $message = "Berhasil membuat {$createdCount} akun siswa otomatis dengan sandi sementara (SMK11-XXXX).";
+        if ($skippedCount > 0) {
+            $message .= " Sebanyak {$skippedCount} data siswa dilewati karena kendala data duplikat.";
+        }
+
+        return redirect()->route('admin.sistem.accounts')
+            ->with('success', $message);
     }
 }

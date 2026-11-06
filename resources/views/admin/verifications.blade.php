@@ -1,10 +1,11 @@
 {{-- 
   HALAMAN VERIFIKASI PEMINJAMAN & PENGEMBALIAN — SINFAS
   File: resources/views/admin/verifications.blade.php
-  Fitur:
-  - Tab 1 (Pending Requests): Daftar antrean permohonan pinjam baru, aksi Setujui (Approve), dan Modal Tolak dengan input Alasan Penolakan.
-  - Tab 2 (Pending Returns): Daftar permohonan pengembalian, preview bukti foto/video, dan Modal Konfirmasi Pengembalian dengan seleksi kondisi fisik (Baik, Kurang Baik, Rusak Berat).
-  - Sinkronisasi stok otomatis saat pengembalian berhasil diverifikasi.
+  Fungsi: Antarmuka verifikasi persetujuan/penolakan pinjam dan inspeksi pengembalian fisik.
+  Data Controller:
+  - $pendingRequests: Antrean permohonan pinjam berstatus menunggu.
+  - $pendingReturns: Antrean permohonan pengembalian fisik.
+  - $activeLoans: Daftar peminjaman yang sedang aktif berjalan.
 --}}
 @extends('layouts.admin-sarana')
 

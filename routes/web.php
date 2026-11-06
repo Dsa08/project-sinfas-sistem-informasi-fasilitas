@@ -208,6 +208,8 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
         Route::delete('/accounts/{id}', [AccountController::class, 'destroy'])->name('admin.sistem.accounts.destroy');
         // Reset password darurat akun oleh administrator sistem
         Route::post('/accounts/{id}/reset-password', [AccountController::class, 'resetPassword'])->name('admin.sistem.accounts.reset');
+        // Pembuatan akun massal otomatis untuk siswa master yang belum memiliki akun
+        Route::post('/accounts/batch-students', [AccountController::class, 'batchGenerateStudentAccounts'])->name('admin.sistem.accounts.batch-students');
     });
 });
 
