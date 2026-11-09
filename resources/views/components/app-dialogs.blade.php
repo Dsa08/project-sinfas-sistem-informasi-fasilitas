@@ -126,5 +126,40 @@
             });
             return false;
         };
+
+        @auth
+        // --- Heartbeat Pengecekan Single Session Aktif (Instant Multi-Device Auto-Logout) ---
+        let isTerminatingSession = false;
+        const pingSessionHealth = async () => {
+            if (isTerminatingSession) return;
+            try {
+                const res = await fetch("{{ route('auth.session.check') }}", {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (res.status === 401) {
+                    isTerminatingSession = true;
+                    if (window.showAppToast) {
+                        window.showAppToast('Akun Anda baru saja masuk di perangkat lain. Anda otomatis dikeluarkan.', {
+                            title: 'Sesi Telah Berakhir',
+                            duration: 3000
+                        });
+                    }
+                    setTimeout(() => {
+                        window.location.href = "{{ route('login') }}?session_terminated=1";
+                    }, 500);
+                }
+            } catch (err) {
+                // Abaikan kesalahan koneksi jaringan sementara
+            }
+        };
+
+        // Lakukan pengecekan latar belakang setiap 3 detik secara berkala
+        setInterval(pingSessionHealth, 3000);
+        @endauth
     })();
 </script>

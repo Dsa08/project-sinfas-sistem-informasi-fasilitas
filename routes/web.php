@@ -78,6 +78,12 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
     // Menghapus session login, meregenerasi token CSRF, dan mengarahkan kembali ke login
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // --- Heartbeat Pengecekan Single Session Aktif (Instant Multi-Device Auto-Logout) ---
+    // Endpoint polling ringan berkala peramban untuk verifikasi keselarasan token sesi aktif secara instan
+    Route::get('/auth/session-check', function () {
+        return response()->json(['valid' => true]);
+    })->name('auth.session.check');
+
     // Temporary credentials must be replaced before using application features.
     Route::get('/password/change', [ProfileController::class, 'showRequiredPasswordChange'])->name('password.change.show');
     Route::put('/password/change', [ProfileController::class, 'updateRequiredPassword'])->name('password.change.update');

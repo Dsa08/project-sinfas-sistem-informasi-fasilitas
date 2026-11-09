@@ -25,9 +25,9 @@
         </div>
     @endif
 
-    @if(session('warning'))
+    @if(session('warning') || request('session_terminated'))
         <div class="auth-alert auth-alert--warning">
-            {{ session('warning') }}
+            {{ session('warning') ?? 'Akun Anda telah masuk di perangkat lain. Anda otomatis dikeluarkan dari perangkat ini.' }}
         </div>
     @endif
 

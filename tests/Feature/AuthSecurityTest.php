@@ -96,6 +96,41 @@ class AuthSecurityTest extends TestCase
     }
 
     /**
+     * Memastikan endpoint heartbeat session-check mengembalikan status 200 saat sesi valid,
+     * dan otomatis mengembalikan status 401 JSON serta memutus sesi saat terdeteksi login di perangkat lain.
+     *
+     * @return void
+     */
+    public function test_single_session_heartbeat_detects_concurrent_login_instantly(): void
+    {
+        $user = Akun::where('role', 'siswa')->first() ?? Akun::first();
+        $this->assertNotNull($user);
+
+        // 1. Kasus Sesi Valid: Tidak ada konflik perangkat lain
+        Cache::forget('active_user_session_' . $user->id_akun);
+
+        $validResponse = $this->actingAs($user)->getJson('/auth/session-check');
+        $validResponse->assertOk();
+        $validResponse->assertJson(['valid' => true]);
+
+        // 2. Kasus Perangkat Lain Masuk: Kunci cache ditimpa oleh perangkat lain
+        Cache::put('active_user_session_' . $user->id_akun, 'hp_session_token_' . uniqid());
+
+        $staleResponse = $this->actingAs($user)->getJson('/auth/session-check');
+        $staleResponse->assertStatus(401);
+        $staleResponse->assertJson([
+            'message' => 'Sesi Anda telah berakhir karena akun ini baru saja login di perangkat atau peramban lain demi keamanan.',
+            'redirect' => route('login'),
+        ]);
+        $this->assertGuest();
+
+        // 3. Halaman login menampilkan peringatan terminasi sesi perangkat
+        $loginPage = $this->get('/login?session_terminated=1');
+        $loginPage->assertOk();
+        $loginPage->assertSee('Akun Anda telah masuk di perangkat lain');
+    }
+
+    /**
      * Memastikan layanan LoginAuditService mencatat aktivitas ke berkas log audit tanpa memerlukan tabel database.
      *
      * @return void

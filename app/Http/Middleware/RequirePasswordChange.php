@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Menegakkan kewajiban penggantian kata sandi pertama kali bagi pengguna baru
  * atau pengguna yang sandinya baru saja di-reset oleh Admin Sistem (flag `must_change_password = true`).
- * Mengisolasi navigasi akun tersebut sehingga hanya diizinkan membuka formulir ganti sandi wajib
- * atau melakukan logout.
+ * Mengisolasi navigasi akun tersebut sehingga hanya diizinkan membuka formulir ganti sandi wajib,
+ * melakukan logout, atau pemeriksaan deteksi sesi aktif (`auth.session.check`).
  */
 class RequirePasswordChange
 {
@@ -32,7 +32,7 @@ class RequirePasswordChange
     public function handle(Request $request, Closure $next): Response
     {
         $account = $request->user();
-        $allowedRoutes = ['password.change.show', 'password.change.update', 'logout'];
+        $allowedRoutes = ['password.change.show', 'password.change.update', 'logout', 'auth.session.check'];
 
         if ($account?->must_change_password && ! in_array($request->route()?->getName(), $allowedRoutes, true)) {
             return redirect()->route('password.change.show');
