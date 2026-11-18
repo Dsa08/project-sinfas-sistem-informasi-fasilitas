@@ -7,11 +7,15 @@ use App\Models\Akun;
 use App\Models\Peminjaman;
 use App\Services\DatabaseBackupService;
 use App\Services\LoginAuditService;
+use App\Services\PublicUploadStorage;
 use App\Services\SystemSettingsService;
+use App\Services\WebpImageOptimizer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password;
 
 /**
  * Controller AdminSistemController
@@ -295,5 +299,160 @@ class AdminSistemController extends Controller
 
         // Kembalikan 10 log paling relevan
         return array_slice($logs, 0, 10);
+    }
+
+    /**
+     * Menampilkan halaman profil pribadi khusus Admin Sistem dengan tab navigasi aktif.
+     * Terpisah dari profil Siswa dan Admin Sarana untuk mencegah percampuran antarmuka antar peran.
+     *
+     * @param string $tab Nama tab pengaturan yang dibuka: 'profile' atau 'password'. Default 'profile'.
+     * @return \Illuminate\View\View Tampilan 'admin.system.profile' dengan data akun Admin Sistem.
+     */
+    public function profile(string $tab = 'profile')
+    {
+        $allowedTabs = ['profile', 'password'];
+        if (! in_array($tab, $allowedTabs, true)) {
+            $tab = 'profile';
+        }
+
+        return view('admin.system.profile', [
+            'user' => Auth::user(),
+            'activeTab' => $tab,
+        ]);
+    }
+
+    /**
+     * Memperbarui informasi biodata profil Admin Sistem (nama lengkap, nomor kontak, dan email).
+     *
+     * Efek Samping:
+     * - Memperbarui rekaman pada tabel `akun`.
+     *
+     * @param Request $request Permintaan HTTP berisi input 'nama', 'nomor_kontak', dan opsional 'email'.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab profil Admin Sistem dengan pesan sukses.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'nomor_kontak' => 'nullable|string|max:20',
+            'email'        => 'nullable|email|max:255|unique:akun,email,' . $user->id_akun . ',id_akun',
+        ], [
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'email.email'   => 'Format email tidak valid.',
+            'email.unique'  => 'Email sudah digunakan oleh akun lain.',
+        ]);
+
+        $user->nama = $request->nama;
+        $user->nomor_kontak = $request->nomor_kontak;
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
+        $user->save();
+
+        return redirect()
+            ->route('admin.sistem.profile', ['tab' => 'profile'])
+            ->with('success', 'Profil Admin Sistem berhasil diperbarui.');
+    }
+
+    /**
+     * Memperbarui kata sandi akun Admin Sistem dengan verifikasi kata sandi lama.
+     *
+     * Prasyarat:
+     * - Kata sandi saat ini harus cocok dengan hash password pengguna yang terautentikasi.
+     * - Kata sandi baru minimal 8 karakter dan mengandung kombinasi huruf serta angka.
+     *
+     * Efek Samping:
+     * - Memperbarui kolom `password` pada tabel `akun`.
+     *
+     * @param Request $request Permintaan HTTP berisi 'current_password', 'new_password', dan 'new_password_confirmation'.
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab password dengan notifikasi keberhasilan atau error.
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password'          => 'required|string',
+            'new_password'              => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
+            'new_password_confirmation' => 'required|string',
+        ], [
+            'current_password.required' => 'Password saat ini wajib diisi.',
+            'new_password.required'     => 'Password baru wajib diisi.',
+            'new_password.confirmed'    => 'Konfirmasi password baru tidak cocok.',
+            'new_password.min'          => 'Password baru minimal 8 karakter.',
+        ]);
+
+        $user = Auth::user();
+
+        if (! Hash::check($request->current_password, $user->password)) {
+            return back()
+                ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
+                ->withInput();
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return redirect()
+            ->route('admin.sistem.profile', ['tab' => 'password'])
+            ->with('success', 'Kata sandi Admin Sistem berhasil diperbarui.');
+    }
+
+    /**
+     * Mengunggah dan memperbarui foto avatar Admin Sistem dengan kompresi WebP.
+     *
+     * Efek Samping:
+     * - Mengonversi gambar menjadi WebP dan menyimpannya ke disk `public_uploads`.
+     * - Menghapus berkas foto lama jika tersedia.
+     *
+     * @param Request $request Permintaan HTTP berisi berkas gambar 'foto' (maksimal 2MB).
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab profil Admin Sistem.
+     */
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'foto.required' => 'Silakan pilih berkas foto terlebih dahulu.',
+            'foto.image'    => 'Berkas harus berupa gambar valid.',
+            'foto.mimes'    => 'Format gambar harus berupa jpeg, png, jpg, atau webp.',
+            'foto.max'      => 'Ukuran foto profil maksimal 2MB.',
+        ]);
+
+        $user = Auth::user();
+
+        $path = app(WebpImageOptimizer::class)
+            ->storeOnDisk($request->file('foto'), 'avatars', 'public_uploads', 'avatar');
+
+        app(PublicUploadStorage::class)->delete($user->foto);
+
+        $user->foto = $path;
+        $user->save();
+
+        return redirect()
+            ->route('admin.sistem.profile', ['tab' => 'profile'])
+            ->with('success', 'Foto profil Admin Sistem berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus berkas foto profil Admin Sistem dan mengembalikannya ke avatar bawaan.
+     *
+     * Efek Samping:
+     * - Menghapus berkas fisik foto dari penyimpanan server dan menyetel `foto = null`.
+     *
+     * @return \Illuminate\Http\RedirectResponse Pengalihan kembali ke tab profil Admin Sistem.
+     */
+    public function deletePhoto()
+    {
+        $user = Auth::user();
+
+        app(PublicUploadStorage::class)->delete($user->foto);
+
+        $user->foto = null;
+        $user->save();
+
+        return redirect()
+            ->route('admin.sistem.profile', ['tab' => 'profile'])
+            ->with('success', 'Foto profil Admin Sistem berhasil dihapus.');
     }
 }

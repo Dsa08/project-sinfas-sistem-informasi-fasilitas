@@ -58,7 +58,8 @@
 
                 <ul class="system-nav-list">
                     <li class="system-nav-item">
-                        <a href="{{ route('profile') }}" class="system-nav-link {{ request()->routeIs('profile') ? 'system-nav-link--active' : '' }}" id="nav-profile">
+                        {{-- Link khusus Admin Sistem ke halaman profil admin sistem (terpisah dari siswa & admin sarana) --}}
+                        <a href="{{ route('admin.sistem.profile') }}" class="system-nav-link {{ request()->routeIs('admin.sistem.profile') ? 'system-nav-link--active' : '' }}" id="nav-profile">
                             <x-heroicon-o-user class="system-nav-icon" />
                             <span>Profil</span>
                         </a>
@@ -75,10 +76,14 @@
             {{-- User Profile Bottom Indicator --}}
             <div class="system-sidebar-footer">
                 <div class="system-user-badge">
-                    <div class="system-user-avatar">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
+                    <div class="system-user-avatar" style="overflow: hidden;">
+                        @if(Auth::user() && Auth::user()->foto_url)
+                            <img src="{{ Auth::user()->foto_url }}" alt="{{ Auth::user()->nama }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        @endif
                     </div>
                     <div class="system-user-info">
                         <span class="system-user-name">{{ Auth::user()->nama ?? 'Admin Sistem' }}</span>

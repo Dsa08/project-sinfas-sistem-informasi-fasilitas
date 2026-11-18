@@ -63,12 +63,21 @@ class ProfileController extends Controller
 
     /**
      * Menampilkan antarmuka profil dan pengaturan biodata pengguna yang sedang login.
+     * Mencegah cross-role confusion dengan mengarahkan Admin Sarana dan Admin Sistem ke halaman profil masing-masing.
      *
-     * @return View Tampilan view 'user.profile' dengan data pengguna dan alamat email terdaftar.
+     * @return View|RedirectResponse Tampilan view 'user.profile' untuk peminjam, atau pengalihan ke profil admin terkait.
      */
     public function show()
     {
         $user = Auth::user();
+
+        if ($user->isAdminSarana()) {
+            return redirect()->route('admin.profile');
+        }
+
+        if ($user->isAdminSistem()) {
+            return redirect()->route('admin.sistem.profile');
+        }
 
         // Email akun menjadi sumber utama; profil terkait menjadi cadangan.
         $email = $user->email;

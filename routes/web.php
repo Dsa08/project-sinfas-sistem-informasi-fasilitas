@@ -216,6 +216,13 @@ Route::middleware(['auth', 'admin.desktop', RequirePasswordChange::class])->grou
         Route::post('/accounts/{id}/reset-password', [AccountController::class, 'resetPassword'])->name('admin.sistem.accounts.reset');
         // Pembuatan akun massal otomatis untuk siswa master yang belum memiliki akun
         Route::post('/accounts/batch-students', [AccountController::class, 'batchGenerateStudentAccounts'])->name('admin.sistem.accounts.batch-students');
+
+        // --- Pengaturan Profil Akun Admin Sistem (Terpisah dari profil siswa & admin sarana) ---
+        Route::get('/profile/{tab?}', [AdminSistemController::class, 'profile'])->name('admin.sistem.profile');
+        Route::put('/profile/update', [AdminSistemController::class, 'updateProfile'])->name('admin.sistem.profile.update');
+        Route::put('/profile/password', [AdminSistemController::class, 'updatePassword'])->name('admin.sistem.profile.password');
+        Route::put('/profile/photo', [AdminSistemController::class, 'updatePhoto'])->name('admin.sistem.profile.photo.update');
+        Route::delete('/profile/photo', [AdminSistemController::class, 'deletePhoto'])->name('admin.sistem.profile.photo.delete');
     });
 });
 
