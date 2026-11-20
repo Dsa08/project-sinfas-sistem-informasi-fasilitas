@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Manajemen Sesi HTTP (Session) SINFAS
+ *
+ * Mengatur driver sesi, durasi kedaluwarsa (`lifetime`), nama cookie sesi,
+ * serta keamanan cookie (`http_only`, `same_site`, `secure`) yang mendukung mekanisme Single Session Lock.
+ */
+
 use Illuminate\Support\Str;
 
 return [

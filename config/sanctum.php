@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Laravel Sanctum (API & Stateful Token Authentication) SINFAS
+ *
+ * Mengatur daftar domain stateful, guard autentikasi, dan masa berlaku token
+ * untuk akses API atau SPA jika diaktifkan.
+ */
+
 use Laravel\Sanctum\Sanctum;
 
 return [

@@ -25,6 +25,7 @@ use Illuminate\Validation\Rules\Password;
  *    pertumbuhan akun baru, dan pemantauan status pencadangan sistem.
  * 2. Konfigurasi Sistem: Mengatur jam operasional, pencadangan & pemulihan database riil,
  *    serta menampilkan riwayat aktivitas sistem terkini.
+ * 3. Profil Admin Sistem: Pengaturan identitas biodata pribadi, foto avatar, dan ganti kata sandi mandiri.
  */
 class AdminSistemController extends Controller
 {

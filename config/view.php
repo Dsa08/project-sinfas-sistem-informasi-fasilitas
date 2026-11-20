@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Direktori Tampilan & Kompilasi Blade (View) SINFAS
+ *
+ * Mengatur lokasi sumber templat antarmuka (`resources/views`) serta lokasi
+ * penyimpanan hasil kompilasi Blade (`storage/framework/views`).
+ */
+
 return [
 
     /*

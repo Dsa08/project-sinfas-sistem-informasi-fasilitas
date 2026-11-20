@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Enkripsi & Hashing Kata Sandi SINFAS
+ *
+ * Mengatur algoritma hashing kriptografis bawaan (`bcrypt` / `argon2id`) serta
+ * tingkat kompleksitas (*cost factor*) untuk mengamankan kredensial pengguna.
+ */
+
 return [
 
     /*

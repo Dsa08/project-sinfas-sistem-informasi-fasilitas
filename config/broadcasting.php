@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Penyiaran Event Real-Time (Broadcasting) SINFAS
+ *
+ * Mengatur driver penyiaran (Pusher, Ably, Redis, Log, atau Null) untuk pengiriman
+ * notifikasi atau pembaruan event sisi server ke klien.
+ */
+
 return [
 
     /*

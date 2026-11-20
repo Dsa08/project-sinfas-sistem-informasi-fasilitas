@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Antrean Pekerjaan Latar Belakang (Queues) SINFAS
+ *
+ * Mengatur koneksi antrean (`sync`, `database`, `redis`) beserta tabel `failed_jobs`
+ * untuk eksekusi tugas asinkron secara terjadwal maupun latar belakang.
+ */
+
 return [
 
     /*

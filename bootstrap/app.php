@@ -1,14 +1,18 @@
 <?php
 
+/**
+ * Bootstrap Aplikasi SINFAS
+ *
+ * Berkas inisialisasi awal framework Laravel yang bertugas:
+ * 1. Membuat instansi kontainer IoC (`Illuminate\Foundation\Application`) sebagai inti aplikasi.
+ * 2. Mengikat (*bind*) kontrak kernel HTTP, Console/Artisan, dan Exception Handler kustom SINFAS.
+ * 3. Mengembalikan objek `$app` yang siap memproses request masuk dari web maupun CLI.
+ */
+
 /*
 |--------------------------------------------------------------------------
-| Create The Application
+| 1. Inisialisasi Instansi Aplikasi (IoC Container)
 |--------------------------------------------------------------------------
-|
-| The first thing we will do is create a new Laravel application instance
-| which serves as the "glue" for all the components of Laravel, and is
-| the IoC container for the system binding all of the various parts.
-|
 */
 
 $app = new Illuminate\Foundation\Application(
@@ -17,13 +21,10 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
-| Bind Important Interfaces
+| 2. Pengikatan Antarmuka Penting (Kernel & Exception Handler)
 |--------------------------------------------------------------------------
-|
-| Next, we need to bind some important interfaces into the container so
-| we will be able to resolve them when needed. The kernels serve the
-| incoming requests to this application from both the web and CLI.
-|
+| Mengikat implementasi HTTP Kernel (middleware web/auth), Console Kernel
+| (penjadwalan artisan), dan Exception Handler terpusat sebagai singleton.
 */
 
 $app->singleton(
@@ -43,13 +44,8 @@ $app->singleton(
 
 /*
 |--------------------------------------------------------------------------
-| Return The Application
+| 3. Kembalikan Instansi Aplikasi
 |--------------------------------------------------------------------------
-|
-| This script returns the application instance. The instance is given to
-| the calling script so we can separate the building of the instances
-| from the actual running of the application and sending responses.
-|
 */
 
 return $app;

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Penyimpanan Berkas (Filesystem Disks) SINFAS
+ *
+ * Mengatur direktori penyimpanan lokal dan publik, termasuk disk khusus `public_uploads`
+ * yang memetakan unggahan foto sarana, avatar profil, dan bukti pengembalian ke `public_html`.
+ */
+
 $publicHtmlPath = env('PUBLIC_HTML_PATH') ?: (
     env('APP_ENV') === 'production' ? base_path('../public_html') : public_path()
 );

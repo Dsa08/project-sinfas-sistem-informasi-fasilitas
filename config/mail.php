@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Pengiriman Surel (Mailers) SINFAS
+ *
+ * Mengatur driver SMTP/Mailgun/Log serta alamat pengirim default untuk keperluan
+ * notifikasi sistem maupun proses pemulihan akun pengguna.
+ */
+
 return [
 
     /*

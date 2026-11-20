@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Cross-Origin Resource Sharing (CORS) SINFAS
+ *
+ * Mengatur izin akses permintaan lintas-origin (*cross-origin HTTP requests*)
+ * dari peramban untuk endpoint API dan rute terkait.
+ */
+
 return [
 
     /*

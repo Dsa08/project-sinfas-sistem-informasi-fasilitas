@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Utama Aplikasi SINFAS
+ *
+ * Mengatur identitas aplikasi, mode environment & debug, zona waktu lokal (Asia/Jakarta),
+ * bahasa/locale bawaan, kunci enkripsi kriptografi, serta daftar Service Provider dan Alias.
+ */
+
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 

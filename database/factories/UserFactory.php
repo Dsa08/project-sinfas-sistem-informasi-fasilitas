@@ -7,19 +7,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory UserFactory
+ *
+ * Menyediakan generator data tiruan (dummy/fake) untuk model `User` bawaan Laravel
+ * pada skenario pengujian otomatis (unit/feature testing) maupun seeding awal.
+ *
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * Kata sandi ter-hash yang disimpan sementara agar efisien saat membuat banyak data factory.
+     *
+     * @var string|null
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Mendefinisikan nilai atribut bawaan (*default state*) untuk instansi model yang dihasilkan.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Peta atribut default pengguna (nama, email, status verifikasi, sandi, token).
      */
     public function definition(): array
     {
@@ -33,7 +40,9 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Menandai state model agar alamat email berstatus belum terverifikasi (`email_verified_at = null`).
+     *
+     * @return static Instansi factory dengan state email belum terverifikasi.
      */
     public function unverified(): static
     {

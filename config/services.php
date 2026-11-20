@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Layanan Pihak Ketiga (Third-Party Services) SINFAS
+ *
+ * Menyimpan kredensial layanan eksternal seperti Mailgun, Postmark, AWS,
+ * serta konfigurasi VAPID Web Push Notification (`webpush`) untuk notifikasi real-time.
+ */
+
 return [
 
     /*

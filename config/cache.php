@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Mesin Cache Aplikasi SINFAS
+ *
+ * Mengatur store cache bawaan (`file` / `redis` / `database`) yang dimanfaatkan untuk
+ * penyimpanan sementara katalog sarana serta kunci *Single Session Lock* antar-perangkat.
+ */
+
 use Illuminate\Support\Str;
 
 return [

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Pencatatan Log Sistem (Logging Channels) SINFAS
+ *
+ * Mengatur kanal pencatatan log aplikasi (`stack`, `single`, `daily`, dll.)
+ * untuk pemantauan kesalahan sistem, pengecualian (*exceptions*), dan audit aktivitas.
+ */
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;

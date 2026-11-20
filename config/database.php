@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Koneksi Basis Data (RDBMS) SINFAS
+ *
+ * Mengatur koneksi database utama (`mysql`), parameter host/port/kredensial dari `.env`,
+ * charset `utf8mb4`, tabel riwayat migrasi, serta konfigurasi koneksi Redis.
+ */
+
 use Illuminate\Support\Str;
 
 return [

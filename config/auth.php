@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Konfigurasi Autentikasi & Keamanan Pengguna SINFAS
+ *
+ * Mengatur guard autentikasi (`web`), model penyedia data pengguna (`App\Models\Akun`),
+ * konfigurasi broker reset kata sandi, serta batas waktu konfirmasi sandi.
+ */
+
 return [
 
     /*

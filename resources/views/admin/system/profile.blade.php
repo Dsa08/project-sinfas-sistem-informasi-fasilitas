@@ -2,6 +2,9 @@
   HALAMAN PROFIL ADMIN SISTEM — SINFAS
   File: resources/views/admin/system/profile.blade.php
   Fungsi: Pengaturan biodata profil, foto avatar, dan ganti kata sandi mandiri Admin Sistem.
+  Data Controller:
+  - $user (Akun): Data akun Admin Sistem yang sedang login.
+  - $activeTab (string): Tab pengaturan aktif ('profile' atau 'password').
 --}}
 @extends('layouts.admin-system')
 
