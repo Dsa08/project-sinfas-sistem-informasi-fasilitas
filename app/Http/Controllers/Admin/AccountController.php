@@ -172,7 +172,7 @@ class AccountController extends Controller
 
     /**
      * Mengambil rincian data lengkap akun pengguna dalam format JSON untuk kebutuhan modal dialog AJAX.
-     * Mengikutsertakan relasi master identitas NIS/NIP dan 10 riwayat transaksi peminjaman terakhir.
+     * Mengikutsertakan relasi master identitas NIS/NIP dan riwayat transaksi peminjaman (hingga 50 data untuk kebutuhan paging).
      *
      * @param int $id ID unik akun pada tabel `akun`.
      * @return JsonResponse Data profil akun dan riwayat pinjaman dalam format JSON.
@@ -184,7 +184,7 @@ class AccountController extends Controller
             ? Peminjaman::with(['barang', 'pengembalian'])
                 ->where('id_akun', $akun->id_akun)
                 ->orderByDesc('tanggal_pinjam')
-                ->limit(10)
+                ->limit(50)
                 ->get()
                 ->map(fn (Peminjaman $loan) => [
                     'item' => $loan->barang->nama_barang ?? 'Barang tidak ditemukan',

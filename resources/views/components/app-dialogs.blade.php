@@ -19,7 +19,7 @@
 </div>
 <div class="app-toast-container" id="app-toast-container" aria-live="polite" aria-atomic="true"></div>
 <style>
-    .app-dialog-overlay { position:fixed; inset:0; z-index:100000; display:none; align-items:center; justify-content:center; padding:1rem; background:rgba(15,23,42,.48); }
+    .app-dialog-overlay { position:fixed; inset:0; z-index:100000; display:none; align-items:center; justify-content:center; padding:1rem; background:rgba(15,23,42,.48); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
     .app-dialog-overlay.is-open { display:flex; }
     .app-dialog-card { width:min(100%,420px); padding:1.5rem; border-radius:16px; background:#fff; box-shadow:0 24px 60px rgba(15,23,42,.24); text-align:center; animation:appDialogIn .18s ease-out; }
     .app-dialog-icon { width:44px; height:44px; display:grid; place-items:center; margin:0 auto .85rem; border-radius:50%; color:#1d4ed8; background:#eff6ff; font-size:1.4rem; font-weight:700; }

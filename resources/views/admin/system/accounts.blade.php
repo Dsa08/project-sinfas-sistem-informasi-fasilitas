@@ -53,7 +53,7 @@
             >
         </form>
         <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
-            <form method="POST" action="{{ route('admin.sistem.accounts.batch-students') }}" id="batch-students-form" onsubmit="return confirm('Buat akun login otomatis untuk seluruh siswa di master data yang belum memiliki akun?\n\nSandi sementara (format SMK11-XXXX) akan diterbitkan dan siswa wajib mengganti kata sandi saat pertama kali login.');">
+            <form method="POST" action="{{ route('admin.sistem.accounts.batch-students') }}" id="batch-students-form" onsubmit="return confirmAppForm(this, 'Buat akun login otomatis untuk seluruh siswa di master data yang belum memiliki akun?\n\nSandi sementara (format SMK11-XXXX) akan diterbitkan dan siswa wajib mengganti kata sandi saat pertama kali login.', {title: 'Generate Akun Siswa', confirmText: 'Ya, Buat Akun'}, event)">
                 @csrf
                 <button type="submit" class="btn-add-account" style="background-color: #f1f5f9; color: #1e40af; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; gap: 0.4rem;" title="Buat akun login massal untuk data siswa yang belum berakun">
                     <x-heroicon-o-user-group class="w-4 h-4" />
@@ -503,9 +503,22 @@
             <div class="account-modal-divider"></div>
 
             <section class="account-loan-history">
-                <h4>Riwayat Peminjaman Terakhir</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                    <h4 style="margin: 0;">Riwayat Peminjaman Terakhir</h4>
+                    <span id="detail-loan-total-badge" class="loan-total-badge" style="font-size: 0.72rem; color: #475569; background: #e2e8f0; padding: 0.15rem 0.5rem; border-radius: 9999px; display: none;">0 Riwayat</span>
+                </div>
                 <div id="detail-loan-history" class="account-loan-history-list">
                     <p class="account-loan-history-empty">Riwayat peminjaman dimuat saat detail akun dibuka.</p>
+                </div>
+                {{-- Kontrol Navigasi Paging Riwayat Peminjaman --}}
+                <div id="detail-loan-pagination" class="account-loan-pagination" style="display: none; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px dashed #e2e8f0;">
+                    <button type="button" class="btn-loan-page" id="loan-page-prev" style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #334155; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                        &larr; <span>Sebelumnya</span>
+                    </button>
+                    <span class="loan-page-indicator" id="loan-page-indicator" style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Halaman 1 dari 1</span>
+                    <button type="button" class="btn-loan-page" id="loan-page-next" style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #334155; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                        <span>Selanjutnya</span> &rarr;
+                    </button>
                 </div>
             </section>
 
@@ -637,10 +650,45 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('detail-view-username').value = data.username || '';
                 document.getElementById('detail-view-email').value = data.email || '-';
 
+                // ─── Paging Riwayat Peminjaman (2 data per halaman) ───
+                let currentLoanList = data.loan_history || [];
+                let currentLoanPage = 1;
+                const loansPerPage = 2;
                 const historyContainer = document.getElementById('detail-loan-history');
-                historyContainer.replaceChildren();
-                if (data.loan_history?.length) {
-                    data.loan_history.forEach(loan => {
+                const paginationEl = document.getElementById('detail-loan-pagination');
+                const totalBadge = document.getElementById('detail-loan-total-badge');
+                const pagePrev = document.getElementById('loan-page-prev');
+                const pageNext = document.getElementById('loan-page-next');
+                const pageIndicator = document.getElementById('loan-page-indicator');
+
+                function renderLoansPage(page) {
+                    historyContainer.replaceChildren();
+
+                    if (!currentLoanList || currentLoanList.length === 0) {
+                        if (paginationEl) paginationEl.style.display = 'none';
+                        if (totalBadge) totalBadge.style.display = 'none';
+                        const empty = document.createElement('p');
+                        empty.className = 'account-loan-history-empty';
+                        empty.textContent = ['siswa', 'pegawai'].includes(data.role)
+                            ? 'Belum ada riwayat peminjaman.'
+                            : 'Akun ini tidak memiliki riwayat peminjaman.';
+                        historyContainer.append(empty);
+                        return;
+                    }
+
+                    const totalLoans = currentLoanList.length;
+                    const totalPages = Math.ceil(totalLoans / loansPerPage);
+                    currentLoanPage = Math.max(1, Math.min(page, totalPages));
+
+                    if (totalBadge) {
+                        totalBadge.textContent = `${totalLoans} Riwayat`;
+                        totalBadge.style.display = 'inline-block';
+                    }
+
+                    const startIndex = (currentLoanPage - 1) * loansPerPage;
+                    const pageLoans = currentLoanList.slice(startIndex, startIndex + loansPerPage);
+
+                    pageLoans.forEach(loan => {
                         const card = document.createElement('article');
                         card.className = 'account-loan-history-item';
                         const title = document.createElement('strong');
@@ -656,14 +704,42 @@ document.addEventListener('DOMContentLoaded', function () {
                         card.append(title, details, purpose, returned);
                         historyContainer.append(card);
                     });
-                } else {
-                    const empty = document.createElement('p');
-                    empty.className = 'account-loan-history-empty';
-                    empty.textContent = ['siswa', 'pegawai'].includes(data.role)
-                        ? 'Belum ada riwayat peminjaman.'
-                        : 'Akun ini tidak memiliki riwayat peminjaman.';
-                    historyContainer.append(empty);
+
+                    if (paginationEl) {
+                        if (totalPages > 1) {
+                            paginationEl.style.display = 'flex';
+                            if (pageIndicator) pageIndicator.textContent = `Halaman ${currentLoanPage} dari ${totalPages}`;
+                            if (pagePrev) {
+                                pagePrev.disabled = (currentLoanPage <= 1);
+                                pagePrev.style.opacity = currentLoanPage <= 1 ? '0.45' : '1';
+                                pagePrev.style.cursor = currentLoanPage <= 1 ? 'not-allowed' : 'pointer';
+                            }
+                            if (pageNext) {
+                                pageNext.disabled = (currentLoanPage >= totalPages);
+                                pageNext.style.opacity = currentLoanPage >= totalPages ? '0.45' : '1';
+                                pageNext.style.cursor = currentLoanPage >= totalPages ? 'not-allowed' : 'pointer';
+                            }
+                        } else {
+                            paginationEl.style.display = 'none';
+                        }
+                    }
                 }
+
+                if (pagePrev) {
+                    pagePrev.onclick = (e) => {
+                        e.preventDefault();
+                        if (currentLoanPage > 1) renderLoansPage(currentLoanPage - 1);
+                    };
+                }
+                if (pageNext) {
+                    pageNext.onclick = (e) => {
+                        e.preventDefault();
+                        const totalPages = Math.ceil(currentLoanList.length / loansPerPage);
+                        if (currentLoanPage < totalPages) renderLoansPage(currentLoanPage + 1);
+                    };
+                }
+
+                renderLoansPage(1);
 
                 const avatar = document.getElementById('detail-view-avatar');
                 const avatarPlaceholder = document.getElementById('detail-view-avatar-placeholder');

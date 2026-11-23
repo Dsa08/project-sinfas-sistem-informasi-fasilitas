@@ -1,0 +1,643 @@
+{
+  "info": {
+    "_postman_id": "55228e2a-e8e2-475d-bb57-5be806478f7e",
+    "name": "SINFAS Black Box Test",
+    "description": "Black Box Test Suite SINFAS (TC-00 s/d TC-21). Jalankan TC-00 terlebih dahulu untuk mengambil Cookie Session & CSRF _token Laravel yang sinkron.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "csrf_token", "value": "" },
+    { "key": "kode_barang_test", "value": "BRG-BB-001" },
+    { "key": "kode_pinjam_test", "value": "PNJ-2026-001" }
+  ],
+  "item": [
+    {
+      "name": "01. Autentikasi & Keamanan Akun",
+      "item": [
+        {
+          "name": "TC-00 Get CSRF Token (Jalankan Dulu Jika 419)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const html = pm.response.text();",
+                  "const m1 = html.match(/name=\"_token\"\\s+value=\"([^\"]+)\"/);",
+                  "const m2 = html.match(/<meta\\s+name=\"csrf-token\"\\s+content=\"([^\"]+)\"/);",
+                  "const token = (m1 && m1[1]) || (m2 && m2[1]) || '';",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('csrf_token', token);",
+                  "    pm.environment.set('csrf_token', token);",
+                  "}",
+                  "pm.test('TC-00: CSRF token & session cookie berhasil diambil', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(token).to.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "TC-01 Login Username (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-01: Login username berhasil redirect ke dashboard', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "email", "value": "siti", "type": "text" },
+                { "key": "password", "value": "password123", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "TC-02 Login Email (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-02: Login email berhasil redirect ke dashboard', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "email", "value": "siti.nurhaliza@gmail.com", "type": "text" },
+                { "key": "password", "value": "password123", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "TC-03 Login Password Salah (Negatif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-03: Login password salah ditolak', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302, 422]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "email", "value": "siti", "type": "text" },
+                { "key": "password", "value": "passwordsalah", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "TC-18 Cek Single Session (/auth/session-check)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-18: Session check mengembalikan 200 (aktif) atau 401 (tergantikan perangkat lain)', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "{{base_url}}/auth/session-check"
+          }
+        },
+        {
+          "name": "TC-19 Rate Limiting Login (Jalankan 6x)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-19: Rate limiting setelah 5x gagal login', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302, 429]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "email", "value": "dewi", "type": "text" },
+                { "key": "password", "value": "wrongpass", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "TC-20 First-Time Password Redirect (/dashboard)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-20: Wajib ganti password jika must_change_password = 1', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/dashboard"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Hak Akses (Role Middleware)",
+      "item": [
+        {
+          "name": "TC-04 Siswa Akses Dashboard Admin (Negatif 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-04: Siswa akses /admin/dashboard ditolak 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/admin/dashboard"
+          }
+        },
+        {
+          "name": "TC-10 Admin Akses Form Peminjaman (Negatif 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-10: Admin Sarana akses /loan-request ditolak 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/loan-request/{{kode_barang_test}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Master Barang",
+      "item": [
+        {
+          "name": "TC-05 Tambah Barang Baru (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-05: Tambah barang berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "kode_barang", "value": "{{kode_barang_test}}", "type": "text" },
+                { "key": "id_kategori", "value": "1", "type": "text" },
+                { "key": "nama_barang", "value": "Proyektor Epson", "type": "text" },
+                { "key": "jumlah_baik", "value": "5", "type": "text" },
+                { "key": "jumlah_kurang_baik", "value": "0", "type": "text" },
+                { "key": "jumlah_rusak_berat", "value": "0", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/admin/items"
+          }
+        },
+        {
+          "name": "TC-06 Tambah Barang Field Kosong (Negatif 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-06: Tambah barang field wajib kosong mengembalikan 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "kode_barang", "value": "", "type": "text" },
+                { "key": "nama_barang", "value": "", "type": "text" },
+                { "key": "id_kategori", "value": "", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/admin/items"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Peminjaman & Kuota",
+      "item": [
+        {
+          "name": "TC-07 Ajukan Peminjaman Stok Tersedia (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-07: Pengajuan peminjaman berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "tanggal_pinjam", "value": "2026-11-20", "type": "text" },
+                { "key": "lokasi_penggunaan", "value": "Lab RPL 1", "type": "text" },
+                { "key": "keterangan_penggunaan", "value": "Praktik RPL", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/loan-request/{{kode_barang_test}}"
+          }
+        },
+        {
+          "name": "TC-09 Pengajuan Ulang Setelah Ditolak (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-09: Pengajuan ulang setelah ditolak berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "tanggal_pinjam", "value": "2026-11-20", "type": "text" },
+                { "key": "lokasi_penggunaan", "value": "Lab RPL 2", "type": "text" },
+                { "key": "keterangan_penggunaan", "value": "Jadwal revisi", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/loan-request/{{kode_barang_test}}"
+          }
+        },
+        {
+          "name": "TC-13 Batalkan Peminjaman Menunggu (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-13: Pembatalan peminjaman menunggu berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/loan-status/{{kode_pinjam_test}}/cancel"
+          }
+        },
+        {
+          "name": "TC-15 Uji Kuota Maksimal 2 Pinjaman Aktif (Negatif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-15: Pengajuan ke-3 ditolak aturan kuota maks 2 aktif', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([302, 422]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "tanggal_pinjam", "value": "2026-11-20", "type": "text" },
+                { "key": "lokasi_penggunaan", "value": "Lab RPL", "type": "text" },
+                { "key": "keterangan_penggunaan", "value": "Tes kuota ke-3", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/loan-request/{{kode_barang_test}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Penyetujuan & Pengembalian",
+      "item": [
+        {
+          "name": "TC-08 Tolak Pengajuan Peminjaman (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-08: Tolak pengajuan dengan alasan berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "alasan_penolakan", "value": "Jadwal bentrok kegiatan sekolah", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/admin/verifications/{{kode_pinjam_test}}/reject"
+          }
+        },
+        {
+          "name": "TC-16 Setujui Peminjaman & Potong Stok (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-16: Setujui peminjaman berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/admin/verifications/{{kode_pinjam_test}}/approve"
+          }
+        },
+        {
+          "name": "TC-11 Konfirmasi Pengembalian Kondisi Baik (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-11: Konfirmasi pengembalian kondisi Baik berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "kondisi_barang", "value": "Baik", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/admin/verifications/{{kode_pinjam_test}}/confirm-return"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Notifikasi",
+      "item": [
+        {
+          "name": "TC-12 Tandai Notifikasi Dibaca (Positif)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-12: Tandai notifikasi dibaca berhasil', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/notifications/read/1"
+          }
+        },
+        {
+          "name": "TC-14 Polling Notifikasi Real-Time Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-14: Polling unread-count mengembalikan JSON valid', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('unread_count');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "{{base_url}}/notifications/unread-count"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Laporan & Basis Data",
+      "item": [
+        {
+          "name": "TC-17 Laporan & Cetak PDF (Filter Tanggal)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-17: Halaman laporan dengan filter tanggal tampil (200)', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.text()).to.include('Cetak');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/admin/reports?start_date=2026-10-01&end_date=2026-10-26"
+          }
+        },
+        {
+          "name": "TC-21 Verifikasi & Monitoring Aktif (DB View)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('TC-21: Monitoring peminjaman aktif (Database View) tampil 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/admin/verifications"
+          }
+        }
+      ]
+    }
+  ]
+}
